@@ -46,15 +46,15 @@ const loading = ref(false)
 const registered = ref(false)
 
 const schema = z.object({
-  firstName: z.string().default('').min(1, t('validation.required')),
-  lastName: z.string().default('').min(1, t('validation.required')),
-  email: z.string().default('').email(t('validation.email')),
-  password: z.string().default('')
+  firstName: z.string(t('validation.required')).min(1, t('validation.required')),
+  lastName: z.string(t('validation.required')).min(1, t('validation.required')),
+  email: z.email(t('validation.email')),
+  password: z.string(t('validation.required'))
     .min(8, t('validation.minLength', { min: 8 }))
     .regex(/[A-Z]/, t('validation.passwordComplexity'))
     .regex(/[a-z]/, t('validation.passwordComplexity'))
     .regex(/[0-9]/, t('validation.passwordComplexity')),
-  confirmPassword: z.string().default('').min(1, t('validation.required')),
+  confirmPassword: z.string(t('validation.required')).min(1, t('validation.required')),
 }).refine(data => data.password === data.confirmPassword, {
   message: t('validation.passwordMismatch'),
   path: ['confirmPassword'],

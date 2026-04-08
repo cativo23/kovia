@@ -43,8 +43,8 @@ const toast = useToast()
 const loading = ref(false)
 
 const schema = z.object({
-  email: z.string().default('').email(t('validation.email')),
-  password: z.string().default('').min(1, t('validation.required')),
+  email: z.email(t('validation.email')),
+  password: z.string(t('validation.required')).min(1, t('validation.required')),
 })
 
 const fields = computed(() => [

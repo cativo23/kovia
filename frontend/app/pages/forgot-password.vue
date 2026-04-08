@@ -41,7 +41,7 @@ const loading = ref(false)
 const sent = ref(false)
 
 const schema = z.object({
-  email: z.string().default('').email(t('validation.email')),
+  email: z.email(t('validation.email')),
 })
 
 const fields = computed(() => [
