@@ -15,7 +15,8 @@ describe('Auth Store', () => {
   describe('login', () => {
     it('calls POST /auth/login with credentials and stores accessToken and user', async () => {
       const mockUser = { id: '1', email: 'test@test.com', firstName: 'Test', lastName: 'User', role: 'ADOPTER', emailVerified: true }
-      mockFetch.mockResolvedValueOnce({ accessToken: 'test-token', user: mockUser })
+      mockFetch.mockResolvedValueOnce({ accessToken: 'test-token' }) // login response
+      mockFetch.mockResolvedValueOnce(mockUser) // fetchProfile response
 
       const store = useAuthStore()
       await store.login('test@test.com', 'password123')
@@ -31,7 +32,8 @@ describe('Auth Store', () => {
 
     it('sets isAuthenticated getter to true after successful login', async () => {
       const mockUser = { id: '1', email: 'test@test.com', firstName: 'Test', lastName: 'User', role: 'ADOPTER', emailVerified: true }
-      mockFetch.mockResolvedValueOnce({ accessToken: 'test-token', user: mockUser })
+      mockFetch.mockResolvedValueOnce({ accessToken: 'test-token' }) // login response
+      mockFetch.mockResolvedValueOnce(mockUser) // fetchProfile response
 
       const store = useAuthStore()
       expect(store.isAuthenticated).toBe(false)
@@ -52,7 +54,8 @@ describe('Auth Store', () => {
 
   describe('logout', () => {
     it('calls POST /auth/logout and clears accessToken and user', async () => {
-      mockFetch.mockResolvedValueOnce({ accessToken: 'token', user: { id: '1', email: 'a@b.com', firstName: 'A', lastName: 'B', role: 'ADOPTER', emailVerified: true } })
+      mockFetch.mockResolvedValueOnce({ accessToken: 'token' }) // login response
+      mockFetch.mockResolvedValueOnce({ id: '1', email: 'a@b.com', firstName: 'A', lastName: 'B', role: 'ADOPTER', emailVerified: true }) // fetchProfile
 
       const store = useAuthStore()
       await store.login('a@b.com', 'pass')
@@ -87,7 +90,8 @@ describe('Auth Store', () => {
   describe('verifyEmail', () => {
     it('calls POST /auth/verify-email and stores returned tokens (auto-login)', async () => {
       const mockUser = { id: '1', email: 'test@test.com', firstName: 'Test', lastName: 'User', role: 'ADOPTER', emailVerified: true }
-      mockFetch.mockResolvedValueOnce({ accessToken: 'verify-token', user: mockUser })
+      mockFetch.mockResolvedValueOnce({ accessToken: 'verify-token' }) // verify response
+      mockFetch.mockResolvedValueOnce(mockUser) // fetchProfile response
 
       const store = useAuthStore()
       await store.verifyEmail('magic-link-token')
@@ -105,14 +109,15 @@ describe('Auth Store', () => {
   describe('resetPassword', () => {
     it('calls POST /auth/reset-password and stores returned tokens (auto-login)', async () => {
       const mockUser = { id: '1', email: 'test@test.com', firstName: 'Test', lastName: 'User', role: 'ADOPTER', emailVerified: true }
-      mockFetch.mockResolvedValueOnce({ accessToken: 'reset-token', user: mockUser })
+      mockFetch.mockResolvedValueOnce({ accessToken: 'reset-token' }) // reset response
+      mockFetch.mockResolvedValueOnce(mockUser) // fetchProfile response
 
       const store = useAuthStore()
       await store.resetPassword('reset-link-token', 'NewPassword1')
 
       expect(mockFetch).toHaveBeenCalledWith('/auth/reset-password', expect.objectContaining({
         method: 'POST',
-        body: { token: 'reset-link-token', password: 'NewPassword1' },
+        body: { token: 'reset-link-token', newPassword: 'NewPassword1' },
         credentials: 'include',
       }))
       expect(store.accessToken).toBe('reset-token')

@@ -31,6 +31,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3001:3000"
+      - "24678:24678"
     volumes:
       - ./frontend:/app
       - /app/node_modules

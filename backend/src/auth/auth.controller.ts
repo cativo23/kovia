@@ -8,6 +8,7 @@ import {
   Res,
   HttpCode,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -115,7 +116,7 @@ export class AuthController {
   ) {
     const refreshToken = req.cookies?.['refresh_token'];
     if (!refreshToken) {
-      return res.status(401).json({ message: 'No refresh token provided' });
+      throw new UnauthorizedException('No refresh token provided');
     }
 
     // Decode to get userId without full verification (the service will verify)
