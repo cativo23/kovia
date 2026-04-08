@@ -2,11 +2,11 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
 
-  modules: [
-    '@nuxt/ui',
-    '@pinia/nuxt',
-    '@nuxtjs/i18n',
-  ],
+  modules: ['@nuxt/ui', '@pinia/nuxt', '@nuxtjs/i18n'],
+
+  icon: {
+    serverBundle: 'local',
+  },
 
   i18n: {
     locales: [
@@ -23,13 +23,13 @@ export default defineNuxtConfig({
     apiInternal: process.env.NUXT_API_INTERNAL || 'http://api:3000',
     public: {
       // Client-side: proxy through Nuxt to avoid CORS and third-party cookie issues
-      apiUrl: '/api',
+      apiUrl: '/api/v1',
     },
   },
 
   nitro: {
     routeRules: {
-      '/api/**': {
+      '/api/v1/**': {
         proxy: {
           to: (process.env.NUXT_API_INTERNAL || 'http://api:3000') + '/**',
         },
