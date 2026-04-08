@@ -41,12 +41,12 @@ const status = ref<'form' | 'expired'>('form')
 const token = route.query.token as string
 
 const schema = z.object({
-  password: z.string()
+  password: z.string().default('')
     .min(8, t('validation.minLength', { min: 8 }))
     .regex(/[A-Z]/, t('validation.passwordComplexity'))
     .regex(/[a-z]/, t('validation.passwordComplexity'))
     .regex(/[0-9]/, t('validation.passwordComplexity')),
-  confirmPassword: z.string().min(1, t('validation.required')),
+  confirmPassword: z.string().default('').min(1, t('validation.required')),
 }).refine(data => data.password === data.confirmPassword, {
   message: t('validation.passwordMismatch'),
   path: ['confirmPassword'],
