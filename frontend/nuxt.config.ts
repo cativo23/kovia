@@ -37,5 +37,13 @@ export default defineNuxtConfig({
     },
   },
 
+  vite: {
+    server: {
+      hmr: {
+        clientPort: 3001,
+      },
+    },
+  },
+
   devtools: { enabled: true },
 });
