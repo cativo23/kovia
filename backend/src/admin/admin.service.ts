@@ -4,7 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { randomBytes } from 'crypto';
-import { PrismaService } from '../prisma/prisma.service';
+import { Inject } from '@nestjs/common';
+import { PRISMA_RLS } from '../prisma/prisma.module';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
 import { CreateInviteDto } from './dto/create-invite.dto';
@@ -14,7 +15,7 @@ const SYSTEM_USER_ID = 'system';
 @Injectable()
 export class AdminService {
   constructor(
-    private readonly prisma: PrismaService,
+    @Inject(PRISMA_RLS) private readonly prisma: any,
     private readonly auditService: AuditService,
     private readonly mailService: MailService,
   ) {}

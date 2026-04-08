@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable, Inject } from '@nestjs/common';
+import { PRISMA_RLS } from '../prisma/prisma.module';
 
 @Injectable()
 export class AuditService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PRISMA_RLS) private readonly prisma: any) {}
 
   async log(action: string, userId: string, details?: Record<string, unknown>) {
     return this.prisma.auditLog.create({

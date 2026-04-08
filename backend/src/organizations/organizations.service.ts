@@ -4,13 +4,14 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Inject } from '@nestjs/common';
+import { PRISMA_RLS } from '../prisma/prisma.module';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 
 @Injectable()
 export class OrganizationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PRISMA_RLS) private readonly prisma: any) {}
 
   async acceptInvite(token: string) {
     const invite = await this.prisma.orgInvite.findUnique({
