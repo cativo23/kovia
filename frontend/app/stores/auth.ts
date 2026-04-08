@@ -43,14 +43,14 @@ export const useAuthStore = defineStore('auth', {
 
     async login(email: string, password: string) {
       const config = useRuntimeConfig()
-      const response = await $fetch<{ accessToken: string, user: User }>('/auth/login', {
+      const response = await $fetch<{ accessToken: string }>('/auth/login', {
         method: 'POST',
         baseURL: config.public.apiUrl as string,
         body: { email, password },
         credentials: 'include', // Sends/receives httpOnly refresh cookie
       })
       this.accessToken = response.accessToken
-      this.user = response.user
+      await this.fetchProfile()
     },
 
     loginWithGoogle() {
@@ -70,14 +70,14 @@ export const useAuthStore = defineStore('auth', {
 
     async verifyEmail(token: string) {
       const config = useRuntimeConfig()
-      const response = await $fetch<{ accessToken: string, user: User }>('/auth/verify-email', {
+      const response = await $fetch<{ accessToken: string }>('/auth/verify-email', {
         method: 'POST',
         baseURL: config.public.apiUrl as string,
         body: { token },
         credentials: 'include',
       })
       this.accessToken = response.accessToken
-      this.user = response.user
+      await this.fetchProfile()
     },
 
     async forgotPassword(email: string) {
@@ -91,14 +91,14 @@ export const useAuthStore = defineStore('auth', {
 
     async resetPassword(token: string, password: string) {
       const config = useRuntimeConfig()
-      const response = await $fetch<{ accessToken: string, user: User }>('/auth/reset-password', {
+      const response = await $fetch<{ accessToken: string }>('/auth/reset-password', {
         method: 'POST',
         baseURL: config.public.apiUrl as string,
-        body: { token, password },
+        body: { token, newPassword: password },
         credentials: 'include',
       })
       this.accessToken = response.accessToken
-      this.user = response.user
+      await this.fetchProfile()
     },
 
     async refreshToken() {
@@ -127,17 +127,21 @@ export const useAuthStore = defineStore('auth', {
       await navigateTo('/login')
     },
 
+    async fetchProfile() {
+      const config = useRuntimeConfig()
+      const user = await $fetch<User>('/auth/me', {
+        baseURL: config.public.apiUrl as string,
+        headers: { Authorization: `Bearer ${this.accessToken}` },
+        credentials: 'include',
+      })
+      this.user = user
+    },
+
     async initialize() {
       if (this.isInitialized) return
       try {
         await this.refreshToken()
-        // Fetch user profile after successful refresh
-        const config = useRuntimeConfig()
-        const user = await $fetch<User>('/auth/me', {
-          baseURL: config.public.apiUrl as string,
-          headers: { Authorization: `Bearer ${this.accessToken}` },
-        })
-        this.user = user
+        await this.fetchProfile()
       }
       catch {
         // Silent failure: no valid refresh token, user stays logged out

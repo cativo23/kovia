@@ -19,9 +19,13 @@ async function bootstrap() {
     }),
   );
 
-  // CORS for frontend
+  // CORS for frontend (allow both host and Docker-internal origins)
+  const corsOrigins = [
+    process.env.APP_URL || 'http://localhost:3001',
+    'http://localhost:3000', // Docker-internal web container origin (E2E tests)
+  ];
   app.enableCors({
-    origin: process.env.APP_URL || 'http://localhost:3001',
+    origin: corsOrigins,
     credentials: true,
   });
 

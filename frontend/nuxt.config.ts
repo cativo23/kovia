@@ -19,8 +19,21 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    // Server-side only: internal API URL for SSR requests
+    apiInternal: process.env.NUXT_API_INTERNAL || 'http://api:3000',
     public: {
-      apiUrl: process.env.NUXT_PUBLIC_API_URL || 'http://localhost:3000',
+      // Client-side: proxy through Nuxt to avoid CORS and third-party cookie issues
+      apiUrl: '/api',
+    },
+  },
+
+  nitro: {
+    routeRules: {
+      '/api/**': {
+        proxy: {
+          to: (process.env.NUXT_API_INTERNAL || 'http://api:3000') + '/**',
+        },
+      },
     },
   },
 

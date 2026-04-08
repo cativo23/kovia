@@ -237,6 +237,19 @@ export class AuthService {
     return { message: 'Se ha enviado un nuevo enlace de verificacion' };
   }
 
+  async getProfile(userId: string) {
+    const user = await this.usersService.findById(userId);
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      emailVerified: user.emailVerified,
+      organizationId: user.organizationId ?? null,
+    };
+  }
+
   async logout(userId: string) {
     await this.prisma.refreshToken.deleteMany({
       where: { userId },
