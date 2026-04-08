@@ -68,6 +68,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: SWC builder with typeCheck disabled for Prisma 7 ESM/CJS compatibility
 - [Phase 01-foundation]: Redis host port 6380 to avoid host conflict
 - [Phase 01-foundation]: Skipped @nuxt/test-utils (workspace: protocol); using vitest + happy-dom directly
+- [Phase 01-foundation]: HandlebarsAdapter import from @nestjs-modules/mailer/adapters/ (ESM exports)
+- [Phase 01-foundation]: Template dir via process.cwd() to avoid SWC __dirname mismatch
+- [Phase 01-foundation]: Auth RLS policies for unauthenticated operations (register, login, verify)
 - [Phase 01-foundation]: Access token in Pinia memory only (never localStorage) for security
 - [Phase 01-foundation]: Zod for form validation (Standard Schema v1 compatible with Nuxt UI v4)
 - [Phase 01-foundation]: Nuxt UI v4 AuthForm component for auth pages with OAuth providers

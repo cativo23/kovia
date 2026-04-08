@@ -109,7 +109,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/5 | Planning complete | - |
+| 1. Foundation | 3/5 | In Progress|  |
 | 2. Animals and Public Listings | 0/3 | Not started | - |
 | 3. Adoption Applications | 0/2 | Not started | - |
 | 4. Scoring and Staff Tools | 0/3 | Not started | - |
