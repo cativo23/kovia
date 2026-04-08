@@ -30,13 +30,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Platform admin can invite an organization, org admin onboards via invite link, and the org has a profile page
   4. Data created by one organization is invisible to another organization (RLS enforced)
   5. The entire stack runs locally via `docker compose up` with Spanish as the default UI language
-**Plans**: 4 plans
+**Plans**: 5 plans
 
 Plans:
 - [ ] 01-01-PLAN.md — Docker Compose infrastructure, NestJS + Nuxt scaffold, Prisma schema with RLS
 - [ ] 01-02-PLAN.md — Auth backend: register, verify, login, reset, refresh, Google OAuth, email queue
-- [ ] 01-03-PLAN.md — Auth frontend: pages, Pinia store, API client, layouts, i18n
+- [ ] 01-03-PLAN.md — Auth frontend: pages, Pinia store, API client, layouts, i18n, frontend unit tests
 - [ ] 01-04-PLAN.md — Org management, admin panel, invite flow, audit log, RLS integration tests
+- [ ] 01-05-PLAN.md — E2E tests: Playwright auth flows (frontend) + backend auth E2E specs
 
 ### Phase 2: Animals and Public Listings
 **Goal**: Rescue staff can manage animal profiles with photos, and anyone on the internet can browse available animals without an account
@@ -108,7 +109,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/4 | Planning complete | - |
+| 1. Foundation | 0/5 | Planning complete | - |
 | 2. Animals and Public Listings | 0/3 | Not started | - |
 | 3. Adoption Applications | 0/2 | Not started | - |
 | 4. Scoring and Staff Tools | 0/3 | Not started | - |
