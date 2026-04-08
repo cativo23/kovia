@@ -5,6 +5,12 @@
   "compilerOptions": {
     "builder": "swc",
     "typeCheck": false,
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "assets": [
+      {
+        "include": "mail/templates/**/*.hbs",
+        "outDir": "dist"
+      }
+    ]
   }
 }
