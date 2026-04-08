@@ -74,15 +74,16 @@ const user = computed(() => authStore.user)
 
 const navItems = computed(() => [
   { to: '/admin', label: t('admin.dashboard'), icon: 'i-lucide-layout-dashboard' },
-  { to: '/admin/orgs', label: t('admin.orgs'), icon: 'i-lucide-building-2' },
-  { to: '/admin/users', label: t('admin.users'), icon: 'i-lucide-users' },
-  { to: '/admin/invites', label: t('admin.invites'), icon: 'i-lucide-mail' },
+  { to: '/admin/orgs', label: t('admin.orgs.title'), icon: 'i-lucide-building-2' },
+  { to: '/admin/users', label: t('admin.users.title'), icon: 'i-lucide-users' },
+  { to: '/admin/invites', label: t('admin.invites.title'), icon: 'i-lucide-mail' },
 ])
 
 const userMenuItems = computed(() => [
   [{
     label: t('nav.profile'),
     icon: 'i-lucide-user',
+    to: '/',
   }],
   [{
     label: t('nav.logout'),

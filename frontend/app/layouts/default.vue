@@ -69,6 +69,7 @@ const userMenuItems = computed(() => [
   [{
     label: t('nav.profile'),
     icon: 'i-lucide-user',
+    to: '/',
   }],
   [{
     label: t('nav.admin'),

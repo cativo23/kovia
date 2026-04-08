@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { ClsModule } from 'nestjs-cls';
-import { APP_GUARD, APP_FILTER } from '@nestjs/core';
+import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
-import { TenantModule } from './tenant/tenant.module';
+import { TenantInterceptor } from './tenant/tenant.interceptor';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { OrganizationsModule } from './organizations/organizations.module';
@@ -37,7 +37,6 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
       },
     }),
     PrismaModule,
-    TenantModule,
     AuthModule,
     AuditModule,
     AdminModule,
@@ -53,6 +52,10 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TenantInterceptor,
     },
     {
       provide: APP_FILTER,
