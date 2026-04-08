@@ -102,8 +102,8 @@ ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_userId_fkey" FOREIGN KEY ("u
 -- Enable Row-Level Security on tenant-scoped tables
 ALTER TABLE "users" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "organizations" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "org_invites" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "audit_logs" ENABLE ROW LEVEL SECURITY;
+-- org_invites and audit_logs are platform-level (no org_id) — no RLS needed
+-- Access is enforced at application level via @Roles(PLATFORM_ADMIN) guard
 
 -- Grant app_user access to schema and tables
 GRANT USAGE ON SCHEMA public TO app_user;
@@ -130,10 +130,4 @@ CREATE POLICY owner_isolation ON "users"
 CREATE POLICY admin_full_access ON "users"
   USING (current_setting('app.is_admin', true) = 'true');
 
--- RLS Policies for org_invites: admin full access
-CREATE POLICY admin_full_access ON "org_invites"
-  USING (current_setting('app.is_admin', true) = 'true');
-
--- RLS Policies for audit_logs: admin full access
-CREATE POLICY admin_full_access ON "audit_logs"
-  USING (current_setting('app.is_admin', true) = 'true');
+-- org_invites and audit_logs: no RLS policies (platform-level tables, guarded by @Roles)
