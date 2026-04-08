@@ -1,1 +1,35 @@
 .planning/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.nuxt/
+.output/
+
+# Generated
+backend/src/generated/prisma/
+
+# Environment
+.env
+
+# Coverage
+coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+pgdata/
+
+# Logs
+*.log
+npm-debug.log*

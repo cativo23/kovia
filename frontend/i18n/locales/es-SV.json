@@ -1,0 +1,43 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "confirm": "Confirmar",
+    "back": "Volver",
+    "error": "Ocurrio un error"
+  },
+  "auth": {
+    "login": "Iniciar sesion",
+    "register": "Crear cuenta",
+    "logout": "Cerrar sesion",
+    "email": "Correo electronico",
+    "password": "Contrasena",
+    "forgotPassword": "Olvide mi contrasena",
+    "resetPassword": "Restablecer contrasena",
+    "verifyEmail": "Verificar correo",
+    "googleLogin": "Continuar con Google",
+    "linkExpired": "Este enlace ha expirado",
+    "resendLink": "Enviar nuevo enlace"
+  },
+  "org": {
+    "profile": "Perfil de la organizacion",
+    "name": "Nombre",
+    "description": "Descripcion",
+    "contactEmail": "Correo de contacto",
+    "phone": "Telefono"
+  },
+  "admin": {
+    "dashboard": "Panel de administracion",
+    "orgs": "Organizaciones",
+    "users": "Usuarios",
+    "invites": "Invitaciones",
+    "stats": "Estadisticas"
+  },
+  "landing": {
+    "title": "Kovia",
+    "subtitle": "Plataforma inteligente de adopcion de mascotas",
+    "cta": "Empezar"
+  }
+}
