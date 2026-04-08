@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-04-08T21:01:13.425Z"
-last_activity: 2026-04-08 -- Completed 01-03-PLAN.md
+stopped_at: Completed 01-05-PLAN.md
+last_updated: "2026-04-08T21:47:04.786Z"
+last_activity: 2026-04-08 -- Completed 01-05-PLAN.md
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 5
-  completed_plans: 2
-  percent: 40
+  completed_plans: 4
+  percent: 80
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-08)
 ## Current Position
 
 Phase: 1 of 5 (Foundation)
-Plan: 3 of 5 in current phase
+Plan: 5 of 5 in current phase
 Status: Executing
-Last activity: 2026-04-08 -- Completed 01-03-PLAN.md
+Last activity: 2026-04-08 -- Completed 01-05-PLAN.md
 
-Progress: [####......] 40%
+Progress: [########..] 80%
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Progress: [####......] 40%
 | Phase 01-foundation P01 | 41min | 2 tasks | 37 files |
 | Phase 01-foundation P02 | 8min | 2 tasks | 37 files |
 | Phase 01-foundation P03 | 8min | 3 tasks | 23 files |
+| Phase 01-foundation P05 | 31min | 2 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: Access token in Pinia memory only (never localStorage) for security
 - [Phase 01-foundation]: Zod for form validation (Standard Schema v1 compatible with Nuxt UI v4)
 - [Phase 01-foundation]: Nuxt UI v4 AuthForm component for auth pages with OAuth providers
+- [Phase 01-foundation]: Nitro /api/** proxy to backend for same-origin cookies in Docker
+- [Phase 01-foundation]: Auth plugin for global session restore on every page load
+- [Phase 01-foundation]: Auth store fetchProfile() after login/verify/reset (backend returns accessToken only)
 
 ### Pending Todos
 
@@ -85,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-08T21:01:13.423Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-04-08T21:47:04.785Z
+Stopped at: Completed 01-05-PLAN.md
 Resume file: None
