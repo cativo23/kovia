@@ -39,15 +39,7 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
-  $development: {
-    vite: {
-      server: {
-        hmr: {
-          host: '0.0.0.0',
-          port: 24678,
-          clientPort: 24678,
-        },
-      },
-    },
-  },
+  css: [
+    '~/assets/css/main.css',
+  ],
 });
