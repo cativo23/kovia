@@ -165,8 +165,7 @@ async function createInvite() {
   creating.value = true
   try {
     const result = await post<any>('/admin/invites', inviteForm)
-    const config = useRuntimeConfig()
-    createdInviteLink.value = `${config.public.apiUrl.replace('/api', '').replace(':3000', ':3001')}/invite/${result.token}`
+    createdInviteLink.value = `${window.location.origin}/invite/${result.token}`
     inviteForm.email = ''
     inviteForm.orgName = ''
     showCreateModal.value = false

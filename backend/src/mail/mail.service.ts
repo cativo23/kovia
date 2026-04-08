@@ -56,7 +56,7 @@ export class MailService {
       template: 'org-invite',
       context: {
         orgName,
-        inviteUrl: `${appUrl}/invite?token=${token}`,
+        inviteUrl: `${appUrl}/invite/${token}`,
       },
     });
   }
