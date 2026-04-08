@@ -8,6 +8,9 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { TenantModule } from './tenant/tenant.module';
 import { AuthModule } from './auth/auth.module';
+import { AdminModule } from './admin/admin.module';
+import { OrganizationsModule } from './organizations/organizations.module';
+import { AuditModule } from './audit/audit.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -36,6 +39,9 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     PrismaModule,
     TenantModule,
     AuthModule,
+    AuditModule,
+    AdminModule,
+    OrganizationsModule,
   ],
   controllers: [AppController],
   providers: [
