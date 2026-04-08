@@ -10,7 +10,6 @@ import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
 import { CreateInviteDto } from './dto/create-invite.dto';
 
-const SYSTEM_USER_ID = 'system';
 
 @Injectable()
 export class AdminService {
@@ -20,7 +19,7 @@ export class AdminService {
     private readonly mailService: MailService,
   ) {}
 
-  async createInvite(dto: CreateInviteDto) {
+  async createInvite(dto: CreateInviteDto, userId: string) {
     // Check for existing pending invite with same email
     const existing = await this.prisma.orgInvite.findFirst({
       where: {
@@ -49,7 +48,7 @@ export class AdminService {
     });
 
     await this.mailService.sendOrgInviteEmail(dto.email, token, dto.orgName);
-    await this.auditService.log('org_invited', SYSTEM_USER_ID, {
+    await this.auditService.log('org_invited', userId, {
       email: dto.email,
       orgName: dto.orgName,
       inviteId: invite.id,
@@ -69,7 +68,7 @@ export class AdminService {
     }));
   }
 
-  async resendInvite(inviteId: string) {
+  async resendInvite(inviteId: string, userId: string) {
     const invite = await this.prisma.orgInvite.findUnique({
       where: { id: inviteId },
     });
@@ -91,7 +90,7 @@ export class AdminService {
       token,
       invite.orgName,
     );
-    await this.auditService.log('invite_resent', SYSTEM_USER_ID, {
+    await this.auditService.log('invite_resent', userId, {
       inviteId,
       email: invite.email,
     });
@@ -120,14 +119,14 @@ export class AdminService {
     });
   }
 
-  async updateOrgStatus(orgId: string, status: string) {
+  async updateOrgStatus(orgId: string, status: string, userId: string) {
     const result = await this.prisma.organization.update({
       where: { id: orgId },
       data: { status: status as any },
     });
 
     const action = status === 'ACTIVE' ? 'org_reactivated' : 'org_deactivated';
-    await this.auditService.log(action, SYSTEM_USER_ID, { orgId, status });
+    await this.auditService.log(action, userId, { orgId, status });
 
     return result;
   }
@@ -149,31 +148,31 @@ export class AdminService {
     return { data, total, page, limit };
   }
 
-  async deactivateUser(userId: string) {
+  async deactivateUser(targetUserId: string, userId: string) {
     await this.prisma.user.update({
-      where: { id: userId },
+      where: { id: targetUserId },
       data: { isActive: false },
     });
 
-    await this.auditService.log('user_deactivated', SYSTEM_USER_ID, {
-      userId,
+    await this.auditService.log('user_deactivated', userId, {
+      targetUserId,
     });
   }
 
-  async reactivateUser(userId: string) {
+  async reactivateUser(targetUserId: string, userId: string) {
     await this.prisma.user.update({
-      where: { id: userId },
+      where: { id: targetUserId },
       data: { isActive: true },
     });
 
-    await this.auditService.log('user_reactivated', SYSTEM_USER_ID, {
-      userId,
+    await this.auditService.log('user_reactivated', userId, {
+      targetUserId,
     });
   }
 
-  async deleteUser(userId: string) {
+  async deleteUser(targetUserId: string, userId: string) {
     const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: targetUserId },
     });
 
     if (!user) {
@@ -181,11 +180,11 @@ export class AdminService {
     }
 
     await this.prisma.user.delete({
-      where: { id: userId },
+      where: { id: targetUserId },
     });
 
-    await this.auditService.log('user_deleted', SYSTEM_USER_ID, {
-      userId,
+    await this.auditService.log('user_deleted', userId, {
+      targetUserId,
       email: user.email,
     });
   }

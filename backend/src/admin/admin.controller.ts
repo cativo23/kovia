@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -31,8 +32,8 @@ export class AdminController {
 
   @Post('invites')
   @ApiOperation({ summary: 'Create org invite' })
-  createInvite(@Body() dto: CreateInviteDto) {
-    return this.adminService.createInvite(dto);
+  createInvite(@Body() dto: CreateInviteDto, @CurrentUser('id') userId: string) {
+    return this.adminService.createInvite(dto, userId);
   }
 
   @Get('invites')
@@ -43,8 +44,8 @@ export class AdminController {
 
   @Post('invites/:id/resend')
   @ApiOperation({ summary: 'Resend invite email' })
-  resendInvite(@Param('id') id: string) {
-    return this.adminService.resendInvite(id);
+  resendInvite(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    return this.adminService.resendInvite(id, userId);
   }
 
   @Delete('invites/:id')
@@ -61,8 +62,8 @@ export class AdminController {
 
   @Patch('orgs/:id/status')
   @ApiOperation({ summary: 'Update organization status' })
-  updateOrgStatus(@Param('id') id: string, @Body() dto: UpdateOrgStatusDto) {
-    return this.adminService.updateOrgStatus(id, dto.status);
+  updateOrgStatus(@Param('id') id: string, @Body() dto: UpdateOrgStatusDto, @CurrentUser('id') userId: string) {
+    return this.adminService.updateOrgStatus(id, dto.status, userId);
   }
 
   @Get('users')
@@ -81,17 +82,18 @@ export class AdminController {
   updateUserStatus(
     @Param('id') id: string,
     @Body() dto: UpdateUserStatusDto,
+    @CurrentUser('id') userId: string,
   ) {
     if (dto.isActive) {
-      return this.adminService.reactivateUser(id);
+      return this.adminService.reactivateUser(id, userId);
     }
-    return this.adminService.deactivateUser(id);
+    return this.adminService.deactivateUser(id, userId);
   }
 
   @Delete('users/:id')
   @ApiOperation({ summary: 'Permanently delete user' })
-  deleteUser(@Param('id') id: string) {
-    return this.adminService.deleteUser(id);
+  deleteUser(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    return this.adminService.deleteUser(id, userId);
   }
 
   @Get('stats')
