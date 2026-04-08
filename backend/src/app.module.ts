@@ -4,6 +4,8 @@ import { BullModule } from '@nestjs/bullmq';
 import { ClsModule } from 'nestjs-cls';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { PrismaModule } from './prisma/prisma.module';
+import { TenantModule } from './tenant/tenant.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { AppService } from './app.service';
           : 6379,
       },
     }),
+    PrismaModule,
+    TenantModule,
   ],
   controllers: [AppController],
   providers: [AppService],
