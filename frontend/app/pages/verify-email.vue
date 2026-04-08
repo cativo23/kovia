@@ -64,7 +64,12 @@ onMounted(async () => {
     await authStore.verifyEmail(token)
     status.value = 'success'
     setTimeout(() => {
-      navigateTo('/')
+      const inviteToken = import.meta.client ? sessionStorage.getItem('inviteToken') : null
+      if (inviteToken) {
+        navigateTo('/org/setup')
+      } else {
+        navigateTo('/')
+      }
     }, 2000)
   }
   catch (error: any) {
