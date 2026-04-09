@@ -63,9 +63,21 @@ onMounted(async () => {
   try {
     await authStore.verifyEmail(token)
     status.value = 'success'
-    setTimeout(() => {
+    setTimeout(async () => {
       const inviteToken = import.meta.client ? sessionStorage.getItem('inviteToken') : null
       if (inviteToken) {
+        try {
+          const config = useRuntimeConfig()
+          await $fetch('/organizations/claim-invite', {
+            method: 'POST',
+            baseURL: config.public.apiUrl as string,
+            body: { token: inviteToken },
+            headers: { Authorization: `Bearer ${authStore.accessToken}` },
+          })
+          await authStore.fetchProfile()
+        } catch {
+          // If claim fails, still redirect to setup — it will show error
+        }
         navigateTo('/org/setup')
       } else {
         navigateTo('/')

@@ -116,8 +116,21 @@ async function validateInvite() {
   }
 }
 
-function goToSetup() {
-  navigateTo('/org/setup')
+async function goToSetup() {
+  try {
+    const config = useRuntimeConfig()
+    await $fetch('/organizations/claim-invite', {
+      method: 'POST',
+      baseURL: config.public.apiUrl as string,
+      body: { token: token.value },
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+    })
+    // Refresh profile to get updated role
+    await authStore.fetchProfile()
+    await navigateTo('/org/setup')
+  } catch {
+    invalid.value = true
+  }
 }
 
 function goToRegister() {

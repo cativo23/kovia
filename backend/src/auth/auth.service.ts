@@ -239,6 +239,10 @@ export class AuthService {
 
   async getProfile(userId: string) {
     const user = await this.usersService.findById(userId);
+    const org = await this.prisma.organization.findFirst({
+      where: { adminId: userId },
+      select: { id: true },
+    });
     return {
       id: user.id,
       email: user.email,
@@ -246,7 +250,7 @@ export class AuthService {
       lastName: user.lastName,
       role: user.role,
       emailVerified: user.emailVerified,
-      organizationId: user.organizationId ?? null,
+      organizationId: org?.id ?? null,
     };
   }
 

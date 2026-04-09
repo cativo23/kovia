@@ -28,14 +28,25 @@ export class OrganizationsController {
     return this.organizationsService.acceptInvite(token);
   }
 
-  @Post()
+  @Post('claim-invite')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create organization (after invite acceptance)' })
-  create(
-    @Body() dto: CreateOrganizationDto & { inviteToken: string },
+  @ApiOperation({ summary: 'Claim invite — sets user to ORG_ADMIN and marks invite accepted' })
+  claimInvite(
+    @Body('token') token: string,
     @CurrentUser() user: { id: string },
   ) {
-    return this.organizationsService.create(dto, user.id, dto.inviteToken);
+    return this.organizationsService.claimInvite(token, user.id);
+  }
+
+  @Post()
+  @ApiBearerAuth()
+  @Roles('ORG_ADMIN')
+  @ApiOperation({ summary: 'Create organization profile' })
+  create(
+    @Body() dto: CreateOrganizationDto,
+    @CurrentUser() user: { id: string },
+  ) {
+    return this.organizationsService.create(dto, user.id);
   }
 
   @Patch(':id')

@@ -33,7 +33,25 @@ export class OrganizationsService {
     return invite;
   }
 
-  async create(dto: CreateOrganizationDto, userId: string, inviteToken: string) {
+  async claimInvite(token: string, userId: string) {
+    const invite = await this.acceptInvite(token);
+
+    // Set user role to ORG_ADMIN
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { role: 'ORG_ADMIN' as any },
+    });
+
+    // Mark invite as accepted
+    await this.prisma.orgInvite.update({
+      where: { token },
+      data: { acceptedAt: new Date() },
+    });
+
+    return invite;
+  }
+
+  async create(dto: CreateOrganizationDto, userId: string) {
     const slug = await this.generateSlug(dto.name);
 
     const org = await this.prisma.organization.create({
@@ -49,18 +67,6 @@ export class OrganizationsService {
         whatsapp: dto.whatsapp,
         adminId: userId,
       },
-    });
-
-    // Update user role to ORG_ADMIN
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { role: 'ORG_ADMIN' as any },
-    });
-
-    // Mark invite as accepted
-    await this.prisma.orgInvite.update({
-      where: { token: inviteToken },
-      data: { acceptedAt: new Date() },
     });
 
     return org;

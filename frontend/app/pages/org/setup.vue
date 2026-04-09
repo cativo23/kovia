@@ -136,19 +136,8 @@ async function submitOrg() {
   submitting.value = true
   error.value = ''
 
-  const inviteToken = import.meta.client ? sessionStorage.getItem('inviteToken') : null
-
-  if (!inviteToken) {
-    error.value = t('org.setup.noInviteToken')
-    submitting.value = false
-    return
-  }
-
   try {
-    await post('/organizations', {
-      ...form,
-      inviteToken,
-    })
+    await post('/organizations', form)
 
     // Clean up session storage
     if (import.meta.client) {

@@ -33,6 +33,13 @@
             variant="subtle"
           />
         </template>
+        <template #organization-cell="{ row }">
+          <template v-if="row.original.role === 'ORG_ADMIN'">
+            <UBadge v-if="row.original.organization" color="success" :label="row.original.organization.name" variant="subtle" />
+            <UBadge v-else color="warning" label="Sin organizacion" variant="subtle" />
+          </template>
+          <span v-else class="text-gray-400">—</span>
+        </template>
         <template #isActive-cell="{ row }">
           <UBadge
             :color="row.original.isActive ? 'success' : 'error'"
@@ -104,7 +111,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
-const { get, post, del } = useApi()
+const { get, patch, del } = useApi()
 const toast = useToast()
 
 const users = ref<any[]>([])
@@ -148,6 +155,7 @@ const columns = [
   { accessorKey: 'lastName', header: t('auth.lastName') },
   { accessorKey: 'email', header: t('auth.email') },
   { accessorKey: 'role', header: t('admin.users.role') },
+  { accessorKey: 'organization', header: t('admin.orgs.title') },
   { accessorKey: 'isActive', header: t('common.status') },
   { accessorKey: 'createdAt', header: t('admin.users.createdAt') },
   { accessorKey: 'actions', header: t('common.actions') },
@@ -192,7 +200,7 @@ async function loadUsers() {
 
 async function toggleUserStatus(user: any) {
   try {
-    await post(`/admin/users/${user.id}/status`, { isActive: !user.isActive })
+    await patch(`/admin/users/${user.id}/status`, { isActive: !user.isActive })
     toast.add({
       title: user.isActive ? t('admin.users.deactivateSuccess') : t('admin.users.reactivateSuccess'),
       color: 'success',

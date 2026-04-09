@@ -16,6 +16,10 @@ export function useApi() {
     return api<T>(url, { ...options, method: 'PUT', body })
   }
 
+  async function patch<T>(url: string, body?: unknown, options?: FetchOptions) {
+    return api<T>(url, { ...options, method: 'PATCH', body })
+  }
+
   async function del<T>(url: string, options?: FetchOptions) {
     return api<T>(url, { ...options, method: 'DELETE' })
   }
@@ -24,6 +28,7 @@ export function useApi() {
     get,
     post,
     put,
+    patch,
     del,
     api,
   }
