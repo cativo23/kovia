@@ -12,6 +12,6 @@ export default defineNuxtRouteMiddleware(async () => {
   }
 
   if (!authStore.isAdmin) {
-    return navigateTo('/')
+    return navigateTo({ path: '/', query: { denied: '1' } })
   }
 })

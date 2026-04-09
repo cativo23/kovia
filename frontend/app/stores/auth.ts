@@ -103,12 +103,8 @@ export const useAuthStore = defineStore('auth', {
 
     async refreshToken() {
       const config = useRuntimeConfig()
-      const response = await $fetch<{ accessToken: string }>('/auth/refresh', {
-        method: 'POST',
-        baseURL: config.public.apiUrl as string,
-        credentials: 'include', // Send httpOnly refresh cookie
-      })
-      this.accessToken = response.accessToken
+      const event = import.meta.server ? useRequestEvent() : null
+      await this._refreshToken(config, event)
     },
 
     async logout() {
@@ -118,6 +114,7 @@ export const useAuthStore = defineStore('auth', {
           method: 'POST',
           baseURL: config.public.apiUrl as string,
           credentials: 'include',
+          headers: { Authorization: `Bearer ${this.accessToken}` },
         })
       }
       catch {
@@ -129,19 +126,17 @@ export const useAuthStore = defineStore('auth', {
 
     async fetchProfile() {
       const config = useRuntimeConfig()
-      const user = await $fetch<User>('/auth/me', {
-        baseURL: config.public.apiUrl as string,
-        headers: { Authorization: `Bearer ${this.accessToken}` },
-        credentials: 'include',
-      })
-      this.user = user
+      await this._fetchProfile(config)
     },
 
     async initialize() {
       if (this.isInitialized) return
+      // Capture composables before any await (required for SSR context)
+      const config = useRuntimeConfig()
+      const event = import.meta.server ? useRequestEvent() : null
       try {
-        await this.refreshToken()
-        await this.fetchProfile()
+        await this._refreshToken(config, event)
+        await this._fetchProfile(config)
       }
       catch {
         // Silent failure: no valid refresh token, user stays logged out
@@ -151,6 +146,29 @@ export const useAuthStore = defineStore('auth', {
       finally {
         this.isInitialized = true
       }
+    },
+
+    async _refreshToken(config: ReturnType<typeof useRuntimeConfig>, event: any) {
+      const headers: Record<string, string> = {}
+      if (import.meta.server && event) {
+        const cookie = event.node.req.headers.cookie
+        if (cookie) headers.cookie = cookie
+      }
+      const response = await $fetch<{ accessToken: string }>('/auth/refresh', {
+        method: 'POST',
+        baseURL: config.public.apiUrl as string,
+        credentials: 'include',
+        headers,
+      })
+      this.accessToken = response.accessToken
+    },
+
+    async _fetchProfile(config: ReturnType<typeof useRuntimeConfig>) {
+      const user = await $fetch<User>('/auth/me', {
+        baseURL: config.public.apiUrl as string,
+        headers: { Authorization: `Bearer ${this.accessToken}` },
+      })
+      this.user = user
     },
   },
 })

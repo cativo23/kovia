@@ -28,9 +28,23 @@
 import { useAuthStore } from '~/stores/auth'
 
 const authStore = useAuthStore()
+const route = useRoute()
+const toast = useToast()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const user = computed(() => authStore.user)
 const userRole = computed(() => authStore.userRole)
+
+onMounted(() => {
+  if (route.query.denied) {
+    toast.add({
+      title: 'No tenés acceso a esta sección',
+      color: 'error',
+    })
+    // Clean up URL after toast is shown
+    const router = useRouter()
+    router.replace({ path: '/', query: {} })
+  }
+})
 
 useHead({
   title: 'Kovia - Plataforma inteligente de adopcion de mascotas',

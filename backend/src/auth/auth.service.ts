@@ -261,6 +261,16 @@ export class AuthService {
     return { message: 'Sesion cerrada exitosamente' };
   }
 
+  decodeRefreshToken(token: string): { sub: string } | null {
+    try {
+      return this.jwtService.verify(token, {
+        secret: this.config.get<string>('JWT_REFRESH_SECRET'),
+      });
+    } catch {
+      return null;
+    }
+  }
+
   private async generateTokens(user: any) {
     const payload = { sub: user.id, email: user.email, role: user.role };
 

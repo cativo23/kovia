@@ -142,16 +142,27 @@ export class AuthController {
   }
 
   @Post('logout')
+  @Public()
   @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Cerrar sesion' })
   @ApiResponse({ status: 200, description: 'Sesion cerrada' })
   async logout(
-    @CurrentUser('id') userId: string,
+    @Req() req: any,
     @Res({ passthrough: true }) res: Response,
   ) {
-    await this.authService.logout(userId);
-    res.clearCookie('refresh_token');
+    // Extract userId from cookie's refresh token if possible
+    const refreshToken = req.cookies?.refresh_token;
+    if (refreshToken) {
+      try {
+        const payload = this.authService.decodeRefreshToken(refreshToken);
+        if (payload?.sub) {
+          await this.authService.logout(payload.sub);
+        }
+      } catch {
+        // Token invalid/expired — just clear the cookie
+      }
+    }
+    res.clearCookie('refresh_token', { path: '/' });
     return { message: 'Sesion cerrada exitosamente' };
   }
 

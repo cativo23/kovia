@@ -11,17 +11,29 @@
     @submit="onSubmit"
   >
     <template #footer>
-      <div class="text-center text-sm space-y-2">
-        <div>
-          <NuxtLink to="/forgot-password" class="text-primary hover:underline">
-            {{ $t('auth.forgotPassword') }}
-          </NuxtLink>
+      <div class="space-y-3">
+        <div v-if="showVerificationError" class="rounded-md bg-warning-50 dark:bg-warning-950 p-3 text-sm text-warning-700 dark:text-warning-300">
+          <p>{{ $t('auth.emailNotVerified') }}</p>
+          <button
+            class="mt-2 text-primary font-medium hover:underline disabled:opacity-50"
+            :disabled="resendingVerification"
+            @click="resendVerification"
+          >
+            {{ resendingVerification ? $t('common.loading') : $t('auth.resendLink') }}
+          </button>
         </div>
-        <div>
-          {{ $t('auth.noAccount') }}
-          <NuxtLink to="/register" class="text-primary font-medium hover:underline">
-            {{ $t('auth.createAccount') }}
-          </NuxtLink>
+        <div class="text-center text-sm space-y-2">
+          <div>
+            <NuxtLink to="/forgot-password" class="text-primary hover:underline">
+              {{ $t('auth.forgotPassword') }}
+            </NuxtLink>
+          </div>
+          <div>
+            {{ $t('auth.noAccount') }}
+            <NuxtLink to="/register" class="text-primary font-medium hover:underline">
+              {{ $t('auth.createAccount') }}
+            </NuxtLink>
+          </div>
         </div>
       </div>
     </template>
@@ -41,6 +53,9 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const toast = useToast()
 const loading = ref(false)
+const resendingVerification = ref(false)
+const showVerificationError = ref(false)
+const unverifiedEmail = ref('')
 
 const schema = z.object({
   email: z.email(t('validation.email')),
@@ -77,18 +92,47 @@ const providers = computed(() => [
 
 async function onSubmit(event: any) {
   loading.value = true
+  showVerificationError.value = false
   try {
     await authStore.login(event.data.email, event.data.password)
     await navigateTo(authStore.isAdmin ? '/admin' : '/')
   }
+  catch (err: any) {
+    const status = err?.response?.status || err?.statusCode
+    if (status === 403) {
+      showVerificationError.value = true
+      unverifiedEmail.value = event.data.email
+    } else {
+      toast.add({
+        title: t('auth.loginError'),
+        color: 'error',
+      })
+    }
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+async function resendVerification() {
+  resendingVerification.value = true
+  try {
+    const { post } = useApi()
+    await post('/auth/resend-verification', { email: unverifiedEmail.value })
+    toast.add({
+      title: t('auth.resendLinkSuccess'),
+      color: 'success',
+    })
+    showVerificationError.value = false
+  }
   catch {
     toast.add({
-      title: t('auth.loginError'),
+      title: t('auth.resendError'),
       color: 'error',
     })
   }
   finally {
-    loading.value = false
+    resendingVerification.value = false
   }
 }
 </script>

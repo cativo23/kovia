@@ -27,14 +27,25 @@
           {{ formatDate(row.original.createdAt) }}
         </template>
         <template #actions-cell="{ row }">
-          <UButton
-            size="xs"
-            :variant="row.original.status === 'ACTIVE' ? 'outline' : 'solid'"
-            :color="row.original.status === 'ACTIVE' ? 'error' : 'success'"
-            :label="row.original.status === 'ACTIVE' ? $t('admin.orgs.deactivate') : $t('admin.orgs.reactivate')"
-            :loading="toggling === row.original.id"
-            @click="toggleStatus(row.original)"
-          />
+          <div class="flex gap-2">
+            <UButton
+              size="xs"
+              variant="ghost"
+              color="primary"
+              icon="i-lucide-external-link"
+              :label="$t('common.view')"
+              :to="`/org/${row.original.slug}`"
+              target="_blank"
+            />
+            <UButton
+              size="xs"
+              :variant="row.original.status === 'ACTIVE' ? 'outline' : 'solid'"
+              :color="row.original.status === 'ACTIVE' ? 'error' : 'success'"
+              :label="row.original.status === 'ACTIVE' ? $t('admin.orgs.deactivate') : $t('admin.orgs.reactivate')"
+              :loading="toggling === row.original.id"
+              @click="toggleStatus(row.original)"
+            />
+          </div>
         </template>
       </UTable>
     </UCard>

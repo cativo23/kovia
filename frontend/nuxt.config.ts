@@ -27,15 +27,7 @@ export default defineNuxtConfig({
     },
   },
 
-  nitro: {
-    routeRules: {
-      '/api/v1/**': {
-        proxy: {
-          to: (process.env.NUXT_API_INTERNAL || 'http://api:3000') + '/**',
-        },
-      },
-    },
-  },
+  nitro: {},
 
   devtools: { enabled: true },
 
