@@ -12,7 +12,7 @@ Kovia delivers a multi-tenant pet adoption platform in five phases following the
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Auth, organization management, multi-tenant isolation, and dev infrastructure
+- [x] **Phase 1: Foundation** - Auth, organization management, multi-tenant isolation, and dev infrastructure (completed 2026-04-09)
 - [ ] **Phase 2: Animals and Public Listings** - Animal profiles, photo uploads, SSR public listings, and org landing pages
 - [ ] **Phase 3: Adoption Applications** - Multi-step application form, photo uploads, state machine, and application queue
 - [ ] **Phase 4: Scoring and Staff Tools** - Rule-based scoring engine, staff dashboard, internal notes, and applicant history
@@ -110,7 +110,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 3/5 | In Progress|  |
+| 1. Foundation | 5/5 | Complete   | 2026-04-09 |
 | 2. Animals and Public Listings | 0/3 | Not started | - |
 | 3. Adoption Applications | 0/2 | Not started | - |
 | 4. Scoring and Staff Tools | 0/3 | Not started | - |

@@ -17,10 +17,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Organization Management
 
-- [ ] **ORG-01**: Organization has a profile with name, description, logo, and contact info
-- [ ] **ORG-02**: Platform admin can approve or reject organization registration requests
-- [ ] **ORG-03**: Each organization has a single admin who manages all org data
-- [ ] **ORG-04**: All organization data is isolated via multi-tenant RLS policies
+- [x] **ORG-01**: Organization has a profile with name, description, logo, and contact info
+- [x] **ORG-02**: Platform admin can approve or reject organization registration requests
+- [x] **ORG-03**: Each organization has a single admin who manages all org data
+- [x] **ORG-04**: All organization data is isolated via multi-tenant RLS policies
 
 ### Animal Management
 
@@ -136,10 +136,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-03 | Phase 1 | Complete |
 | AUTH-04 | Phase 1 | Complete |
 | AUTH-05 | Phase 1 | Complete |
-| ORG-01 | Phase 1 | Pending |
-| ORG-02 | Phase 1 | Pending |
-| ORG-03 | Phase 1 | Pending |
-| ORG-04 | Phase 1 | Pending |
+| ORG-01 | Phase 1 | Complete |
+| ORG-02 | Phase 1 | Complete |
+| ORG-03 | Phase 1 | Complete |
+| ORG-04 | Phase 1 | Complete |
 | ANIM-01 | Phase 2 | Pending |
 | ANIM-02 | Phase 2 | Pending |
 | ANIM-03 | Phase 2 | Pending |
