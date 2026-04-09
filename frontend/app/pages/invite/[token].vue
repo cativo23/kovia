@@ -119,13 +119,15 @@ async function validateInvite() {
 async function goToSetup() {
   try {
     const config = useRuntimeConfig()
-    await $fetch('/organizations/claim-invite', {
+    const result = await $fetch<{ accessToken: string }>('/organizations/claim-invite', {
       method: 'POST',
       baseURL: config.public.apiUrl as string,
       body: { token: token.value },
       headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      credentials: 'include',
     })
-    // Refresh profile to get updated role
+    // Update store with new token (has ORG_ADMIN role)
+    authStore.accessToken = result.accessToken
     await authStore.fetchProfile()
     await navigateTo('/org/setup')
   } catch {
