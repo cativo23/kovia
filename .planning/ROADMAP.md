@@ -49,6 +49,7 @@ Plans:
   3. A visitor without an account can browse and filter animals by species, size, age, and organization
   4. Public animal listing pages are server-side rendered and include Open Graph meta tags (verifiable via curl/view-source)
   5. Each organization has a public landing page showing only their available animals
+  6. Brand identity applied: custom primary color, logo placement, consistent visual theme across all pages
 **Plans**: TBD
 
 Plans:
