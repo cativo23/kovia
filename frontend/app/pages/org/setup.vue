@@ -139,6 +139,9 @@ async function submitOrg() {
   try {
     await post('/organizations', form)
 
+    // Refresh profile so organizationId is set (middleware checks it)
+    await useAuthStore().fetchProfile()
+
     // Clean up session storage
     if (import.meta.client) {
       sessionStorage.removeItem('inviteToken')
