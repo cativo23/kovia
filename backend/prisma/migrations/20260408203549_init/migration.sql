@@ -99,10 +99,11 @@ ALTER TABLE "organizations" ADD CONSTRAINT "organizations_adminId_fkey" FOREIGN 
 -- AddForeignKey
 ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- Enable Row-Level Security on user-scoped tables only
--- Phase 1: only users table has RLS (owner + admin bypass)
--- organizations, org_invites, audit_logs: access controlled at application level via @Roles guards
--- Phase 2+: org-scoped tables (animals, applications) will use RLS with app.current_org_id
+-- Enable Row-Level Security
+-- users: RLS enforced (owner isolation + admin bypass)
+-- organizations, org_invites, audit_logs: RLS disabled — Prisma 7 driver adapter
+-- doesn't support SET LOCAL in batch transactions. Access guarded by @Roles at app level.
+-- TODO Phase 2: implement RLS via pg pool direct access when org-scoped tables are added.
 ALTER TABLE "users" ENABLE ROW LEVEL SECURITY;
 
 -- Grant app_user access to schema and tables
@@ -122,4 +123,5 @@ CREATE POLICY owner_isolation ON "users"
 CREATE POLICY admin_full_access ON "users"
   USING (current_setting('app.is_admin', true) = 'true');
 
--- org_invites and audit_logs: no RLS policies (platform-level tables, guarded by @Roles)
+-- NOTE: organizations, org_invites, audit_logs policies omitted
+-- See RLS extension comment for Prisma 7 driver adapter limitation
