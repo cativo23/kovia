@@ -68,14 +68,15 @@ onMounted(async () => {
       if (inviteToken) {
         try {
           const config = useRuntimeConfig()
-          const result = await $fetch<{ accessToken: string }>('/organizations/claim-invite', {
+          await $fetch('/organizations/claim-invite', {
             method: 'POST',
             baseURL: config.public.apiUrl as string,
             body: { token: inviteToken },
             headers: { Authorization: `Bearer ${authStore.accessToken}` },
             credentials: 'include',
           })
-          authStore.accessToken = result.accessToken
+          // Refresh tokens to get updated role in JWT
+          await authStore.refreshToken()
           await authStore.fetchProfile()
         } catch {
           // If claim fails, still redirect to setup — it will show error
