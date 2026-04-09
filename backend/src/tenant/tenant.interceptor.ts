@@ -15,15 +15,15 @@ export class TenantInterceptor implements NestInterceptor {
     const req = context.switchToHttp().getRequest();
     const user = req.user as
       | {
-          sub?: string;
+          id?: string;
           organizationId?: string;
           role?: string;
         }
       | undefined;
 
     if (user) {
-      if (user.sub) {
-        this.cls.set('userId', user.sub);
+      if (user.id) {
+        this.cls.set('userId', user.id);
       }
       if (user.organizationId) {
         this.cls.set('organizationId', user.organizationId);

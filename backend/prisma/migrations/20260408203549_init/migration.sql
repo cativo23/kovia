@@ -99,12 +99,11 @@ ALTER TABLE "organizations" ADD CONSTRAINT "organizations_adminId_fkey" FOREIGN 
 -- AddForeignKey
 ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- Enable Row-Level Security
--- users: RLS enforced (owner isolation + admin bypass)
--- organizations, org_invites, audit_logs: RLS disabled — Prisma 7 driver adapter
--- doesn't support SET LOCAL in batch transactions. Access guarded by @Roles at app level.
--- TODO Phase 2: implement RLS via pg pool direct access when org-scoped tables are added.
+-- Enable Row-Level Security on all tables
 ALTER TABLE "users" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "organizations" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "org_invites" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "audit_logs" ENABLE ROW LEVEL SECURITY;
 
 -- Grant app_user access to schema and tables
 GRANT USAGE ON SCHEMA public TO app_user;
@@ -123,5 +122,23 @@ CREATE POLICY owner_isolation ON "users"
 CREATE POLICY admin_full_access ON "users"
   USING (current_setting('app.is_admin', true) = 'true');
 
--- NOTE: organizations, org_invites, audit_logs policies omitted
--- See RLS extension comment for Prisma 7 driver adapter limitation
+-- RLS Policies for organizations: org admin sees own org
+CREATE POLICY org_owner ON "organizations"
+  USING ("adminId"::text = current_setting('app.current_user_id', true))
+  WITH CHECK ("adminId"::text = current_setting('app.current_user_id', true));
+
+-- RLS Policies for organizations: platform admin sees all
+CREATE POLICY admin_bypass ON "organizations"
+  USING (current_setting('app.is_admin', true) = 'true');
+
+-- RLS Policies for org_invites: platform admin full access
+CREATE POLICY admin_full_access ON "org_invites"
+  USING (current_setting('app.is_admin', true) = 'true');
+
+-- RLS Policies for org_invites: authenticated users can read (for claim flow)
+CREATE POLICY authenticated_access ON "org_invites"
+  USING (current_setting('app.current_user_id', true) IS NOT NULL AND current_setting('app.current_user_id', true) != '');
+
+-- RLS Policies for audit_logs: platform admin only
+CREATE POLICY admin_full_access ON "audit_logs"
+  USING (current_setting('app.is_admin', true) = 'true');
