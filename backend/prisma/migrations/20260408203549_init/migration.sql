@@ -99,11 +99,11 @@ ALTER TABLE "organizations" ADD CONSTRAINT "organizations_adminId_fkey" FOREIGN 
 -- AddForeignKey
 ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- Enable Row-Level Security on tenant-scoped tables
+-- Enable Row-Level Security on user-scoped tables only
+-- Phase 1: only users table has RLS (owner + admin bypass)
+-- organizations, org_invites, audit_logs: access controlled at application level via @Roles guards
+-- Phase 2+: org-scoped tables (animals, applications) will use RLS with app.current_org_id
 ALTER TABLE "users" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "organizations" ENABLE ROW LEVEL SECURITY;
--- org_invites and audit_logs are platform-level (no org_id) — no RLS needed
--- Access is enforced at application level via @Roles(PLATFORM_ADMIN) guard
 
 -- Grant app_user access to schema and tables
 GRANT USAGE ON SCHEMA public TO app_user;
@@ -113,14 +113,6 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO app_user;
 -- Default privileges for future tables
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO app_user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO app_user;
-
--- RLS Policies for organizations: tenant isolation
-CREATE POLICY tenant_isolation ON "organizations"
-  USING ("id"::text = current_setting('app.current_org_id', true));
-
--- RLS Policies for organizations: admin bypass
-CREATE POLICY admin_bypass ON "organizations"
-  USING (current_setting('app.is_admin', true) = 'true');
 
 -- RLS Policies for users: owner can read own row
 CREATE POLICY owner_isolation ON "users"
