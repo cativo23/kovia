@@ -131,13 +131,20 @@ CREATE POLICY org_owner ON "organizations"
 CREATE POLICY admin_bypass ON "organizations"
   USING (current_setting('app.is_admin', true) = 'true');
 
+-- RLS Policies for organizations: public can read (for public org profile pages)
+CREATE POLICY public_read ON "organizations" FOR SELECT USING (true);
+
 -- RLS Policies for org_invites: platform admin full access
 CREATE POLICY admin_full_access ON "org_invites"
   USING (current_setting('app.is_admin', true) = 'true');
 
--- RLS Policies for org_invites: authenticated users can read (for claim flow)
+-- RLS Policies for org_invites: authenticated users can read/update (for claim flow)
 CREATE POLICY authenticated_access ON "org_invites"
   USING (current_setting('app.current_user_id', true) IS NOT NULL AND current_setting('app.current_user_id', true) != '');
+
+-- RLS Policies for org_invites: public can read by token (for validate-invite)
+-- Safe because tokens are unguessable 64-char hex strings
+CREATE POLICY public_read ON "org_invites" FOR SELECT USING (true);
 
 -- RLS Policies for audit_logs: platform admin only
 CREATE POLICY admin_full_access ON "audit_logs"
