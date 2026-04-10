@@ -16,6 +16,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { UploadModule } from './upload/upload.module';
 import { SpeciesModule } from './species/species.module';
+import { AnimalsModule } from './animals/animals.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { SpeciesModule } from './species/species.module';
     OrganizationsModule,
     UploadModule,
     SpeciesModule,
+    AnimalsModule,
   ],
   controllers: [AppController],
   providers: [
