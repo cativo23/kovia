@@ -179,7 +179,134 @@
       "deleteError": "Error al eliminar el usuario"
     }
   },
+  "animals": {
+    "title": "Animales",
+    "create": "Nuevo animal",
+    "edit": "Editar animal",
+    "search": "Buscar por nombre...",
+    "empty": "No hay animales registrados",
+    "status": {
+      "available": "Disponible",
+      "inProcess": "En proceso",
+      "adopted": "Adoptado",
+      "archived": "Archivado"
+    },
+    "filter": {
+      "all": "Todos"
+    },
+    "table": {
+      "name": "Nombre",
+      "species": "Especie",
+      "status": "Estado",
+      "age": "Edad"
+    },
+    "age": {
+      "newborn": "Recien nacido",
+      "months": "meses",
+      "years": "anos"
+    },
+    "actions": {
+      "edit": "Editar",
+      "changeStatus": "Cambiar estado",
+      "archive": "Archivar",
+      "restore": "Restaurar",
+      "delete": "Eliminar"
+    },
+    "confirm": {
+      "archive": "Estas seguro de archivar este animal? Dejara de aparecer en las busquedas publicas.",
+      "restore": "Restaurar este animal? Volvera a estar disponible.",
+      "delete": "Estas seguro de eliminar este animal permanentemente?",
+      "deleteWarning": "Esta accion es permanente y no se puede deshacer."
+    },
+    "stats": {
+      "total": "Total de animales",
+      "available": "Disponibles",
+      "inProcess": "En proceso",
+      "adopted": "Adoptados"
+    },
+    "dashboard": {
+      "title": "Panel de la organizacion",
+      "quickLinks": "Accesos rapidos",
+      "viewAll": "Ver todos los animales",
+      "addNew": "Agregar nuevo animal"
+    },
+    "wizard": {
+      "step1": "Informacion basica",
+      "step2": "Caracteristicas",
+      "step3": "Fotos",
+      "next": "Siguiente",
+      "prev": "Anterior",
+      "create": "Crear animal"
+    },
+    "form": {
+      "name": "Nombre",
+      "namePlaceholder": "Nombre del animal",
+      "species": "Especie",
+      "speciesPlaceholder": "Selecciona una especie",
+      "breed": "Raza",
+      "breedPlaceholder": "Raza o mezcla",
+      "gender": "Genero",
+      "genderPlaceholder": "Selecciona genero",
+      "description": "Descripcion",
+      "descriptionPlaceholder": "Describe al animal...",
+      "age": "Edad",
+      "ageMonths": "meses",
+      "ageYears": "anos",
+      "agePlaceholder": "Edad en meses",
+      "size": "Tamano",
+      "sizePlaceholder": "Selecciona tamano",
+      "energyLevel": "Nivel de energia",
+      "energyPlaceholder": "Selecciona nivel",
+      "compatibility": "Compatibilidad",
+      "goodWithKids": "Bueno con ninos",
+      "goodWithDogs": "Bueno con perros",
+      "goodWithCats": "Bueno con gatos",
+      "goodWithOtherPets": "Bueno con otras mascotas",
+      "specialNeeds": "Necesidades especiales",
+      "specialNeedsPlaceholder": "Describe necesidades especiales si las tiene...",
+      "health": "Salud",
+      "vaccinated": "Vacunado",
+      "sterilized": "Esterilizado",
+      "trained": "Entrenado",
+      "gender.male": "Macho",
+      "gender.female": "Hembra",
+      "gender.unknown": "Desconocido",
+      "size.small": "Pequeno",
+      "size.medium": "Mediano",
+      "size.large": "Grande",
+      "size.extraLarge": "Extra grande",
+      "energy.low": "Bajo",
+      "energy.medium": "Medio",
+      "energy.high": "Alto"
+    },
+    "photos": {
+      "title": "Fotos",
+      "dragDrop": "Arrastra fotos aqui o haz clic para seleccionar",
+      "maxSize": "Maximo 5MB por foto",
+      "counter": "{count}/{max} fotos",
+      "setCover": "Establecer como portada",
+      "remove": "Eliminar foto",
+      "caption": "Descripcion de la foto",
+      "captionPlaceholder": "Descripcion opcional...",
+      "uploading": "Subiendo...",
+      "error": "Error al subir la foto",
+      "maxReached": "Limite de fotos alcanzado",
+      "retryUpload": "Reintentar"
+    },
+    "edit": {
+      "title": "Editar animal",
+      "save": "Guardar cambios",
+      "cancel": "Cancelar"
+    }
+  },
   "org": {
+    "dashboard": "Panel de la organizacion",
+    "nav": {
+      "dashboard": "Dashboard",
+      "animals": "Animales",
+      "profile": "Perfil",
+      "backToSite": "Volver al sitio"
+    },
     "profile": "Perfil de la organizacion",
     "name": "Nombre",
     "description": "Descripcion",

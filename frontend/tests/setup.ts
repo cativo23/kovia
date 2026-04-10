@@ -33,5 +33,19 @@ vi.stubGlobal('useRoute', () => ({
   path: '/',
 }))
 
-// Mock computed/ref/onMounted from vue (auto-imported in Nuxt)
-// These are already available from vue imports in tests
+// Stub Vue auto-imports that Nuxt provides globally
+import { computed, ref, reactive, watch, watchEffect, onMounted, onUnmounted, toRef, toRefs, nextTick } from 'vue'
+
+vi.stubGlobal('computed', computed)
+vi.stubGlobal('ref', ref)
+vi.stubGlobal('reactive', reactive)
+vi.stubGlobal('watch', watch)
+vi.stubGlobal('watchEffect', watchEffect)
+vi.stubGlobal('onMounted', onMounted)
+vi.stubGlobal('onUnmounted', onUnmounted)
+vi.stubGlobal('toRef', toRef)
+vi.stubGlobal('toRefs', toRefs)
+vi.stubGlobal('nextTick', nextTick)
+
+// Stub definePageMeta (Nuxt auto-import, no-op in tests)
+vi.stubGlobal('definePageMeta', vi.fn())
