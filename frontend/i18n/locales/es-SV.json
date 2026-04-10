@@ -20,7 +20,11 @@
     "no": "No",
     "or": "o",
     "noResults": "No se encontraron resultados",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "footer": {
+      "tagline": "Adopcion inteligente de mascotas",
+      "madeWith": "Hecho con amor para los animales"
+    }
   },
   "auth": {
     "login": "Iniciar sesion",
@@ -82,6 +86,8 @@
   },
   "nav": {
     "home": "Inicio",
+    "animals": "Animales",
+    "myOrg": "Mi organizacion",
     "login": "Iniciar sesion",
     "register": "Crear cuenta",
     "logout": "Cerrar sesion",
@@ -307,7 +313,6 @@
       "profile": "Perfil",
       "backToSite": "Volver al sitio"
     },
-    "profile": "Perfil de la organizacion",
     "name": "Nombre",
     "description": "Descripcion",
     "contactEmail": "Correo de contacto",
@@ -340,7 +345,10 @@
       "availableAnimals": "Animales disponibles",
       "noAnimalsYet": "Esta organizacion aun no ha publicado animales en adopcion",
       "notFound": "Organizacion no encontrada",
-      "notFoundDescription": "La organizacion que buscas no existe o fue desactivada"
+      "notFoundDescription": "La organizacion que buscas no existe o fue desactivada",
+      "animals": "Animales en adopcion",
+      "noAnimals": "Esta organizacion aun no tiene animales disponibles",
+      "seeAll": "Ver todos"
     }
   },
   "invite": {
@@ -370,6 +378,74 @@
     "welcomeAuth": "Bienvenido, {name}",
     "welcomeGuest": "Encontra a tu companero ideal",
     "welcomeGuestDescription": "Kovia te ayuda a encontrar la mascota perfecta para tu hogar",
-    "role": "Rol: {role}"
+    "role": "Rol: {role}",
+    "deniedAccess": "No tenes acceso a esta seccion",
+    "hero": {
+      "title": "Encuentra a tu companero perfecto",
+      "subtitle": "Miles de animales esperan un hogar amoroso. Adopta, no compres.",
+      "cta": "Ver animales en adopcion"
+    },
+    "featured": {
+      "title": "Animales disponibles",
+      "viewAll": "Ver todos"
+    },
+    "orgCta": {
+      "title": "Sos una organizacion?",
+      "description": "Registrate en Kovia y publica tus animales en adopcion de forma gratuita"
+    }
+  },
+  "listings": {
+    "title": "Animales en adopcion",
+    "subtitle": "Encuentra a tu companero perfecto",
+    "search": "Buscar por nombre...",
+    "filters": "Filtros",
+    "clearFilters": "Limpiar filtros",
+    "clearAll": "Limpiar todos los filtros",
+    "results": "animales encontrados",
+    "resultSingle": "animal encontrado",
+    "noResults": "No encontramos animales",
+    "noResultsMessage": "No encontramos animales con esos filtros. Intenta con otros criterios.",
+    "emptyTitle": "No hay animales disponibles aun",
+    "emptyMessage": "Pronto habra animales disponibles para adopcion. Vuelve pronto.",
+    "viewGrid": "Ver en cuadricula",
+    "viewList": "Ver en lista",
+    "filter": {
+      "species": "Especie",
+      "size": "Tamano",
+      "age": "Edad",
+      "energy": "Energia",
+      "organization": "Organizacion"
+    },
+    "compat": {
+      "kids": "Ninos",
+      "dogs": "Perros",
+      "cats": "Gatos",
+      "pets": "Mascotas"
+    },
+    "health": {
+      "vaccinated": "Vacunado",
+      "sterilized": "Esterilizado",
+      "trained": "Entrenado"
+    },
+    "pagination": {
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "page": "Pagina {n}"
+    }
+  },
+  "detail": {
+    "apply": "Aplicar para adoptar",
+    "applyDisabled": "Disponible en la siguiente version",
+    "notFound": "Animal no encontrado",
+    "notFoundMessage": "El animal que buscas no existe o ya no esta disponible para adopcion.",
+    "compatibility": "Compatibilidad",
+    "health": "Salud",
+    "specialNeeds": "Necesidades especiales",
+    "organization": "Organizacion",
+    "breadcrumb": "Animales",
+    "age": {
+      "years": "anos",
+      "months": "meses"
+    }
   }
 }
