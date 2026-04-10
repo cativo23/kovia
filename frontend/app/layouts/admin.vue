@@ -77,6 +77,7 @@ const navItems = computed(() => [
   { to: '/admin/orgs', label: t('admin.orgs.title'), icon: 'i-lucide-building-2' },
   { to: '/admin/users', label: t('admin.users.title'), icon: 'i-lucide-users' },
   { to: '/admin/invites', label: t('admin.invites.title'), icon: 'i-lucide-mail' },
+  { to: '/admin/species', label: t('admin.species.title'), icon: 'i-lucide-paw-print' },
 ])
 
 const userMenuItems = computed(() => [

@@ -18,6 +18,32 @@ enum OrgStatus {
   DEACTIVATED
 }
 
+enum AnimalGender {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum AnimalSize {
+  SMALL
+  MEDIUM
+  LARGE
+  EXTRA_LARGE
+}
+
+enum EnergyLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum AnimalStatus {
+  AVAILABLE
+  IN_PROCESS
+  ADOPTED
+  ARCHIVED
+}
+
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
@@ -66,6 +92,8 @@ model Organization {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
+  animals      Animal[]
+
   @@map("organizations")
 }
 
@@ -79,6 +107,60 @@ model OrgInvite {
   createdAt  DateTime  @default(now())
 
   @@map("org_invites")
+}
+
+model Species {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  animals   Animal[]
+
+  @@map("species")
+}
+
+model Animal {
+  id                String       @id @default(uuid())
+  name              String
+  description       String?
+  speciesId         String
+  species           Species      @relation(fields: [speciesId], references: [id])
+  breed             String?
+  gender            AnimalGender @default(UNKNOWN)
+  ageMonths         Int?
+  size              AnimalSize?
+  energyLevel       EnergyLevel?
+  goodWithKids      Boolean      @default(false)
+  goodWithDogs      Boolean      @default(false)
+  goodWithCats      Boolean      @default(false)
+  goodWithOtherPets Boolean      @default(false)
+  specialNeeds      String?
+  vaccinated        Boolean      @default(false)
+  sterilized        Boolean      @default(false)
+  trained           Boolean      @default(false)
+  status            AnimalStatus @default(AVAILABLE)
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id])
+  photos            AnimalPhoto[]
+  coverPhotoId      String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  archivedAt        DateTime?
+
+  @@map("animals")
+}
+
+model AnimalPhoto {
+  id        String   @id @default(uuid())
+  animalId  String
+  animal    Animal   @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  url       String
+  key       String
+  caption   String?
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("animal_photos")
 }
 
 model AuditLog {

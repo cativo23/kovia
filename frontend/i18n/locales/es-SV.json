@@ -141,6 +141,21 @@
       "deactivateSuccess": "Organizacion desactivada",
       "reactivateSuccess": "Organizacion reactivada"
     },
+    "species": {
+      "title": "Especies",
+      "description": "Gestiona las especies de animales disponibles",
+      "name": "Nombre",
+      "namePlaceholder": "Ej: Perro, Gato, Conejo...",
+      "animalsCount": "Animales",
+      "create": "Crear especie",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "deleteConfirm": "Estas seguro de eliminar la especie \"{name}\"?",
+      "hasAnimals": "No se puede eliminar una especie que tiene animales asociados",
+      "createSuccess": "Especie creada exitosamente",
+      "editSuccess": "Especie actualizada exitosamente",
+      "deleteSuccess": "Especie eliminada exitosamente"
+    },
     "users": {
       "title": "Usuarios",
       "description": "Gestiona los usuarios de la plataforma",

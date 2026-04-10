@@ -14,6 +14,8 @@ import { AuditModule } from './audit/audit.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { UploadModule } from './upload/upload.module';
+import { SpeciesModule } from './species/species.module';
 
 @Module({
   imports: [
@@ -41,6 +43,8 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     AuditModule,
     AdminModule,
     OrganizationsModule,
+    UploadModule,
+    SpeciesModule,
   ],
   controllers: [AppController],
   providers: [
