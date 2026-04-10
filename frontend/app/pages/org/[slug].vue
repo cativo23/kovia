@@ -1,19 +1,19 @@
 <template>
-  <div class="max-w-3xl mx-auto py-8">
+  <div class="max-w-5xl mx-auto py-8">
     <!-- Loading -->
-    <div v-if="loading" class="flex justify-center py-12">
+    <div v-if="!org && pending" class="flex justify-center py-12">
       <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary" />
     </div>
 
     <!-- Not Found -->
-    <UCard v-else-if="notFound" class="text-center py-8">
+    <UCard v-else-if="!org" class="text-center py-8">
       <UIcon name="i-lucide-building-2" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
       <h2 class="text-xl font-bold mb-2">{{ $t('org.profile.notFound') }}</h2>
       <p class="text-gray-500">{{ $t('org.profile.notFoundDescription') }}</p>
     </UCard>
 
     <!-- Org Profile -->
-    <div v-else-if="org">
+    <div v-else>
       <!-- Header -->
       <div class="flex items-start gap-6 mb-8">
         <div v-if="org.logoUrl" class="flex-shrink-0">
@@ -86,16 +86,40 @@
         />
       </div>
 
-      <!-- Animals Placeholder -->
-      <UCard>
-        <template #header>
-          <h3 class="font-semibold">{{ $t('org.profile.availableAnimals') }}</h3>
+      <!-- Animals section -->
+      <div>
+        <h2 class="text-2xl font-bold mb-4">{{ $t('org.profile.animals') }}</h2>
+
+        <!-- Org-scoped filters (no org filter since already scoped) -->
+        <AnimalFilters
+          v-model="filters"
+          @update:model-value="onFiltersChange"
+        />
+
+        <!-- Animals grid or empty state -->
+        <template v-if="animalsData?.data?.length">
+          <AnimalGrid
+            v-model:view-mode="viewMode"
+            :animals="animalsData.data"
+            :total="animalsData.total"
+          />
+
+          <!-- Pagination -->
+          <div v-if="animalsData.totalPages > 1" class="mt-8 flex justify-center">
+            <UPagination
+              :model-value="currentPage"
+              :total="animalsData.total"
+              :page-count="12"
+              @update:model-value="onPageChange"
+            />
+          </div>
         </template>
-        <div class="text-center py-8 text-gray-500">
-          <UIcon name="i-lucide-paw-print" class="w-12 h-12 mx-auto mb-4 text-gray-300" />
-          <p>{{ $t('org.profile.noAnimalsYet') }}</p>
-        </div>
-      </UCard>
+
+        <EmptyAnimals
+          v-else
+          variant="empty"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -106,28 +130,76 @@ definePageMeta({
 })
 
 const route = useRoute()
-const { t } = useI18n()
-
-const loading = ref(true)
-const notFound = ref(false)
-const org = ref<any>(null)
+const config = useRuntimeConfig()
 
 const slug = computed(() => route.params.slug as string)
+const currentPage = computed(() => parseInt(route.query.page as string || '1'))
+const viewMode = ref<'grid' | 'list'>('grid')
 
-async function loadOrg() {
-  try {
-    const config = useRuntimeConfig()
-    org.value = await $fetch(`/organizations/${slug.value}`, {
-      baseURL: config.public.apiUrl as string,
-    })
-  } catch {
-    notFound.value = true
-  } finally {
-    loading.value = false
-  }
+interface FilterState {
+  species?: string
+  size?: string
+  ageMin?: number
+  ageMax?: number
+  energyLevel?: string
+  search?: string
 }
 
-onMounted(() => {
-  loadOrg()
+const filters = ref<FilterState>({
+  species: route.query.species as string || undefined,
+  size: route.query.size as string || undefined,
+  energyLevel: route.query.energyLevel as string || undefined,
+  search: route.query.search as string || undefined,
 })
+
+// SSR fetch for org info
+const { data: org, pending } = await useFetch<any>(`/organizations/${slug.value}`, {
+  baseURL: config.public.apiUrl as string,
+}).catch(() => ({ data: ref(null), pending: ref(false) }))
+
+// SSR fetch for animals
+const animalsQuery = computed(() => ({
+  limit: 12,
+  page: currentPage.value,
+  species: filters.value.species || undefined,
+  size: filters.value.size || undefined,
+  energyLevel: filters.value.energyLevel || undefined,
+  search: filters.value.search || undefined,
+}))
+
+const { data: animalsData } = await useFetch<{ data: any[]; total: number; page: number; limit: number; totalPages: number }>(
+  `/animals/by-org/${slug.value}`,
+  {
+    baseURL: config.public.apiUrl as string,
+    query: animalsQuery,
+  },
+).catch(() => ({ data: ref(null) }))
+
+// SEO meta for org page
+useSeoMeta({
+  title: () => org.value ? `${org.value.name} - Kovia` : 'Organizacion | Kovia',
+  ogTitle: () => org.value?.name || 'Organizacion en Kovia',
+  description: () => org.value?.description || `Conoce los animales en adopcion de ${org.value?.name}`,
+  ogDescription: () => org.value?.description || `Conoce los animales en adopcion de ${org.value?.name}`,
+  ogImage: () => org.value?.logoUrl || '/og-default.png',
+  ogType: 'profile',
+})
+
+function buildQuery(overrides: Record<string, any> = {}) {
+  const q: Record<string, string> = {}
+  if (filters.value.species) q.species = filters.value.species
+  if (filters.value.size) q.size = filters.value.size
+  if (filters.value.energyLevel) q.energyLevel = filters.value.energyLevel
+  if (filters.value.search) q.search = filters.value.search
+  return { ...q, ...overrides }
+}
+
+async function onFiltersChange(newFilters: FilterState) {
+  filters.value = newFilters
+  await navigateTo({ query: buildQuery({ page: '1' }) })
+}
+
+async function onPageChange(page: number) {
+  await navigateTo({ query: buildQuery({ page: String(page) }) })
+}
 </script>
