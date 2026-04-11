@@ -71,9 +71,8 @@ skipped: 0
 ## Gaps
 
 - truth: "Animal listings page at /animales shows available animals"
-  status: failed
-  reason: "Page loads with header/footer but no animal cards render. API at /api/v1/animals returns 4 animals correctly. Proxy works. Bug is in frontend rendering — possibly AnimalFilters component or useFetch hydration issue."
+  status: fixed
+  reason: "Nuxt pathPrefix was set to true by default — components/animals/* were registered as AnimalsAnimalGrid etc. instead of AnimalGrid. Fixed via nuxt.config pathPrefix: false. Also AnimalFilters had await useFetch causing async component suspension."
   severity: major
   test: 0
-  artifacts: []
-  missing: []
+  fix_commit: "1a8b768, 86a7cf7"
