@@ -21,7 +21,7 @@ export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Post('presigned-url')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ADOPTER')
   @ApiOperation({ summary: 'Generate presigned URL for photo upload' })
   async getPresignedUrl(
     @Body() body: { filename: string; contentType: string },
