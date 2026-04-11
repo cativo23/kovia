@@ -8,13 +8,13 @@
           <UButton
             block
             :label="$t('applications.authModal.register')"
-            :to="`/auth/register?redirect=/animales/${animalId}/aplicar`"
+            :to="`/register?redirect=/animales/${animalId}/aplicar`"
           />
           <UButton
             block
             variant="outline"
             :label="$t('applications.authModal.login')"
-            :to="`/auth/login?redirect=/animales/${animalId}/aplicar`"
+            :to="`/login?redirect=/animales/${animalId}/aplicar`"
           />
         </div>
       </div>
