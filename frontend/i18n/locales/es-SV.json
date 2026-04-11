@@ -317,6 +317,7 @@
       "dashboard": "Dashboard",
       "animals": "Animales",
       "applications": "Aplicaciones",
+      "adopters": "Adoptantes",
       "profile": "Perfil",
       "backToSite": "Volver al sitio"
     },
@@ -687,5 +688,17 @@
     "placeholder": "Escribe una nota interna (solo visible para tu equipo)...",
     "add": "Agregar nota",
     "error": "No se pudo guardar la nota. Verifica tu conexion e intenta de nuevo."
+  },
+  "adoptantes": {
+    "historyHeading": "Historial del solicitante",
+    "solicitudes": "solicitudes",
+    "adoptados": "adoptados",
+    "devueltos": "devueltos",
+    "viewFullHistory": "Ver historial completo",
+    "backToApplications": "Volver a solicitudes",
+    "applicationsList": "Solicitudes del adoptante",
+    "empty": "Este solicitante no tiene historial de adopciones previas en tu organizacion.",
+    "otherOrg": "otra organizacion",
+    "unknownSpecies": "Especie desconocida"
   }
 }

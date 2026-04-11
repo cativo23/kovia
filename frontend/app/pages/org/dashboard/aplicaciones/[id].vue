@@ -217,8 +217,11 @@
             </div>
           </UCard>
 
-          <!-- 4. Applicant history summary (Plan 03) -->
-          <!-- ApplicantHistorySummary will be added in Plan 03 -->
+          <!-- 4. Applicant history summary -->
+          <ApplicantHistorySummary
+            v-if="application.userId"
+            :user-id="application.userId"
+          />
 
           <!-- 5. Internal notes -->
           <InternalNotes :application-id="application.id" />
