@@ -55,7 +55,7 @@ export class ApplicationsService {
     }
 
     // Check uniqueness: one application per animalId+userId
-    const existing = await this.publicPrisma.adoptionApplication.findUnique({
+    const existing = await this.prismaRls.adoptionApplication.findUnique({
       where: { animalId_userId: { animalId: dto.animalId, userId: user.id } },
     });
 
@@ -65,8 +65,8 @@ export class ApplicationsService {
       );
     }
 
-    // Create application (adopter has no org context, use publicPrisma)
-    const application = await this.publicPrisma.adoptionApplication.create({
+    // Create application using RLS client so app.current_user_id is set for INSERT policy
+    const application = await this.prismaRls.adoptionApplication.create({
       data: {
         animalId: dto.animalId,
         userId: user.id,
@@ -84,7 +84,7 @@ export class ApplicationsService {
 
     // Create photo records if provided
     if (dto.photos && dto.photos.length > 0) {
-      await this.publicPrisma.applicationPhoto.createMany({
+      await this.prismaRls.applicationPhoto.createMany({
         data: dto.photos.map((photo, idx) => ({
           applicationId: application.id,
           url: photo.url,
