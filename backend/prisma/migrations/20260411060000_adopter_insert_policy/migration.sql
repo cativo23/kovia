@@ -11,3 +11,11 @@ CREATE POLICY app_photos_insert ON "application_photos"
         AND a."userId"::text = current_setting('app.current_user_id', true)
     )
   );
+
+-- Allow org staff to UPDATE application status
+CREATE POLICY org_staff_update ON "adoption_applications"
+  FOR UPDATE USING (
+    "organizationId"::text = current_setting('app.current_org_id', true)
+  ) WITH CHECK (
+    "organizationId"::text = current_setting('app.current_org_id', true)
+  );
