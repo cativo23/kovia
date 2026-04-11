@@ -55,35 +55,35 @@
               <h3 class="font-semibold text-base">{{ $t('applications.detail.housing') }}</h3>
             </template>
             <dl class="space-y-3">
-              <div v-if="application.housingInfo?.housingType" class="flex gap-2">
+              <div v-if="application.housing?.housingType" class="flex gap-2">
                 <dt class="text-sm text-gray-500 w-40 shrink-0">{{ $t('applications.detail.housingType') }}</dt>
-                <dd class="text-sm">{{ application.housingInfo.housingType }}</dd>
+                <dd class="text-sm">{{ application.housing.housingType }}</dd>
               </div>
-              <div v-if="application.housingInfo?.ownership" class="flex gap-2">
+              <div v-if="application.housing?.ownership" class="flex gap-2">
                 <dt class="text-sm text-gray-500 w-40 shrink-0">{{ $t('applications.detail.ownership') }}</dt>
-                <dd class="text-sm">{{ application.housingInfo.ownership }}</dd>
+                <dd class="text-sm">{{ application.housing.ownership }}</dd>
               </div>
-              <div v-if="application.housingInfo?.petPermission !== undefined" class="flex gap-2">
+              <div v-if="application.housing?.petPermission !== undefined" class="flex gap-2">
                 <dt class="text-sm text-gray-500 w-40 shrink-0">{{ $t('applications.detail.petPermission') }}</dt>
-                <dd class="text-sm">{{ application.housingInfo.petPermission ? $t('common.yes') : $t('common.no') }}</dd>
+                <dd class="text-sm">{{ application.housing.petPermission }}</dd>
               </div>
-              <div v-if="application.housingInfo?.exteriorSpace !== undefined" class="flex gap-2">
+              <div v-if="application.housing?.exteriorSpace !== undefined" class="flex gap-2">
                 <dt class="text-sm text-gray-500 w-40 shrink-0">{{ $t('applications.detail.exteriorSpace') }}</dt>
-                <dd class="text-sm">{{ application.housingInfo.exteriorSpace ? $t('common.yes') : $t('common.no') }}</dd>
+                <dd class="text-sm">{{ application.housing.exteriorSpace }}</dd>
               </div>
-              <div v-if="application.housingInfo?.adults !== undefined" class="flex gap-2">
+              <div v-if="application.housing?.adults !== undefined" class="flex gap-2">
                 <dt class="text-sm text-gray-500 w-40 shrink-0">{{ $t('applications.detail.adults') }}</dt>
-                <dd class="text-sm">{{ application.housingInfo.adults }}</dd>
+                <dd class="text-sm">{{ application.housing.adults }}</dd>
               </div>
-              <div v-if="application.housingInfo?.children !== undefined" class="flex gap-2">
+              <div v-if="application.housing?.children !== undefined" class="flex gap-2">
                 <dt class="text-sm text-gray-500 w-40 shrink-0">{{ $t('applications.detail.children') }}</dt>
-                <dd class="text-sm">{{ application.housingInfo.children }}</dd>
+                <dd class="text-sm">{{ application.housing.children }}</dd>
               </div>
-              <div v-if="application.housingInfo?.currentPets" class="flex gap-2">
+              <div v-if="application.housing?.currentPets" class="flex gap-2">
                 <dt class="text-sm text-gray-500 w-40 shrink-0">{{ $t('applications.detail.currentPets') }}</dt>
                 <dd class="text-sm">
-                  <span v-if="Array.isArray(application.housingInfo.currentPets) && application.housingInfo.currentPets.length">
-                    {{ application.housingInfo.currentPets.join(', ') }}
+                  <span v-if="Array.isArray(application.housing.currentPets) && application.housing.currentPets.length">
+                    {{ application.housing.currentPets.join(', ') }}
                   </span>
                   <span v-else class="text-gray-400 italic">{{ $t('applications.detail.noPets') }}</span>
                 </dd>
@@ -97,25 +97,25 @@
               <h3 class="font-semibold text-base">{{ $t('applications.detail.lifestyle') }}</h3>
             </template>
             <dl class="space-y-3">
-              <div v-if="application.lifestyleInfo?.speciesExperience" class="flex gap-2">
+              <div v-if="application.lifestyle?.speciesExperience" class="flex gap-2">
                 <dt class="text-sm text-gray-500 w-40 shrink-0">{{ $t('applications.detail.speciesExperience') }}</dt>
-                <dd class="text-sm">{{ application.lifestyleInfo.speciesExperience }}</dd>
+                <dd class="text-sm">{{ application.lifestyle.speciesExperience }}</dd>
               </div>
-              <div v-if="application.lifestyleInfo?.previousPets" class="flex gap-2">
+              <div v-if="application.lifestyle?.previousPets" class="flex gap-2">
                 <dt class="text-sm text-gray-500 w-40 shrink-0">{{ $t('applications.detail.previousPets') }}</dt>
-                <dd class="text-sm">{{ application.lifestyleInfo.previousPets }}</dd>
+                <dd class="text-sm">{{ application.lifestyle.previousPets }}</dd>
               </div>
-              <div v-if="application.lifestyleInfo?.hoursAlone !== undefined" class="flex gap-2">
+              <div v-if="application.lifestyle?.hoursAlone !== undefined" class="flex gap-2">
                 <dt class="text-sm text-gray-500 w-40 shrink-0">{{ $t('applications.detail.hoursAlone') }}</dt>
-                <dd class="text-sm">{{ application.lifestyleInfo.hoursAlone }}h</dd>
+                <dd class="text-sm">{{ application.lifestyle.hoursAlone }}h</dd>
               </div>
-              <div v-if="application.lifestyleInfo?.activityLevel" class="flex gap-2">
+              <div v-if="application.lifestyle?.activityLevel" class="flex gap-2">
                 <dt class="text-sm text-gray-500 w-40 shrink-0">{{ $t('applications.detail.activityLevel') }}</dt>
-                <dd class="text-sm">{{ application.lifestyleInfo.activityLevel }}</dd>
+                <dd class="text-sm">{{ application.lifestyle.activityLevel }}</dd>
               </div>
-              <div v-if="application.lifestyleInfo?.adoptionReason" class="flex gap-2">
+              <div v-if="application.lifestyle?.adoptionReason" class="flex gap-2">
                 <dt class="text-sm text-gray-500 w-40 shrink-0">{{ $t('applications.detail.adoptionReason') }}</dt>
-                <dd class="text-sm">{{ application.lifestyleInfo.adoptionReason }}</dd>
+                <dd class="text-sm">{{ application.lifestyle.adoptionReason }}</dd>
               </div>
             </dl>
           </UCard>
@@ -342,8 +342,8 @@ interface Application {
   status: ApplicationStatus
   submittedAt: string
   personalInfo: Record<string, any> | null
-  housingInfo: Record<string, any> | null
-  lifestyleInfo: Record<string, any> | null
+  housing: Record<string, any> | null
+  lifestyle: Record<string, any> | null
   socialMedia: string | null
   additionalContext: string | null
   photos: ApplicationPhoto[]
