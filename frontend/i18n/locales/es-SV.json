@@ -274,16 +274,22 @@
       "vaccinated": "Vacunado",
       "sterilized": "Esterilizado",
       "trained": "Entrenado",
-      "gender.male": "Macho",
-      "gender.female": "Hembra",
-      "gender.unknown": "Desconocido",
-      "size.small": "Pequeno",
-      "size.medium": "Mediano",
-      "size.large": "Grande",
-      "size.extraLarge": "Extra grande",
-      "energy.low": "Bajo",
-      "energy.medium": "Medio",
-      "energy.high": "Alto"
+      "genderOptions": {
+        "male": "Macho",
+        "female": "Hembra",
+        "unknown": "Desconocido"
+      },
+      "sizeOptions": {
+        "small": "Pequeno",
+        "medium": "Mediano",
+        "large": "Grande",
+        "extraLarge": "Extra grande"
+      },
+      "energyOptions": {
+        "low": "Bajo",
+        "medium": "Medio",
+        "high": "Alto"
+      }
     },
     "photos": {
       "title": "Fotos",
@@ -434,77 +440,6 @@
       "page": "Pagina {n}"
     }
   },
-  "applications": {
-    "status": {
-      "enviada": "Enviada",
-      "revisando": "En revision",
-      "aprobada": "Aprobada",
-      "rechazada": "Rechazada",
-      "seguimiento": "Seguimiento",
-      "adoptada": "Adoptada",
-      "retirada": "Retirada"
-    },
-    "queue": {
-      "heading": "Solicitudes",
-      "allAnimals": "Todos los animales",
-      "allStatuses": "Todos los estados",
-      "dateFrom": "Desde",
-      "dateTo": "Hasta",
-      "columns": {
-        "adopter": "Adoptante",
-        "animal": "Animal",
-        "date": "Fecha",
-        "score": "Puntuacion",
-        "status": "Estado",
-        "actions": "Acciones"
-      },
-      "viewDetail": "Ver detalle",
-      "empty": {
-        "heading": "No hay solicitudes todavia",
-        "body": "Cuando alguien aplique para adoptar un animal de tu organizacion, aparecera aqui."
-      }
-    },
-    "detail": {
-      "backToQueue": "Volver a solicitudes",
-      "personalInfo": "Info personal",
-      "housing": "Vivienda y convivencia",
-      "lifestyle": "Experiencia y estilo de vida",
-      "photos": "Fotos del hogar",
-      "additionalInfo": "Informacion adicional",
-      "statusPanel": "Estado de la solicitud",
-      "animalSummary": "Animal solicitado",
-      "score": "Puntuacion",
-      "scorePlaceholder": "Disponible en Fase 4",
-      "phone": "Telefono",
-      "occupation": "Ocupacion",
-      "birthDate": "Fecha de nacimiento",
-      "housingType": "Tipo de vivienda",
-      "ownership": "Propiedad",
-      "petPermission": "Permiso para mascotas",
-      "exteriorSpace": "Espacio exterior",
-      "adults": "Adultos en el hogar",
-      "children": "Ninos en el hogar",
-      "currentPets": "Mascotas actuales",
-      "noPets": "Sin mascotas actualmente",
-      "speciesExperience": "Experiencia con la especie",
-      "previousPets": "Mascotas anteriores",
-      "hoursAlone": "Horas solo por dia",
-      "activityLevel": "Nivel de actividad",
-      "adoptionReason": "Razon de adopcion",
-      "socialMedia": "Red social",
-      "additionalContext": "Contexto adicional",
-      "notFound": "Solicitud no encontrada"
-    },
-    "transitions": {
-      "reviewing": "Marcar en revision",
-      "approve": "Aprobar",
-      "reject": "Rechazar",
-      "followUp": "Solicitar seguimiento",
-      "confirmAdoption": "Confirmar adopcion",
-      "confirmTitle": "Confirmar cambio de estado",
-      "confirmBody": "Cambiar estado a {status}?"
-    }
-  },
   "detail": {
     "apply": "Aplicar para adoptar",
     "applyDisabled": "Disponible en la siguiente version",
@@ -642,7 +577,60 @@
       "housing": "Vivienda y convivencia",
       "lifestyle": "Experiencia y estilo de vida",
       "photos": "Fotos del hogar",
-      "additionalInfo": "Informacion adicional"
+      "additionalInfo": "Informacion adicional",
+      "backToQueue": "Volver a solicitudes",
+      "statusPanel": "Estado de la solicitud",
+      "animalSummary": "Animal solicitado",
+      "score": "Puntuacion",
+      "scorePlaceholder": "Disponible en Fase 4",
+      "phone": "Telefono",
+      "occupation": "Ocupacion",
+      "birthDate": "Fecha de nacimiento",
+      "housingType": "Tipo de vivienda",
+      "ownership": "Propiedad",
+      "petPermission": "Permiso para mascotas",
+      "exteriorSpace": "Espacio exterior",
+      "adults": "Adultos en el hogar",
+      "children": "Ninos en el hogar",
+      "currentPets": "Mascotas actuales",
+      "noPets": "Sin mascotas actualmente",
+      "speciesExperience": "Experiencia con la especie",
+      "previousPets": "Mascotas anteriores",
+      "hoursAlone": "Horas solo por dia",
+      "activityLevel": "Nivel de actividad",
+      "adoptionReason": "Razon de adopcion",
+      "socialMedia": "Red social",
+      "additionalContext": "Contexto adicional",
+      "notFound": "Solicitud no encontrada"
+    },
+    "queue": {
+      "heading": "Solicitudes",
+      "allAnimals": "Todos los animales",
+      "allStatuses": "Todos los estados",
+      "dateFrom": "Desde",
+      "dateTo": "Hasta",
+      "columns": {
+        "adopter": "Adoptante",
+        "animal": "Animal",
+        "date": "Fecha",
+        "score": "Puntuacion",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "viewDetail": "Ver detalle",
+      "empty": {
+        "heading": "No hay solicitudes todavia",
+        "body": "Cuando alguien aplique para adoptar un animal de tu organizacion, aparecera aqui."
+      }
+    },
+    "transitions": {
+      "reviewing": "Marcar en revision",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "followUp": "Solicitar seguimiento",
+      "confirmAdoption": "Confirmar adopcion",
+      "confirmTitle": "Confirmar cambio de estado",
+      "confirmBody": "Cambiar estado a {status}?"
     },
     "staff": {
       "queueTitle": "Solicitudes",
