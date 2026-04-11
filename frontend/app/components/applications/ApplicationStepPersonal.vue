@@ -74,7 +74,7 @@ function validate(): boolean {
   errors.value = {}
   const result = schema.safeParse(form)
   if (!result.success) {
-    result.error.errors.forEach(err => {
+    result.error.issues.forEach(err => {
       const field = err.path[0] as string
       if (field && !errors.value[field]) {
         errors.value[field] = err.message
