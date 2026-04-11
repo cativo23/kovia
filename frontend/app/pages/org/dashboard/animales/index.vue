@@ -78,7 +78,7 @@
         </template>
 
         <template #status-cell="{ row }">
-          <AnimalsStatusBadge :status="row.original.status" />
+          <StatusBadge :status="row.original.status" />
         </template>
 
         <template #age-cell="{ row }">
@@ -206,6 +206,8 @@ interface Animal {
   status: AnimalStatus
   ageMonths: number | null
   coverPhotoUrl: string | null
+  coverPhotoId: string | null
+  photos: { id: string; url: string }[]
   species: { name: string } | null
 }
 
@@ -426,8 +428,13 @@ async function loadAnimals() {
     if (activeStatus.value) params.set('status', activeStatus.value)
     if (searchTerm.value.length >= 2) params.set('search', searchTerm.value)
 
-    const result = await get<PaginatedResponse<Animal>>(`/animals/org?${params.toString()}`)
-    animals.value = result.data
+    const result = await get<PaginatedResponse<any>>(`/animals/org?${params.toString()}`)
+    animals.value = result.data.map((a: any) => ({
+      ...a,
+      coverPhotoUrl: a.photos?.find((p: any) => p.id === a.coverPhotoId)?.url
+        ?? a.photos?.[0]?.url
+        ?? null,
+    }))
     total.value = result.total
     totalPages.value = result.totalPages
   } catch {

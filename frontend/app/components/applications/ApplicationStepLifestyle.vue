@@ -9,6 +9,7 @@
         v-model="form.speciesExperience"
         :items="speciesExperienceOptions"
         :placeholder="$t('applications.steps.lifestyle.speciesExperiencePlaceholder')"
+        value-key="label"
         :color="errors.speciesExperience ? 'error' : undefined"
       />
       <p v-if="errors.speciesExperience" class="text-sm text-red-500 mt-1">{{ errors.speciesExperience }}</p>
@@ -41,6 +42,7 @@
         v-model="form.hoursAlone"
         :items="hoursAloneOptions"
         :placeholder="$t('applications.steps.lifestyle.hoursAlonePlaceholder')"
+        value-key="label"
         :color="errors.hoursAlone ? 'error' : undefined"
       />
       <p v-if="errors.hoursAlone" class="text-sm text-red-500 mt-1">{{ errors.hoursAlone }}</p>
@@ -55,6 +57,7 @@
         v-model="form.activityLevel"
         :items="activityLevelOptions"
         :placeholder="$t('applications.steps.lifestyle.activityLevelPlaceholder')"
+        value-key="label"
         :color="errors.activityLevel ? 'error' : undefined"
       />
       <p v-if="errors.activityLevel" class="text-sm text-red-500 mt-1">{{ errors.activityLevel }}</p>

@@ -9,6 +9,7 @@
         v-model="form.housingType"
         :items="housingTypeOptions"
         :placeholder="$t('applications.steps.housing.housingTypePlaceholder')"
+        value-key="label"
         :color="errors.housingType ? 'error' : undefined"
       />
       <p v-if="errors.housingType" class="text-sm text-red-500 mt-1">{{ errors.housingType }}</p>
@@ -61,6 +62,7 @@
         v-model="form.exteriorSpace"
         :items="exteriorSpaceOptions"
         :placeholder="$t('applications.steps.housing.exteriorSpacePlaceholder')"
+        value-key="label"
         :color="errors.exteriorSpace ? 'error' : undefined"
       />
       <p v-if="errors.exteriorSpace" class="text-sm text-red-500 mt-1">{{ errors.exteriorSpace }}</p>

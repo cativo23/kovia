@@ -249,7 +249,7 @@
                   {{ application.animal.species.name }}
                 </p>
               </div>
-              <AnimalsStatusBadge v-if="application.animal.status" :status="application.animal.status" />
+              <StatusBadge v-if="application.animal.status" :status="application.animal.status" />
             </div>
           </UCard>
         </div>

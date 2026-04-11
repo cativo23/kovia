@@ -5,7 +5,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <AnimalsStatsCards :stats="stats" class="mb-8" />
+    <StatsCards :stats="stats" class="mb-8" />
 
     <!-- Quick Links -->
     <UCard>
