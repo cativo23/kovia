@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsInt, Min } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ApplicationQueryDto {
@@ -19,7 +19,7 @@ export class ApplicationQueryDto {
   animalId?: string;
 
   @IsOptional()
-  @IsString()
+  @IsIn(['ENVIADA', 'REVISANDO', 'APROBADA', 'RECHAZADA', 'SEGUIMIENTO', 'ADOPTADA', 'RETIRADA'])
   status?: string;
 
   @IsOptional()
