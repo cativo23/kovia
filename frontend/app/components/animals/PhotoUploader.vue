@@ -124,10 +124,12 @@ const props = withDefaults(defineProps<{
   photos?: PhotoItem[]
   maxPhotos?: number
   maxSizeMB?: number
+  folder?: string
 }>(), {
   photos: () => [],
   maxPhotos: 10,
   maxSizeMB: 5,
+  folder: 'animals',
 })
 
 const emit = defineEmits<{
@@ -240,7 +242,7 @@ async function uploadFile(file: File) {
     // 2. Get presigned URL
     const { url: presignedUrl, key } = await post<{ url: string; key: string }>(
       '/upload/presigned-url',
-      { filename: file.name, contentType: file.type }
+      { filename: file.name, contentType: file.type, folder: props.folder }
     )
 
     // 3. Upload directly to MinIO

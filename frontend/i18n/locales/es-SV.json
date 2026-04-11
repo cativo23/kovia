@@ -447,5 +447,153 @@
       "years": "anos",
       "months": "meses"
     }
+  },
+  "applications": {
+    "applyButton": "Aplicar para adoptar",
+    "viewApplication": "Ver solicitud",
+    "notAvailableTooltip": "Este animal ya no esta disponible",
+    "status": {
+      "enviada": "Enviada",
+      "revisando": "En revision",
+      "aprobada": "Aprobada",
+      "rechazada": "Rechazada",
+      "seguimiento": "Seguimiento",
+      "adoptada": "Adoptada",
+      "retirada": "Retirada"
+    },
+    "authModal": {
+      "title": "Necesitas una cuenta para aplicar",
+      "register": "Crear cuenta",
+      "login": "Iniciar sesion"
+    },
+    "draft": {
+      "alert": "Tenes un borrador guardado de esta solicitud. Queres continuar desde donde lo dejaste?",
+      "continue": "Continuar borrador",
+      "dismiss": "Empezar de nuevo",
+      "saved": "Guardado"
+    },
+    "wizard": {
+      "next": "Siguiente",
+      "prev": "Anterior",
+      "submit": "Enviar solicitud",
+      "stepLabels": {
+        "personal": "Info personal",
+        "housing": "Vivienda",
+        "lifestyle": "Experiencia",
+        "photos": "Fotos del hogar",
+        "review": "Revision y envio"
+      }
+    },
+    "success": {
+      "heading": "Solicitud enviada!",
+      "body": "Tu solicitud fue enviada correctamente. Recibiras una respuesta pronto.",
+      "viewApplications": "Ver mis solicitudes",
+      "backToAnimal": "Volver al animal"
+    },
+    "errors": {
+      "submitFailed": "No se pudo enviar tu solicitud. Revisa tu conexion e intenta de nuevo.",
+      "loadFailed": "No se pudieron cargar las solicitudes. Intenta de nuevo."
+    },
+    "steps": {
+      "personal": {
+        "phone": "Telefono",
+        "phonePlaceholder": "+503 7890 1234",
+        "occupation": "Ocupacion",
+        "occupationPlaceholder": "Tu ocupacion actual",
+        "birthDate": "Fecha de nacimiento"
+      },
+      "housing": {
+        "housingType": "Tipo de vivienda",
+        "housingTypePlaceholder": "Selecciona tipo de vivienda",
+        "ownership": "Propiedad",
+        "petPermission": "Permiso para mascotas",
+        "exteriorSpace": "Espacio exterior",
+        "exteriorSpacePlaceholder": "Selecciona espacio exterior",
+        "adults": "Numero de adultos",
+        "children": "Numero de ninos",
+        "childrenHelper": "Incluye menores de 18 anos",
+        "hasPets": "Tenes mascotas actualmente?",
+        "addPet": "Agregar mascota",
+        "petSpeciesPlaceholder": "Ej: Perro, Gato...",
+        "currentPetsLabel": "Mascotas actuales"
+      },
+      "lifestyle": {
+        "speciesExperience": "Experiencia con la especie",
+        "speciesExperiencePlaceholder": "Selecciona tu experiencia",
+        "previousPets": "Tuviste mascotas anteriormente?",
+        "previousPetsDetail": "Contanos brevemente que paso con ellas",
+        "previousPetsPlaceholder": "Describe brevemente...",
+        "hoursAlone": "Horas sola en casa",
+        "hoursAlonePlaceholder": "Selecciona horas",
+        "activityLevel": "Nivel de actividad del hogar",
+        "activityLevelPlaceholder": "Selecciona nivel de actividad",
+        "adoptionReason": "Por que queres adoptar a este animal?",
+        "adoptionReasonPlaceholder": "Escribe tu motivacion...",
+        "characters": "caracteres"
+      },
+      "photos": {
+        "title": "Fotos de tu hogar",
+        "requirement": "Se requieren minimo 2 fotos",
+        "maxReached": "Limite alcanzado (maximo 8 fotos)",
+        "minPhotosError": "Debes agregar al menos 2 fotos para continuar"
+      }
+    },
+    "review": {
+      "personalInfo": "Info personal",
+      "housing": "Vivienda y convivencia",
+      "lifestyle": "Experiencia y estilo de vida",
+      "photos": "Fotos del hogar",
+      "additionalInfo": "Informacion adicional",
+      "edit": "Editar",
+      "noPhotos": "Sin fotos",
+      "socialMedia": "Enlace de redes sociales (Instagram/Facebook)",
+      "socialMediaPlaceholder": "https://instagram.com/tuperfil",
+      "additionalContext": "Contexto adicional",
+      "additionalContextPlaceholder": "Cualquier informacion adicional relevante..."
+    },
+    "history": {
+      "title": "Mis solicitudes",
+      "emptyTitle": "Todavia no enviaste ninguna solicitud",
+      "emptyBody": "Explora los animales disponibles y aplica para adoptar.",
+      "emptyCta": "Ver animales disponibles",
+      "viewApplication": "Ver solicitud",
+      "submittedAt": "Enviada el"
+    },
+    "detail": {
+      "withdraw": "Retirar solicitud",
+      "withdrawConfirmTitle": "Estas seguro?",
+      "withdrawConfirmBody": "Si retiras tu solicitud, no podras recuperarla. Deberas enviar una nueva si cambias de opinion.",
+      "withdrawConfirmCta": "Si, retirar solicitud",
+      "withdrawCancel": "Mantener mi solicitud",
+      "personalInfo": "Info personal",
+      "housing": "Vivienda y convivencia",
+      "lifestyle": "Experiencia y estilo de vida",
+      "photos": "Fotos del hogar",
+      "additionalInfo": "Informacion adicional"
+    },
+    "staff": {
+      "queueTitle": "Solicitudes",
+      "scorePlaceholder": "—",
+      "viewDetail": "Ver detalle",
+      "emptyTitle": "No hay solicitudes todavia",
+      "emptyBody": "Cuando alguien aplique para adoptar un animal de tu organizacion, aparecera aqui.",
+      "navItem": "Aplicaciones",
+      "columns": {
+        "adopter": "Adoptante",
+        "animal": "Animal",
+        "submittedAt": "Fecha enviada",
+        "score": "Puntuacion",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "transitions": {
+        "markReviewing": "Marcar en revision",
+        "approve": "Aprobar",
+        "reject": "Rechazar",
+        "requestFollowUp": "Solicitar seguimiento",
+        "confirmAdoption": "Confirmar adopcion",
+        "confirmModal": "Confirmar cambio de estado a {status}?"
+      }
+    }
   }
 }
