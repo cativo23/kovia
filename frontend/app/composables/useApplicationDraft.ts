@@ -13,7 +13,13 @@ export function useApplicationDraft(animalId: string, userId: string) {
   function loadDraft(): { steps: Record<string, any>; currentStep: number; savedAt: number } | null {
     if (import.meta.server) return null
     const raw = localStorage.getItem(key)
-    return raw ? JSON.parse(raw) : null
+    if (!raw) return null
+    try {
+      return JSON.parse(raw)
+    } catch {
+      localStorage.removeItem(key) // discard corrupted draft
+      return null
+    }
   }
 
   function clearDraft() {
