@@ -57,15 +57,15 @@
             </div>
             <div v-if="animal.size" class="flex items-center gap-2">
               <UIcon name="i-lucide-ruler" class="w-4 h-4 text-gray-400" />
-              <span>{{ $t(`animals.form.size.${sizeKey(animal.size)}`) }}</span>
+              <span>{{ $t(`animals.form.sizeOptions.${sizeKey(animal.size)}`) }}</span>
             </div>
             <div v-if="animal.gender" class="flex items-center gap-2">
               <UIcon name="i-lucide-user" class="w-4 h-4 text-gray-400" />
-              <span>{{ $t(`animals.form.gender.${animal.gender.toLowerCase()}`) }}</span>
+              <span>{{ $t(`animals.form.genderOptions.${animal.gender.toLowerCase()}`) }}</span>
             </div>
             <div v-if="animal.energyLevel" class="flex items-center gap-2">
               <UIcon name="i-lucide-zap" class="w-4 h-4 text-gray-400" />
-              <span>{{ $t(`animals.form.energy.${animal.energyLevel.toLowerCase()}`) }}</span>
+              <span>{{ $t(`animals.form.energyOptions.${animal.energyLevel.toLowerCase()}`) }}</span>
             </div>
           </div>
 
