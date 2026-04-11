@@ -169,10 +169,24 @@
           </UCard>
         </div>
 
-        <!-- Right column: status + animal summary (1/3 width) -->
+        <!-- Right column: score + flags + status + notes + animal (1/3 width) -->
         <div class="space-y-6">
 
-          <!-- Status panel -->
+          <!-- 1. Red flags (always visible above score when present) -->
+          <RedFlagsAlert
+            v-if="application.scoreDetails?.redFlags?.length"
+            :red-flags="application.scoreDetails.redFlags"
+          />
+
+          <!-- 2. Score panel -->
+          <ScorePanel
+            :score="application.score"
+            :score-details="application.scoreDetails"
+            :application-id="application.id"
+            @rescored="onRescored"
+          />
+
+          <!-- 3. Status panel -->
           <UCard>
             <template #header>
               <h3 class="font-semibold text-base">{{ $t('applications.detail.statusPanel') }}</h3>
@@ -181,12 +195,6 @@
               <!-- Current status badge -->
               <div class="flex items-center gap-2">
                 <ApplicationStatusBadge :status="application.status" />
-              </div>
-
-              <!-- Score placeholder -->
-              <div class="flex items-center gap-2 text-sm">
-                <span class="text-gray-500">{{ $t('applications.detail.score') }}:</span>
-                <span class="text-gray-400 italic">—</span>
               </div>
 
               <UDivider />
@@ -209,7 +217,13 @@
             </div>
           </UCard>
 
-          <!-- Animal summary -->
+          <!-- 4. Applicant history summary (Plan 03) -->
+          <!-- ApplicantHistorySummary will be added in Plan 03 -->
+
+          <!-- 5. Internal notes -->
+          <InternalNotes :application-id="application.id" />
+
+          <!-- 6. Animal summary -->
           <UCard v-if="application.animal">
             <template #header>
               <h3 class="font-semibold text-base">{{ $t('applications.detail.animalSummary') }}</h3>
@@ -317,6 +331,7 @@ type ApplicationStatus =
   | 'SEGUIMIENTO'
   | 'ADOPTADA'
   | 'RETIRADA'
+  | 'DEVUELTA'
 
 type AnimalStatus = 'AVAILABLE' | 'IN_PROCESS' | 'ADOPTED' | 'ARCHIVED'
 
@@ -333,6 +348,24 @@ interface ApplicationAnimal {
   species: { name: string } | null
 }
 
+interface ScoringResult {
+  total: number
+  riskLevel: string
+  categories: Array<{
+    name: string
+    label: string
+    points: number
+    maxPoints: number
+    notes?: string[]
+  }>
+  redFlags: Array<{
+    severity: string
+    code: string
+    message: string
+  }>
+  overridden: boolean
+}
+
 interface Application {
   id: string
   animalId: string
@@ -346,6 +379,9 @@ interface Application {
   lifestyle: Record<string, any> | null
   socialMedia: string | null
   additionalContext: string | null
+  score: number | null
+  scoreDetails: ScoringResult | null
+  userId: string
   photos: ApplicationPhoto[]
   animal: ApplicationAnimal | null
 }
@@ -385,6 +421,9 @@ const staffTransitions: Record<string, Transition[]> = {
   APROBADA: [
     { status: 'ADOPTADA', label: t('applications.transitions.confirmAdoption'), color: 'success' },
   ],
+  ADOPTADA: [
+    { status: 'DEVUELTA', label: t('applications.transitions.devuelta'), color: 'error' },
+  ],
 }
 
 const allowedTransitions = computed<Transition[]>(() => {
@@ -409,6 +448,12 @@ function openLightbox(idx: number) {
 function openConfirmModal(transition: Transition) {
   pendingTransition.value = transition
   showConfirmModal.value = true
+}
+
+function onRescored(score: number, scoreDetails: ScoringResult) {
+  if (!application.value) return
+  application.value.score = score
+  application.value.scoreDetails = scoreDetails
 }
 
 async function executeTransition() {

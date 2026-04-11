@@ -95,8 +95,15 @@
           {{ formatDate(row.original.submittedAt) }}
         </template>
 
-        <template #score-cell>
-          <span class="text-gray-400 italic">—</span>
+        <template #score-cell="{ row }">
+          <div v-if="row.original.score !== null && row.original.score !== undefined" class="flex items-center gap-2">
+            <span class="text-sm font-medium">{{ row.original.score }}</span>
+            <RiskBadge
+              v-if="row.original.scoreDetails?.riskLevel"
+              :risk-level="row.original.scoreDetails.riskLevel"
+            />
+          </div>
+          <span v-else class="text-gray-400 italic">—</span>
         </template>
 
         <template #status-cell="{ row }">
@@ -163,6 +170,8 @@ interface Application {
   animal: Animal | null
   submittedAt: string
   status: ApplicationStatus
+  score: number | null
+  scoreDetails: { riskLevel: string } | null
 }
 
 interface PaginatedResponse<T> {
@@ -212,7 +221,7 @@ const columns = [
   { accessorKey: 'adopter', header: t('applications.queue.columns.adopter') },
   { accessorKey: 'animal', header: t('applications.queue.columns.animal') },
   { accessorKey: 'submittedAt', header: t('applications.queue.columns.date') },
-  { accessorKey: 'score', header: t('applications.queue.columns.score') },
+  { accessorKey: 'score', header: t('scoring.queueColumn') },
   { accessorKey: 'status', header: t('applications.queue.columns.status') },
   { accessorKey: 'actions', header: t('applications.queue.columns.actions') },
 ]
