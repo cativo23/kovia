@@ -163,19 +163,58 @@
             </NuxtLink>
           </div>
 
-          <!-- CTA button -->
-          <UTooltip :text="$t('detail.applyDisabled')">
+          <!-- CTA button — 4 states per D-12/D-13 -->
+          <!-- State 1: Animal not AVAILABLE -->
+          <UTooltip v-if="animal.status !== 'AVAILABLE'" :text="$t('applications.notAvailableTooltip')">
             <UButton
               block
               size="xl"
               disabled
               icon="i-lucide-heart"
-              :label="$t('detail.apply')"
+              :label="$t('applications.applyButton')"
             />
           </UTooltip>
+
+          <!-- State 2: Unauthenticated -->
+          <UButton
+            v-else-if="!authStore.isAuthenticated"
+            block
+            size="xl"
+            icon="i-lucide-heart"
+            :label="$t('applications.applyButton')"
+            @click="showAuthModal = true"
+          />
+
+          <!-- State 3: Authenticated, application exists -->
+          <UButton
+            v-else-if="existingApplication"
+            block
+            size="xl"
+            variant="outline"
+            icon="i-lucide-clipboard-list"
+            :label="$t('applications.viewApplication')"
+            :to="`/perfil/aplicaciones/${existingApplication.applicationId}`"
+          />
+
+          <!-- State 4: Authenticated, no existing application -->
+          <UButton
+            v-else
+            block
+            size="xl"
+            icon="i-lucide-heart"
+            :label="$t('applications.applyButton')"
+            :to="`/animales/${animal.id}/aplicar`"
+          />
         </div>
       </div>
     </div>
+
+    <!-- Auth Gate Modal -->
+    <ApplicationsApplicationAuthModal
+      v-if="animal"
+      v-model="showAuthModal"
+      :animal-id="String(route.params.id)"
+    />
   </div>
 </template>
 
@@ -184,6 +223,8 @@ definePageMeta({ layout: 'default' })
 
 const route = useRoute()
 const config = useRuntimeConfig()
+const authStore = useAuthStore()
+const { get } = useApi()
 
 interface AnimalPhoto {
   id: string
@@ -221,6 +262,10 @@ const { data: animal } = await useFetch<AnimalPublic>(`/animals/${route.params.i
   baseURL: config.public.apiUrl as string,
 }).catch(() => ({ data: ref(null) }))
 
+// Auth gate modal state
+const showAuthModal = ref(false)
+const existingApplication = ref<{ exists: boolean; applicationId?: string } | null>(null)
+
 // OG meta tags — critical for social sharing
 useSeoMeta({
   title: () => animal.value ? `${animal.value.name} - Adopcion | Kovia` : 'Animal | Kovia',
@@ -230,6 +275,20 @@ useSeoMeta({
   ogImage: () => animal.value?.photos?.[0]?.url || '/og-default.png',
   ogType: 'article',
   twitterCard: 'summary_large_image',
+})
+
+// Client-side: check for existing application if authenticated
+onMounted(async () => {
+  if (authStore.isAuthenticated && animal.value) {
+    try {
+      const check = await get<{ exists: boolean; applicationId?: string }>(
+        `/applications/check?animalId=${route.params.id}`
+      )
+      existingApplication.value = check
+    } catch {
+      // Silent: no existing application or auth issue
+    }
+  }
 })
 
 function formatAge(months: number): string {
