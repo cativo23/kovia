@@ -45,10 +45,13 @@ export class ScoringService {
     });
 
     // Write score with admin context
-    await this.publicPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`;
-    await this.publicPrisma.adoptionApplication.update({
-      where: { id: applicationId },
-      data: { score: result.total, scoreDetails: result as any },
+    // Wrapped in $transaction so set_config and UPDATE share the same connection/transaction
+    await this.publicPrisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`;
+      await tx.adoptionApplication.update({
+        where: { id: applicationId },
+        data: { score: result.total, scoreDetails: result as any },
+      });
     });
 
     return result;
