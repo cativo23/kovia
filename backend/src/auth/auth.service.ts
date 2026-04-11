@@ -272,7 +272,25 @@ export class AuthService {
   }
 
   private async generateTokens(user: any) {
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    let organizationId: string | null = null;
+    if (user.role === 'ORG_ADMIN') {
+      const org = await this.prisma.organization.findFirst({
+        where: { adminId: user.id },
+        select: { id: true },
+      });
+      organizationId = org?.id ?? null;
+    }
+
+    const payload: Record<string, any> = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      firstName: user.firstName ?? null,
+      lastName: user.lastName ?? null,
+    };
+    if (organizationId) {
+      payload.organizationId = organizationId;
+    }
 
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.config.get<string>('JWT_ACCESS_SECRET'),
