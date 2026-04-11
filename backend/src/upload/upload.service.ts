@@ -10,7 +10,10 @@ import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UploadService {
+  // Internal client for server-side operations (delete, etc.) — uses Docker hostname
   private readonly s3: S3Client;
+  // Public client for presigned URLs — signed for the public-facing hostname
+  private readonly s3Public: S3Client;
   private readonly bucket: string;
   private readonly publicUrl: string;
 
@@ -20,16 +23,33 @@ export class UploadService {
       this.configService.get<string>('S3_PUBLIC_URL') ||
       'http://localhost:9000/kovia-animals';
 
+    const credentials = {
+      accessKeyId: this.configService.get<string>('S3_ACCESS_KEY') || 'minioadmin',
+      secretAccessKey: this.configService.get<string>('S3_SECRET_KEY') || 'minioadmin',
+    };
+    const region = this.configService.get<string>('S3_REGION') || 'us-east-1';
+    const checksumConfig = {
+      requestChecksumCalculation: 'WHEN_REQUIRED' as const,
+      responseChecksumValidation: 'WHEN_REQUIRED' as const,
+    };
+
     this.s3 = new S3Client({
       endpoint: this.configService.get<string>('S3_ENDPOINT') || 'http://minio:9000',
-      credentials: {
-        accessKeyId:
-          this.configService.get<string>('S3_ACCESS_KEY') || 'minioadmin',
-        secretAccessKey:
-          this.configService.get<string>('S3_SECRET_KEY') || 'minioadmin',
-      },
-      region: this.configService.get<string>('S3_REGION') || 'us-east-1',
+      credentials,
+      region,
       forcePathStyle: true,
+      ...checksumConfig,
+    });
+
+    // Presigned URLs must be signed with the public endpoint so the Host header matches
+    const publicEndpoint =
+      this.configService.get<string>('S3_PUBLIC_ENDPOINT') || 'http://localhost:9000';
+    this.s3Public = new S3Client({
+      endpoint: publicEndpoint,
+      credentials,
+      region,
+      forcePathStyle: true,
+      ...checksumConfig,
     });
   }
 
@@ -46,7 +66,8 @@ export class UploadService {
       ContentType: contentType,
     });
 
-    const url = await getSignedUrl(this.s3, command, { expiresIn: 300 });
+    // Use public client so the signature is computed for the public-facing host
+    const url = await getSignedUrl(this.s3Public, command, { expiresIn: 300 });
 
     return { url, key };
   }

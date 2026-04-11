@@ -4,6 +4,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { ClsService } from 'nestjs-cls';
 import { PRISMA_RLS } from '../prisma/prisma.module';
 import { PrismaService } from '../prisma/prisma.service';
 import { UploadService } from '../upload/upload.service';
@@ -54,14 +55,17 @@ export class AnimalsService {
     private readonly publicPrisma: PrismaService,
     private readonly uploadService: UploadService,
     private readonly auditService: AuditService,
+    private readonly cls: ClsService,
   ) {}
 
   async create(dto: CreateAnimalInput, userId: string) {
+    const organizationId = this.cls.get('organizationId') as string;
     const animal = await this.prismaRls.animal.create({
       data: {
         name: dto.name,
         description: dto.description,
-        speciesId: dto.speciesId,
+        species: { connect: { id: dto.speciesId } },
+        organization: { connect: { id: organizationId } },
         breed: dto.breed,
         gender: dto.gender,
         ageMonths: dto.ageMonths,

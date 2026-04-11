@@ -12,7 +12,7 @@ export class ApplicationNotesService {
 
   async create(applicationId: string, dto: CreateNoteDto, userId: string) {
     // organizationId is read from CLS context, never from body (T-04-06 mitigation)
-    const organizationId = this.cls.get('orgId') as string;
+    const organizationId = this.cls.get('organizationId') as string;
 
     return this.prismaRls.applicationNote.create({
       data: {

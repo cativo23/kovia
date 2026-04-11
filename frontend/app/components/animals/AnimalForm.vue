@@ -259,22 +259,22 @@ const speciesOptions = computed(() =>
 )
 
 const genderOptions = computed(() => [
-  { label: t('animals.form.gender.male'), value: 'MALE' },
-  { label: t('animals.form.gender.female'), value: 'FEMALE' },
-  { label: t('animals.form.gender.unknown'), value: 'UNKNOWN' },
+  { label: t('animals.form.genderOptions.male'), value: 'MALE' },
+  { label: t('animals.form.genderOptions.female'), value: 'FEMALE' },
+  { label: t('animals.form.genderOptions.unknown'), value: 'UNKNOWN' },
 ])
 
 const sizeOptions = computed(() => [
-  { label: t('animals.form.size.small'), value: 'SMALL' },
-  { label: t('animals.form.size.medium'), value: 'MEDIUM' },
-  { label: t('animals.form.size.large'), value: 'LARGE' },
-  { label: t('animals.form.size.extraLarge'), value: 'EXTRA_LARGE' },
+  { label: t('animals.form.sizeOptions.small'), value: 'SMALL' },
+  { label: t('animals.form.sizeOptions.medium'), value: 'MEDIUM' },
+  { label: t('animals.form.sizeOptions.large'), value: 'LARGE' },
+  { label: t('animals.form.sizeOptions.extraLarge'), value: 'EXTRA_LARGE' },
 ])
 
 const energyOptions = computed(() => [
-  { label: t('animals.form.energy.low'), value: 'LOW' },
-  { label: t('animals.form.energy.medium'), value: 'MEDIUM' },
-  { label: t('animals.form.energy.high'), value: 'HIGH' },
+  { label: t('animals.form.energyOptions.low'), value: 'LOW' },
+  { label: t('animals.form.energyOptions.medium'), value: 'MEDIUM' },
+  { label: t('animals.form.energyOptions.high'), value: 'HIGH' },
 ])
 
 function validate(sections?: string[]): boolean {

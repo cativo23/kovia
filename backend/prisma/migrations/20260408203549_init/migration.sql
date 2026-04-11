@@ -103,7 +103,6 @@ ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_userId_fkey" FOREIGN KEY ("u
 ALTER TABLE "users" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "organizations" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "org_invites" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "audit_logs" ENABLE ROW LEVEL SECURITY;
 
 -- Grant app_user access to schema and tables
 GRANT USAGE ON SCHEMA public TO app_user;
@@ -146,6 +145,5 @@ CREATE POLICY authenticated_access ON "org_invites"
 -- Safe because tokens are unguessable 64-char hex strings
 CREATE POLICY public_read ON "org_invites" FOR SELECT USING (true);
 
--- RLS Policies for audit_logs: platform admin only
-CREATE POLICY admin_full_access ON "audit_logs"
-  USING (current_setting('app.is_admin', true) = 'true');
+-- audit_logs: no RLS (app_user inserts logs for all roles; read access controlled at app layer)
+ALTER TABLE "audit_logs" DISABLE ROW LEVEL SECURITY;

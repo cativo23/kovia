@@ -80,6 +80,7 @@ export class ApplicationsController {
   @Post(':id/rescore')
   @Roles('ORG_ADMIN')
   async rescore(@Param('id') id: string) {
-    return this.scoringService.rescore(id);
+    const result = await this.scoringService.rescore(id);
+    return { score: result.total, scoreDetails: result };
   }
 }

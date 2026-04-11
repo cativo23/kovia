@@ -22,6 +22,7 @@ services:
       S3_BUCKET: kovia-animals
       S3_REGION: us-east-1
       S3_PUBLIC_URL: http://localhost:9000/kovia-animals
+      S3_PUBLIC_ENDPOINT: http://localhost:9000
     volumes:
       - ./backend:/app
       - /app/node_modules

@@ -1,60 +1,65 @@
 <template>
   <!-- Score en modo sombra: oculto hasta calibracion -->
   <template v-if="scoringEnabled">
-    <p v-if="score === null || score === undefined" class="text-sm text-gray-400 italic">
-      {{ $t('scoring.pending') }}
-    </p>
-    <UCard v-else>
+    <UCard>
       <template #header>
         <h3 class="font-semibold text-base">{{ $t('scoring.panelHeading') }}</h3>
       </template>
 
+      <!-- Pending state -->
+      <p v-if="score === null || score === undefined" class="text-sm text-gray-400 italic mb-4">
+        {{ $t('scoring.pending') }}
+      </p>
+
       <!-- Score number + risk badge -->
-      <div class="flex items-center gap-3 mb-4">
-        <span class="text-3xl font-bold">{{ score }}</span>
-        <RiskBadge
-          v-if="scoreDetails?.riskLevel"
-          :risk-level="scoreDetails.riskLevel"
-        />
-      </div>
+      <template v-else>
+        <div class="flex items-center gap-3 mb-4">
+          <span class="text-3xl font-bold">{{ score }}</span>
+          <RiskBadge
+            v-if="scoreDetails?.riskLevel"
+            :risk-level="scoreDetails.riskLevel"
+          />
+        </div>
 
-      <!-- Collapsible breakdown -->
-      <UCollapsible v-if="scoreDetails?.categories?.length" v-model:open="breakdownOpen">
-        <UButton
-          variant="ghost"
-          size="sm"
-          class="mb-2"
-          @click="breakdownOpen = !breakdownOpen"
-        >
-          {{ breakdownOpen ? $t('scoring.breakdownHide') : $t('scoring.breakdown') }}
-        </UButton>
-        <template #content>
-          <div class="space-y-2 mt-2">
-            <div
-              v-for="cat in scoreDetails.categories"
-              :key="cat.name"
-              class="space-y-1"
+        <!-- Collapsible breakdown -->
+        <UCollapsible v-if="scoreDetails?.categories?.length" v-model:open="breakdownOpen">
+          <template #default>
+            <UButton
+              variant="ghost"
+              size="sm"
+              class="mb-2"
             >
-              <div class="flex justify-between text-sm">
-                <span>{{ cat.label }}</span>
-                <span>{{ cat.points }}/{{ cat.maxPoints }} pts</span>
-              </div>
-            </div>
-            <!-- Soft flags shown once after the category list (not duplicated per category) -->
-            <template v-if="softFlags.length">
-              <p
-                v-for="flag in softFlags"
-                :key="flag.code"
-                class="text-xs text-gray-400 italic"
+              {{ breakdownOpen ? $t('scoring.breakdownHide') : $t('scoring.breakdown') }}
+            </UButton>
+          </template>
+          <template #content>
+            <div class="space-y-2 mt-2">
+              <div
+                v-for="cat in scoreDetails.categories"
+                :key="cat.name"
+                class="space-y-1"
               >
-                {{ flag.message }}
-              </p>
-            </template>
-          </div>
-        </template>
-      </UCollapsible>
+                <div class="flex justify-between text-sm">
+                  <span>{{ cat.label }}</span>
+                  <span>{{ cat.points }}/{{ cat.maxPoints }} pts</span>
+                </div>
+              </div>
+              <!-- Soft flags shown once after the category list (not duplicated per category) -->
+              <template v-if="softFlags.length">
+                <p
+                  v-for="flag in softFlags"
+                  :key="flag.code"
+                  class="text-xs text-gray-400 italic"
+                >
+                  {{ flag.message }}
+                </p>
+              </template>
+            </div>
+          </template>
+        </UCollapsible>
+      </template>
 
-      <!-- Re-score button (ORG_ADMIN only) -->
+      <!-- Re-score button (ORG_ADMIN only) — visible regardless of score state -->
       <div v-if="authStore.isOrgAdmin" class="mt-4">
         <UButton
           color="primary"

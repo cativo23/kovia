@@ -86,9 +86,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Backend: pure scoring engine (TDD, 50+ tests), BullMQ processor, DEVUELTA migration, ApplicationNote model + RLS, notes CRUD, rescore endpoint
-- [ ] 04-02-PLAN.md — Staff UI: ScorePanel, RedFlagsAlert, RiskBadge, InternalNotes components, shadow mode config, queue table score column, DEVUELTA transition
-- [ ] 04-03-PLAN.md — Adopter history: backend history endpoint with cross-org projection, ApplicantHistorySummary, adopter profile page, org nav update
+- [x] 04-01-PLAN.md — Backend: pure scoring engine (TDD, 50+ tests), BullMQ processor, DEVUELTA migration, ApplicationNote model + RLS, notes CRUD, rescore endpoint
+- [x] 04-02-PLAN.md — Staff UI: ScorePanel, RedFlagsAlert, RiskBadge, InternalNotes components, shadow mode config, queue table score column, DEVUELTA transition
+- [x] 04-03-PLAN.md — Adopter history: backend history endpoint with cross-org projection, ApplicantHistorySummary, adopter profile page, org nav update
 
 ### Phase 5: Notifications and Automation
 **Goal**: Adopters are notified of status changes in-app, and external automation (email, WhatsApp via n8n) is triggered reliably via webhooks
