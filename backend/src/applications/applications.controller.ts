@@ -46,6 +46,7 @@ export class ApplicationsController {
   }
 
   @Patch(':id/retirar')
+  @Roles('ADOPTER')
   async withdraw(@Param('id') id: string, @Req() req: any) {
     return this.applicationsService.withdraw(id, req.user.id);
   }
