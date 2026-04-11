@@ -555,6 +555,15 @@ function detectRedFlags(input: ScoringInput): RedFlag[] {
     }
   }
 
+  // MEDIUM: Repeat returns — adopter has returned 2 or more animals previously
+  if (input.adopterHistory && input.adopterHistory.returnCount >= 2) {
+    flags.push({
+      severity: 'medium',
+      code: 'repeat_return',
+      message: `El solicitante ha devuelto ${input.adopterHistory.returnCount} animales anteriormente.`,
+    });
+  }
+
   return flags;
 }
 
