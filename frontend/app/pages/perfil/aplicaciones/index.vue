@@ -58,7 +58,7 @@
             </p>
             <p class="text-xs text-gray-500">
               {{ $t('applications.history.submittedAt') }}
-              {{ formatDate(app.createdAt) }}
+              {{ formatDate(app.submittedAt) }}
             </p>
           </div>
 
@@ -90,7 +90,7 @@ const { get } = useApi()
 interface ApplicationListItem {
   id: string
   status: string
-  createdAt: string
+  submittedAt: string
   animal: {
     name: string
     coverPhoto?: { url: string } | null
