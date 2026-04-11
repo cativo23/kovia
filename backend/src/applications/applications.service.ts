@@ -289,7 +289,7 @@ export class ApplicationsService {
 
   async withdraw(id: string, userId: string) {
     // Use publicPrisma — adopter has no org context
-    const application = await this.prismaRls.adoptionApplication.findUnique({
+    const application = await this.publicPrisma.adoptionApplication.findUnique({
       where: { id },
     });
 
@@ -307,7 +307,7 @@ export class ApplicationsService {
       throw new BadRequestException('Cannot withdraw an application that has been adopted');
     }
 
-    const updated = await this.prismaRls.adoptionApplication.update({
+    const updated = await this.publicPrisma.adoptionApplication.update({
       where: { id },
       data: { status: 'RETIRADA' },
     });
