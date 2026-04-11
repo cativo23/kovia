@@ -16,7 +16,7 @@ type ApplicationStatus =
 
 const props = defineProps<{
   status: ApplicationStatus
-  size?: string
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }>()
 
 const { t } = useI18n()
