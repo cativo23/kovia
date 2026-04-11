@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ClsService } from 'nestjs-cls';
 
@@ -11,6 +11,14 @@ export class AdoptersService {
 
   async getHistory(userId: string) {
     const currentOrgId = this.cls.get('orgId');
+
+    // Authorization: confirm this adopter has ever applied to the current org
+    const ownOrgCount = await this.publicPrisma.adoptionApplication.count({
+      where: { userId, organizationId: currentOrgId },
+    });
+    if (ownOrgCount === 0) {
+      throw new NotFoundException('Adopter not found in this organization');
+    }
 
     // Fetch ALL applications for this adopter across ALL orgs using publicPrisma (no RLS)
     const allApplications = await this.publicPrisma.adoptionApplication.findMany({
@@ -63,6 +71,16 @@ export class AdoptersService {
   }
 
   async getSummary(userId: string) {
+    const currentOrgId = this.cls.get('orgId');
+
+    // Authorization: confirm this adopter has ever applied to the current org
+    const ownOrgCount = await this.publicPrisma.adoptionApplication.count({
+      where: { userId, organizationId: currentOrgId },
+    });
+    if (ownOrgCount === 0) {
+      throw new NotFoundException('Adopter not found in this organization');
+    }
+
     // Lightweight version for the inline card — just counts
     const [totalApplications, adopted, returned] = await Promise.all([
       this.publicPrisma.adoptionApplication.count({ where: { userId } }),
