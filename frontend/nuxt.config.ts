@@ -24,6 +24,8 @@ export default defineNuxtConfig({
     public: {
       // Client-side: proxy through Nuxt to avoid CORS and third-party cookie issues
       apiUrl: '/api/v1',
+      // Shadow mode: when false, ScorePanel renders nothing (scores computed but hidden until calibration)
+      scoringDisplayEnabled: process.env.NUXT_PUBLIC_SCORING_DISPLAY_ENABLED === 'true',
     },
   },
 

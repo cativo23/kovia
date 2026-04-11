@@ -466,7 +466,8 @@
       "rechazada": "Rechazada",
       "seguimiento": "Seguimiento",
       "adoptada": "Adoptada",
-      "retirada": "Retirada"
+      "retirada": "Retirada",
+      "devuelta": "Devuelta"
     },
     "authModal": {
       "title": "Necesitas una cuenta para aplicar",
@@ -630,7 +631,10 @@
       "followUp": "Solicitar seguimiento",
       "confirmAdoption": "Confirmar adopcion",
       "confirmTitle": "Confirmar cambio de estado",
-      "confirmBody": "Cambiar estado a {status}?"
+      "confirmBody": "Cambiar estado a {status}?",
+      "devuelta": "Registrar devolucion",
+      "confirmDevuelta": "Confirmar devolucion",
+      "devueltaBody": "Esta accion registrara que el animal fue devuelto. Continuar?"
     },
     "staff": {
       "queueTitle": "Solicitudes",
@@ -656,5 +660,32 @@
         "confirmModal": "Confirmar cambio de estado a {status}?"
       }
     }
+  },
+  "scoring": {
+    "panelHeading": "Puntuacion de la solicitud",
+    "pending": "Pendiente de evaluacion",
+    "breakdown": "Ver desglose",
+    "breakdownHide": "Ocultar desglose",
+    "rescore": "Re-puntuar solicitud",
+    "rescoring": "Recalculando...",
+    "rescoreError": "No se pudo cargar la puntuacion. Intenta de nuevo.",
+    "queueColumn": "Puntaje",
+    "risk": {
+      "bajo_riesgo": "Bajo riesgo",
+      "riesgo_moderado": "Riesgo moderado",
+      "requiere_revision": "Requiere revision",
+      "alto_riesgo": "Alto riesgo"
+    },
+    "flags": {
+      "hardPrefix": "Alerta critica:",
+      "mediumPrefix": "Requiere atencion:"
+    }
+  },
+  "notes": {
+    "heading": "Notas internas",
+    "empty": "Aun no hay notas para esta solicitud.",
+    "placeholder": "Escribe una nota interna (solo visible para tu equipo)...",
+    "add": "Agregar nota",
+    "error": "No se pudo guardar la nota. Verifica tu conexion e intenta de nuevo."
   }
 }

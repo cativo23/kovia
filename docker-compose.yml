@@ -44,6 +44,7 @@ services:
       - /app/node_modules
     environment:
       NUXT_API_INTERNAL: http://api:3000
+      NUXT_PUBLIC_SCORING_DISPLAY_ENABLED: 'true'
 
   postgres:
     image: postgres:16

@@ -13,6 +13,7 @@ type ApplicationStatus =
   | 'SEGUIMIENTO'
   | 'ADOPTADA'
   | 'RETIRADA'
+  | 'DEVUELTA'
 
 const props = defineProps<{
   status: ApplicationStatus
@@ -29,6 +30,7 @@ const statusConfig: Record<ApplicationStatus, { color: string; labelKey: string 
   SEGUIMIENTO: { color: 'warning', labelKey: 'applications.status.seguimiento' },
   ADOPTADA: { color: 'success', labelKey: 'applications.status.adoptada' },
   RETIRADA: { color: 'neutral', labelKey: 'applications.status.retirada' },
+  DEVUELTA: { color: 'error', labelKey: 'applications.status.devuelta' },
 }
 
 const badgeColor = computed(() => {
