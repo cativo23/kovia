@@ -17,6 +17,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { UploadModule } from './upload/upload.module';
 import { SpeciesModule } from './species/species.module';
 import { AnimalsModule } from './animals/animals.module';
+import { ApplicationsModule } from './applications/applications.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { AnimalsModule } from './animals/animals.module';
     UploadModule,
     SpeciesModule,
     AnimalsModule,
+    ApplicationsModule,
   ],
   controllers: [AppController],
   providers: [

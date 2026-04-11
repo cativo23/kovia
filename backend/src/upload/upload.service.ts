@@ -36,8 +36,9 @@ export class UploadService {
   async getPresignedUrl(
     filename: string,
     contentType: string,
+    folder: string = 'animals',
   ): Promise<{ url: string; key: string }> {
-    const key = `animals/${randomUUID()}/${filename}`;
+    const key = `${folder}/${randomUUID()}/${filename}`;
 
     const command = new PutObjectCommand({
       Bucket: this.bucket,

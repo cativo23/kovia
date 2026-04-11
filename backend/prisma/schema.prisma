@@ -44,6 +44,16 @@ enum AnimalStatus {
   ARCHIVED
 }
 
+enum ApplicationStatus {
+  ENVIADA
+  REVISANDO
+  APROBADA
+  RECHAZADA
+  SEGUIMIENTO
+  ADOPTADA
+  RETIRADA
+}
+
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
@@ -60,6 +70,7 @@ model User {
   refreshTokens RefreshToken[]
   organization  Organization? @relation("OrgAdmin")
   auditLogs     AuditLog[]
+  applications  AdoptionApplication[]
 
   @@map("users")
 }
@@ -146,8 +157,48 @@ model Animal {
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
   archivedAt        DateTime?
+  applications      AdoptionApplication[]
 
   @@map("animals")
+}
+
+model AdoptionApplication {
+  id                String            @id @default(uuid())
+  animalId          String
+  animal            Animal            @relation(fields: [animalId], references: [id])
+  userId            String
+  user              User              @relation(fields: [userId], references: [id])
+  organizationId    String
+  status            ApplicationStatus @default(ENVIADA)
+  personalInfo      Json?
+  housing           Json?
+  lifestyle         Json?
+  socialMedia       String?
+  additionalContext String?
+  adopterFirstName  String?
+  adopterLastName   String?
+  adopterEmail      String?
+  score             Int?
+  scoreDetails      Json?
+  submittedAt       DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  photos            ApplicationPhoto[]
+
+  @@unique([animalId, userId])
+  @@map("adoption_applications")
+}
+
+model ApplicationPhoto {
+  id            String              @id @default(uuid())
+  applicationId String
+  application   AdoptionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  url           String
+  key           String
+  position      Int                 @default(0)
+  createdAt     DateTime            @default(now())
+
+  @@map("application_photos")
 }
 
 model AnimalPhoto {

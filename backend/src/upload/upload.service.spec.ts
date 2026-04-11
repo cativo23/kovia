@@ -60,6 +60,18 @@ describe('UploadService', () => {
       expect(result.url).toContain('presigned-url');
       expect(result.key).toMatch(/^animals\/[a-f0-9-]+\/photo\.jpg$/);
     });
+
+    it('should use "animals" prefix when no folder param provided (backward compat)', async () => {
+      const result = await service.getPresignedUrl('photo.jpg', 'image/jpeg');
+
+      expect(result.key).toMatch(/^animals\//);
+    });
+
+    it('should use "applications" prefix when folder="applications"', async () => {
+      const result = await service.getPresignedUrl('doc.jpg', 'image/jpeg', 'applications');
+
+      expect(result.key).toMatch(/^applications\//);
+    });
   });
 
   describe('getPublicUrl', () => {
