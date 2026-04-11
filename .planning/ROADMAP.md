@@ -69,9 +69,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Backend: Prisma schema (AdoptionApplication, ApplicationPhoto), migration with RLS, applications CRUD API with state machine, upload folder param, unit tests
-- [ ] 03-02-PLAN.md — Adopter flow: 5-step application wizard, Zod validation, photo upload, localStorage draft persistence, auth gate modal, adopter history pages
-- [ ] 03-03-PLAN.md — Staff flow: application queue table with filters, application detail page with status transition controls, org nav update
+- [x] 03-01-PLAN.md — Backend: Prisma schema (AdoptionApplication, ApplicationPhoto), migration with RLS, applications CRUD API with state machine, upload folder param, unit tests
+- [x] 03-02-PLAN.md — Adopter flow: 5-step application wizard, Zod validation, photo upload, localStorage draft persistence, auth gate modal, adopter history pages
+- [x] 03-03-PLAN.md — Staff flow: application queue table with filters, application detail page with status transition controls, org nav update
 
 ### Phase 4: Scoring and Staff Tools
 **Goal**: Every application is automatically scored with transparent reasoning, and staff have a complete dashboard to evaluate applicants using scores, history, and internal notes
@@ -83,12 +83,12 @@ Plans:
   3. Staff can view all applications per animal with scores and risk levels, update application status, and add internal notes visible only within their org
   4. Staff can view an adopter's full application history across past applications to their org, including adoption outcomes (successful, returned, withdrawn)
   5. Scores are advisory -- staff can approve a low-scoring applicant or reject a high-scoring one
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
-- [ ] 04-03: TBD
+- [ ] 04-01-PLAN.md — Backend: pure scoring engine (TDD, 50+ tests), BullMQ processor, DEVUELTA migration, ApplicationNote model + RLS, notes CRUD, rescore endpoint
+- [ ] 04-02-PLAN.md — Staff UI: ScorePanel, RedFlagsAlert, RiskBadge, InternalNotes components, shadow mode config, queue table score column, DEVUELTA transition
+- [ ] 04-03-PLAN.md — Adopter history: backend history endpoint with cross-org projection, ApplicantHistorySummary, adopter profile page, org nav update
 
 ### Phase 5: Notifications and Automation
 **Goal**: Adopters are notified of status changes in-app, and external automation (email, WhatsApp via n8n) is triggered reliably via webhooks
