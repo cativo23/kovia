@@ -52,6 +52,7 @@ enum ApplicationStatus {
   SEGUIMIENTO
   ADOPTADA
   RETIRADA
+  DEVUELTA
 }
 
 model User {
@@ -71,6 +72,7 @@ model User {
   organization  Organization? @relation("OrgAdmin")
   auditLogs     AuditLog[]
   applications  AdoptionApplication[]
+  authoredNotes ApplicationNote[] @relation("NoteAuthor")
 
   @@map("users")
 }
@@ -184,9 +186,23 @@ model AdoptionApplication {
   updatedAt         DateTime          @updatedAt
 
   photos            ApplicationPhoto[]
+  notes             ApplicationNote[]
 
   @@unique([animalId, userId])
   @@map("adoption_applications")
+}
+
+model ApplicationNote {
+  id              String              @id @default(uuid())
+  applicationId   String
+  application     AdoptionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  organizationId  String
+  authorId        String
+  author          User                @relation("NoteAuthor", fields: [authorId], references: [id])
+  body            String
+  createdAt       DateTime            @default(now())
+
+  @@map("application_notes")
 }
 
 model ApplicationPhoto {

@@ -9,6 +9,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
+import { ScoringService } from '../scoring/scoring.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationStatusDto } from './dto/update-application-status.dto';
 import { ApplicationQueryDto } from './dto/application-query.dto';
@@ -16,7 +17,10 @@ import { Roles } from '../common/decorators/roles.decorator';
 
 @Controller('applications')
 export class ApplicationsController {
-  constructor(private readonly applicationsService: ApplicationsService) {}
+  constructor(
+    private readonly applicationsService: ApplicationsService,
+    private readonly scoringService: ScoringService,
+  ) {}
 
   @Post()
   @Roles('ADOPTER')
@@ -71,5 +75,11 @@ export class ApplicationsController {
     @Req() req: any,
   ) {
     return this.applicationsService.updateStatus(id, dto.status, req.user.id);
+  }
+
+  @Post(':id/rescore')
+  @Roles('ORG_ADMIN')
+  async rescore(@Param('id') id: string) {
+    return this.scoringService.rescore(id);
   }
 }

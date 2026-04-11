@@ -6,6 +6,8 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { PRISMA_RLS } from '../prisma/prisma.module';
 import { PrismaService } from '../prisma/prisma.service';
 import { UploadService } from '../upload/upload.service';
@@ -26,6 +28,7 @@ const staffTransitions: Record<string, string[]> = {
   REVISANDO: ['APROBADA', 'RECHAZADA', 'SEGUIMIENTO'],
   SEGUIMIENTO: ['APROBADA', 'RECHAZADA'],
   APROBADA: ['ADOPTADA'],
+  ADOPTADA: ['DEVUELTA'],
 };
 
 @Injectable()
@@ -36,6 +39,7 @@ export class ApplicationsService {
     private readonly uploadService: UploadService,
     private readonly auditService: AuditService,
     private readonly cls: ClsService,
+    @InjectQueue('scoring') private readonly scoringQueue: Queue,
   ) {}
 
   async create(dto: CreateApplicationDto, user: UserContext) {
@@ -98,6 +102,9 @@ export class ApplicationsService {
       applicationId: application.id,
       animalId: dto.animalId,
     });
+
+    // Enqueue scoring job asynchronously
+    await this.scoringQueue.add('score', { applicationId: application.id });
 
     return application;
   }

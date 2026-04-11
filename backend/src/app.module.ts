@@ -18,6 +18,8 @@ import { UploadModule } from './upload/upload.module';
 import { SpeciesModule } from './species/species.module';
 import { AnimalsModule } from './animals/animals.module';
 import { ApplicationsModule } from './applications/applications.module';
+import { ScoringModule } from './scoring/scoring.module';
+import { ApplicationNotesModule } from './application-notes/application-notes.module';
 
 @Module({
   imports: [
@@ -49,6 +51,8 @@ import { ApplicationsModule } from './applications/applications.module';
     SpeciesModule,
     AnimalsModule,
     ApplicationsModule,
+    ScoringModule,
+    ApplicationNotesModule,
   ],
   controllers: [AppController],
   providers: [
