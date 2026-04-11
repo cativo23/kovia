@@ -175,7 +175,7 @@ watch(() => props.modelValue, (val) => {
 })
 
 // Species options (fetched once)
-const { data: speciesList } = await useFetch<Species[]>('/species', {
+const { data: speciesList } = useFetch<Species[]>('/species', {
   baseURL: config.public.apiUrl as string,
   default: () => [],
 })
