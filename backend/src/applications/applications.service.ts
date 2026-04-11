@@ -109,7 +109,7 @@ export class ApplicationsService {
 
     // Use publicPrisma with explicit userId filter — NOT prismaRls (adopter has no org context)
     const [data, total] = await Promise.all([
-      this.publicPrisma.adoptionApplication.findMany({
+      this.prismaRls.adoptionApplication.findMany({
         where: { userId },
         skip,
         take: limit,
@@ -124,7 +124,7 @@ export class ApplicationsService {
           photos: { orderBy: { position: 'asc' }, take: 1 },
         },
       }),
-      this.publicPrisma.adoptionApplication.count({ where: { userId } }),
+      this.prismaRls.adoptionApplication.count({ where: { userId } }),
     ]);
 
     return {
@@ -137,7 +137,7 @@ export class ApplicationsService {
   }
 
   async findById(id: string, userId: string) {
-    const application = await this.publicPrisma.adoptionApplication.findUnique({
+    const application = await this.prismaRls.adoptionApplication.findUnique({
       where: { id },
       include: {
         photos: { orderBy: { position: 'asc' } },
@@ -238,7 +238,7 @@ export class ApplicationsService {
   }
 
   async checkExisting(animalId: string, userId: string) {
-    const application = await this.publicPrisma.adoptionApplication.findUnique({
+    const application = await this.prismaRls.adoptionApplication.findUnique({
       where: { animalId_userId: { animalId, userId } },
       select: { id: true },
     });
@@ -282,7 +282,7 @@ export class ApplicationsService {
 
   async withdraw(id: string, userId: string) {
     // Use publicPrisma — adopter has no org context
-    const application = await this.publicPrisma.adoptionApplication.findUnique({
+    const application = await this.prismaRls.adoptionApplication.findUnique({
       where: { id },
     });
 
@@ -300,7 +300,7 @@ export class ApplicationsService {
       throw new BadRequestException('Cannot withdraw an application that has been adopted');
     }
 
-    const updated = await this.publicPrisma.adoptionApplication.update({
+    const updated = await this.prismaRls.adoptionApplication.update({
       where: { id },
       data: { status: 'RETIRADA' },
     });
