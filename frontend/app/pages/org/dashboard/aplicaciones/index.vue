@@ -155,6 +155,7 @@ type ApplicationStatus =
   | 'SEGUIMIENTO'
   | 'ADOPTADA'
   | 'RETIRADA'
+  | 'DEVUELTA'
 
 interface Animal {
   id: string
@@ -215,6 +216,7 @@ const statusOptions = computed(() => [
   { label: t('applications.status.seguimiento'), value: 'SEGUIMIENTO' },
   { label: t('applications.status.adoptada'), value: 'ADOPTADA' },
   { label: t('applications.status.retirada'), value: 'RETIRADA' },
+  { label: t('applications.status.devuelta'), value: 'DEVUELTA' },
 ])
 
 const columns = [
