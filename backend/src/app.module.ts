@@ -20,6 +20,7 @@ import { AnimalsModule } from './animals/animals.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { ApplicationNotesModule } from './application-notes/application-notes.module';
+import { AdoptersModule } from './adopters/adopters.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { ApplicationNotesModule } from './application-notes/application-notes.mo
     ApplicationsModule,
     ScoringModule,
     ApplicationNotesModule,
+    AdoptersModule,
   ],
   controllers: [AppController],
   providers: [
