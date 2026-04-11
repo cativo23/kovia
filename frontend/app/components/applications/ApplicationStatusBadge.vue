@@ -1,42 +1,42 @@
 <template>
-  <UBadge :color="badgeColor as any" variant="subtle">
+  <UBadge :color="badgeColor as any" variant="subtle" :size="size">
     {{ label }}
   </UBadge>
 </template>
 
 <script setup lang="ts">
-type ApplicationStatus = 'ENVIADA' | 'REVISANDO' | 'APROBADA' | 'RECHAZADA' | 'SEGUIMIENTO' | 'ADOPTADA' | 'RETIRADA'
+type ApplicationStatus =
+  | 'ENVIADA'
+  | 'REVISANDO'
+  | 'APROBADA'
+  | 'RECHAZADA'
+  | 'SEGUIMIENTO'
+  | 'ADOPTADA'
+  | 'RETIRADA'
 
 const props = defineProps<{
-  status: string
+  status: ApplicationStatus
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }>()
 
 const { t } = useI18n()
 
-const colorMap: Record<string, string> = {
-  ENVIADA: 'info',
-  REVISANDO: 'warning',
-  APROBADA: 'success',
-  RECHAZADA: 'error',
-  SEGUIMIENTO: 'warning',
-  ADOPTADA: 'success',
-  RETIRADA: 'neutral',
+const statusConfig: Record<ApplicationStatus, { color: string; labelKey: string }> = {
+  ENVIADA: { color: 'info', labelKey: 'applications.status.enviada' },
+  REVISANDO: { color: 'warning', labelKey: 'applications.status.revisando' },
+  APROBADA: { color: 'success', labelKey: 'applications.status.aprobada' },
+  RECHAZADA: { color: 'error', labelKey: 'applications.status.rechazada' },
+  SEGUIMIENTO: { color: 'warning', labelKey: 'applications.status.seguimiento' },
+  ADOPTADA: { color: 'success', labelKey: 'applications.status.adoptada' },
+  RETIRADA: { color: 'neutral', labelKey: 'applications.status.retirada' },
 }
 
-const labelMap: Record<string, string> = {
-  ENVIADA: 'applications.status.enviada',
-  REVISANDO: 'applications.status.revisando',
-  APROBADA: 'applications.status.aprobada',
-  RECHAZADA: 'applications.status.rechazada',
-  SEGUIMIENTO: 'applications.status.seguimiento',
-  ADOPTADA: 'applications.status.adoptada',
-  RETIRADA: 'applications.status.retirada',
-}
-
-const badgeColor = computed(() => colorMap[props.status] ?? 'neutral')
+const badgeColor = computed(() => {
+  return (statusConfig[props.status]?.color ?? 'neutral') as any
+})
 
 const label = computed(() => {
-  const key = labelMap[props.status]
-  return key ? t(key) : props.status
+  const config = statusConfig[props.status]
+  return config ? t(config.labelKey) : props.status
 })
 </script>

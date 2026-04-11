@@ -75,6 +75,7 @@ const user = computed(() => authStore.user)
 const navItems = computed(() => [
   { to: '/org/dashboard', label: t('org.nav.dashboard'), icon: 'i-lucide-layout-dashboard' },
   { to: '/org/dashboard/animales', label: t('org.nav.animals'), icon: 'i-lucide-paw-print' },
+  { to: '/org/dashboard/aplicaciones', label: t('org.nav.applications'), icon: 'i-lucide-clipboard-list' },
   { to: '/org/dashboard/perfil', label: t('org.nav.profile'), icon: 'i-lucide-building-2' },
 ])
 
