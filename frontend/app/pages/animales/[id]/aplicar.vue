@@ -189,9 +189,11 @@ const steps = computed(() => [
 // Animal data
 const animal = ref<{ id: string; name: string; status: string } | null>(null)
 
-// Draft composable — initialized after user is available
-const userId = computed(() => authStore.user?.id ?? 'guest')
-const draft = computed(() => useApplicationDraft(animalId.value, userId.value))
+// Draft composable — animalId and userId are stable for the lifetime of the page
+const { saveDraft, loadDraft, clearDraft } = useApplicationDraft(
+  route.params.id as string,
+  authStore.user?.id ?? 'guest',
+)
 
 const formattedSaveTime = computed(() => {
   if (!lastSavedAt.value) return ''
@@ -225,7 +227,7 @@ async function nextStep() {
   }
 
   // Auto-save draft
-  draft.value.saveDraft(currentStep.value, savedStepData.value[currentStep.value] || {})
+  saveDraft(currentStep.value, savedStepData.value[currentStep.value] || {})
   lastSavedAt.value = Date.now()
 
   if (currentStep.value < steps.value.length - 1) {
@@ -292,7 +294,7 @@ async function submitApplication() {
 
     await post('/applications', payload)
 
-    draft.value.clearDraft()
+    clearDraft()
     submitted.value = true
   } catch (error: any) {
     toast.add({
@@ -306,7 +308,7 @@ async function submitApplication() {
 }
 
 function restoreDraft() {
-  const draftData = draft.value.loadDraft()
+  const draftData = loadDraft()
   if (!draftData) return
   showDraftAlert.value = false
 
@@ -346,7 +348,7 @@ onMounted(async () => {
   }
 
   // Check for draft
-  const draftData = draft.value.loadDraft()
+  const draftData = loadDraft()
   if (draftData) {
     showDraftAlert.value = true
   }
