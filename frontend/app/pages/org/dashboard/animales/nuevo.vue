@@ -51,7 +51,7 @@
     <UCard>
       <!-- Step 1: Basic Info -->
       <div v-show="currentStep === 0">
-        <AnimalsAnimalForm
+        <AnimalForm
           ref="animalFormRef"
           mode="create"
           :visible-sections="['basic']"
@@ -62,7 +62,7 @@
 
       <!-- Step 2: Characteristics -->
       <div v-show="currentStep === 1">
-        <AnimalsAnimalForm
+        <AnimalForm
           ref="characteristicsFormRef"
           mode="create"
           :visible-sections="['characteristics']"
@@ -74,7 +74,7 @@
 
       <!-- Step 3: Photos -->
       <div v-show="currentStep === 2">
-        <AnimalsPhotoUploader ref="photoUploaderRef" />
+        <PhotoUploader ref="photoUploaderRef" />
       </div>
 
       <!-- Navigation -->
@@ -166,27 +166,30 @@ function prevStep() {
 async function createAnimal() {
   submitting.value = true
   try {
-    // Merge all form data
+    // Read each form separately — do NOT spread charData over basicData because
+    // characteristicsFormRef has empty strings for basic fields (name, speciesId)
+    // which would overwrite the values from step 1.
     const basicData = animalFormRef.value?.form || {}
     const charData = characteristicsFormRef.value?.form || {}
-    const data = { ...basicData, ...charData }
 
     // Clean up empty strings for optional fields
-    const payload: Record<string, any> = { name: data.name, speciesId: data.speciesId }
-    if (data.breed) payload.breed = data.breed
-    if (data.gender) payload.gender = data.gender
-    if (data.description) payload.description = data.description
-    if (data.ageMonths != null) payload.ageMonths = data.ageMonths
-    if (data.size) payload.size = data.size
-    if (data.energyLevel) payload.energyLevel = data.energyLevel
-    if (data.goodWithKids) payload.goodWithKids = data.goodWithKids
-    if (data.goodWithDogs) payload.goodWithDogs = data.goodWithDogs
-    if (data.goodWithCats) payload.goodWithCats = data.goodWithCats
-    if (data.goodWithOtherPets) payload.goodWithOtherPets = data.goodWithOtherPets
-    if (data.specialNeeds) payload.specialNeeds = data.specialNeeds
-    if (data.vaccinated) payload.vaccinated = data.vaccinated
-    if (data.sterilized) payload.sterilized = data.sterilized
-    if (data.trained) payload.trained = data.trained
+    const payload: Record<string, any> = { name: basicData.name, speciesId: basicData.speciesId }
+    // Basic fields from step 1
+    if (basicData.breed) payload.breed = basicData.breed
+    if (basicData.gender) payload.gender = basicData.gender
+    if (basicData.description) payload.description = basicData.description
+    // Characteristics from step 2
+    if (charData.ageMonths != null) payload.ageMonths = charData.ageMonths
+    if (charData.size) payload.size = charData.size
+    if (charData.energyLevel) payload.energyLevel = charData.energyLevel
+    if (charData.goodWithKids) payload.goodWithKids = charData.goodWithKids
+    if (charData.goodWithDogs) payload.goodWithDogs = charData.goodWithDogs
+    if (charData.goodWithCats) payload.goodWithCats = charData.goodWithCats
+    if (charData.goodWithOtherPets) payload.goodWithOtherPets = charData.goodWithOtherPets
+    if (charData.specialNeeds) payload.specialNeeds = charData.specialNeeds
+    if (charData.vaccinated) payload.vaccinated = charData.vaccinated
+    if (charData.sterilized) payload.sterilized = charData.sterilized
+    if (charData.trained) payload.trained = charData.trained
 
     // 1. Create animal
     const animal = await post<{ id: string }>('/animals', payload)

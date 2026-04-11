@@ -95,19 +95,19 @@
       <!-- Step Content -->
       <UCard>
         <div v-show="currentStep === 0">
-          <ApplicationsApplicationStepPersonal ref="stepPersonalRef" />
+          <ApplicationStepPersonal ref="stepPersonalRef" />
         </div>
         <div v-show="currentStep === 1">
-          <ApplicationsApplicationStepHousing ref="stepHousingRef" />
+          <ApplicationStepHousing ref="stepHousingRef" />
         </div>
         <div v-show="currentStep === 2">
-          <ApplicationsApplicationStepLifestyle ref="stepLifestyleRef" />
+          <ApplicationStepLifestyle ref="stepLifestyleRef" />
         </div>
         <div v-show="currentStep === 3">
-          <ApplicationsApplicationStepPhotos ref="stepPhotosRef" />
+          <ApplicationStepPhotos ref="stepPhotosRef" />
         </div>
         <div v-show="currentStep === 4">
-          <ApplicationsApplicationStepReview
+          <ApplicationStepReview
             ref="stepReviewRef"
             :personal-data="savedStepData[0]"
             :housing-data="savedStepData[1]"

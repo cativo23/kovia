@@ -63,7 +63,7 @@
           </div>
 
           <!-- Status badge -->
-          <ApplicationsApplicationStatusBadge :status="app.status" />
+          <ApplicationStatusBadge :status="app.status" />
 
           <!-- View link -->
           <NuxtLink

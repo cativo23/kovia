@@ -26,7 +26,7 @@
     <template v-else>
       <!-- Form -->
       <UCard class="mb-6">
-        <AnimalsAnimalForm
+        <AnimalForm
           ref="formRef"
           mode="edit"
           :initial-data="initialData"
@@ -52,7 +52,7 @@
 
       <!-- Photos -->
       <UCard>
-        <AnimalsPhotoUploader
+        <PhotoUploader
           ref="photoUploaderRef"
           :photos="existingPhotos"
           @remove="removeExistingPhoto"

@@ -29,7 +29,7 @@
         <h1 class="text-2xl font-bold">
           {{ application.animal?.name || $t('detail.notFound') }}
         </h1>
-        <ApplicationsApplicationStatusBadge :status="application.status" />
+        <ApplicationStatusBadge :status="application.status" />
       </div>
 
       <!-- Personal Info -->

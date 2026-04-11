@@ -187,7 +187,7 @@
 
           <!-- State 3: Authenticated, application exists -->
           <UButton
-            v-else-if="existingApplication"
+            v-else-if="existingApplication?.exists"
             block
             size="xl"
             variant="outline"
@@ -210,7 +210,7 @@
     </div>
 
     <!-- Auth Gate Modal -->
-    <ApplicationsApplicationAuthModal
+    <ApplicationAuthModal
       v-if="animal"
       v-model="showAuthModal"
       :animal-id="String(route.params.id)"

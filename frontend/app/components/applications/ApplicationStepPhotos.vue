@@ -2,7 +2,7 @@
   <div class="space-y-4">
     <h3 class="text-lg font-bold mb-2">{{ $t('applications.steps.photos.title') }}</h3>
 
-    <AnimalsPhotoUploader
+    <PhotoUploader
       ref="photoUploaderRef"
       :max-photos="8"
       folder="applications"
