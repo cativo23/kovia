@@ -4,7 +4,7 @@
     <h2 class="text-xl font-semibold">{{ $t('auth.checkEmail') }}</h2>
     <p class="text-gray-600 dark:text-gray-400">{{ $t('auth.checkEmailDescription') }}</p>
     <p class="text-xs text-gray-400 dark:text-gray-500">{{ $t('auth.checkEmailDevHint') }}</p>
-    <UButton variant="outline" to="/login" :label="$t('auth.goToLogin')" />
+    <UButton variant="outline" :to="route.query.redirect ? `/login?redirect=${route.query.redirect}` : '/login'" :label="$t('auth.goToLogin')" />
   </div>
 
   <UAuthForm
@@ -42,6 +42,7 @@ definePageMeta({
 const { t } = useI18n()
 const authStore = useAuthStore()
 const toast = useToast()
+const route = useRoute()
 const loading = ref(false)
 const registered = ref(false)
 

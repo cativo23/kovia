@@ -52,6 +52,7 @@ definePageMeta({
 const { t } = useI18n()
 const authStore = useAuthStore()
 const toast = useToast()
+const route = useRoute()
 const loading = ref(false)
 const resendingVerification = ref(false)
 const showVerificationError = ref(false)
@@ -95,7 +96,8 @@ async function onSubmit(event: any) {
   showVerificationError.value = false
   try {
     await authStore.login(event.data.email, event.data.password)
-    await navigateTo(authStore.isAdmin ? '/admin' : '/')
+    const redirect = route.query.redirect as string
+    await navigateTo(redirect || (authStore.isAdmin ? '/admin' : '/'))
   }
   catch (err: any) {
     const status = err?.response?.status || err?.statusCode
