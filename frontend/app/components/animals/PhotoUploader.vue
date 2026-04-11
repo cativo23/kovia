@@ -240,7 +240,7 @@ async function uploadFile(file: File) {
     const resized = await resizeImage(file)
 
     // 2. Get presigned URL
-    const { url: presignedUrl, key } = await post<{ url: string; key: string }>(
+    const { url: presignedUrl, key, publicUrl } = await post<{ url: string; key: string; publicUrl: string }>(
       '/upload/presigned-url',
       { filename: file.name, contentType: file.type, folder: props.folder }
     )
@@ -251,9 +251,6 @@ async function uploadFile(file: File) {
       body: resized,
       headers: { 'Content-Type': file.type },
     })
-
-    // 4. Build public URL
-    const publicUrl = presignedUrl.split('?')[0] ?? presignedUrl
 
     // Update the photo entry
     const idx = localPhotos.value.findIndex(p => p.tempId === tempId)

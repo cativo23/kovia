@@ -36,6 +36,11 @@ export class UploadController {
       );
     }
 
-    return this.uploadService.getPresignedUrl(body.filename, body.contentType);
+    const { url, key } = await this.uploadService.getPresignedUrl(
+      body.filename,
+      body.contentType,
+      (body as any).folder,
+    );
+    return { url, key, publicUrl: this.uploadService.getPublicUrl(key) };
   }
 }
