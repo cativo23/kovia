@@ -39,17 +39,17 @@
                 <span>{{ cat.label }}</span>
                 <span>{{ cat.points }}/{{ cat.maxPoints }} pts</span>
               </div>
-              <!-- Inline soft flag notes for this category -->
-              <template v-if="softFlagsForCategory(cat.name).length">
-                <p
-                  v-for="flag in softFlagsForCategory(cat.name)"
-                  :key="flag.code"
-                  class="text-xs text-gray-400 italic"
-                >
-                  {{ flag.message }}
-                </p>
-              </template>
             </div>
+            <!-- Soft flags shown once after the category list (not duplicated per category) -->
+            <template v-if="softFlags.length">
+              <p
+                v-for="flag in softFlags"
+                :key="flag.code"
+                class="text-xs text-gray-400 italic"
+              >
+                {{ flag.message }}
+              </p>
+            </template>
           </div>
         </template>
       </UCollapsible>
@@ -114,10 +114,11 @@ const breakdownOpen = ref(false)
 const rescoring = ref(false)
 const rescoreError = ref(false)
 
-function softFlagsForCategory(_categoryName: string): RedFlag[] {
+// All soft flags — displayed once after the category breakdown, not per-category
+const softFlags = computed<RedFlag[]>(() => {
   if (!props.scoreDetails?.redFlags) return []
   return props.scoreDetails.redFlags.filter(f => f.severity === 'soft')
-}
+})
 
 async function handleRescore() {
   rescoring.value = true
