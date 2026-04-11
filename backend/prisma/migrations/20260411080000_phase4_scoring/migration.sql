@@ -30,7 +30,9 @@ CREATE POLICY org_staff_notes_insert ON "application_notes"
   FOR INSERT WITH CHECK ("organizationId"::text = current_setting('app.current_org_id', true));
 
 CREATE POLICY admin_notes_bypass ON "application_notes"
-  USING (current_setting('app.is_admin', true) = 'true');
+  FOR ALL
+  USING (current_setting('app.is_admin', true) = 'true')
+  WITH CHECK (current_setting('app.is_admin', true) = 'true');
 
 -- Step 5: Add RLS policy for system score update (ScoringProcessor runs outside request context)
 -- Only add if it doesn't already exist
