@@ -1,0 +1,20 @@
+{
+  "doc_path": "docs/ARCHITECTURE.md",
+  "claims_checked": 23,
+  "claims_passed": 21,
+  "claims_failed": 2,
+  "failures": [
+    {
+      "line": 51,
+      "claim": "POST /upload/presign",
+      "expected": "route definition in codebase",
+      "actual": "no route definition found for /upload/presign — actual endpoint is POST /upload/presigned-url (backend/src/upload/upload.controller.ts:23)"
+    },
+    {
+      "line": 53,
+      "claim": "POST /upload/confirm",
+      "expected": "route definition in codebase",
+      "actual": "no route definition found for /upload/confirm — upload controller only defines POST /upload/presigned-url; no confirm endpoint exists"
+    }
+  ]
+}

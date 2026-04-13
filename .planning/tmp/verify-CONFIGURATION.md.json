@@ -1,0 +1,14 @@
+{
+  "doc_path": "docs/CONFIGURATION.md",
+  "claims_checked": 35,
+  "claims_passed": 34,
+  "claims_failed": 1,
+  "failures": [
+    {
+      "line": 134,
+      "claim": "prisma/rls.integration.spec.ts",
+      "expected": "file exists",
+      "actual": "file not found at /home/cativo23/projects/personal/kovia/prisma/rls.integration.spec.ts — actual path is backend/src/prisma/rls.integration.spec.ts"
+    }
+  ]
+}

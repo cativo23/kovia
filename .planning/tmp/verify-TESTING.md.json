@@ -1,0 +1,14 @@
+{
+  "doc_path": "docs/TESTING.md",
+  "claims_checked": 48,
+  "claims_passed": 47,
+  "claims_failed": 1,
+  "failures": [
+    {
+      "line": 95,
+      "claim": "backend/test/jest-e2e.json",
+      "expected": "file exists",
+      "actual": "file not found at /home/cativo23/projects/personal/kovia/backend/test/jest-e2e.json"
+    }
+  ]
+}

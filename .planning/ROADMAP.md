@@ -98,11 +98,11 @@ Plans:
   1. Adopter sees an in-app notification when their application status changes
   2. Key actions (application submitted, status changed) fire webhook events to a configured n8n endpoint
   3. Webhook delivery is reliable: uses outbox pattern with idempotency keys and retries with exponential backoff (no lost events)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
+- [ ] 05-01-PLAN.md — Backend: Prisma schema (Notification, WebhookOutbox), NotificationsModule, EventsService, WebhookProcessor, notifications CRUD API, integration into applications/notes/scoring, unit tests
+- [ ] 05-02-PLAN.md — Frontend: NotificationBell, NotificationList, useNotifications composable, /notificaciones page, i18n keys, E2E tests
 
 ## Progress
 
