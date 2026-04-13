@@ -700,5 +700,19 @@
     "empty": "Este solicitante no tiene historial de adopciones previas en tu organizacion.",
     "otherOrg": "otra organizacion",
     "unknownSpecies": "Especie desconocida"
+  },
+  "notifications": {
+    "bell": {
+      "tooltip": "Notificaciones",
+      "markAllRead": "Marcar todas como leídas"
+    },
+    "empty": "No tienes notificaciones",
+    "loading": "Cargando notificaciones...",
+    "error": "Error al cargar notificaciones",
+    "retry": "Reintentar",
+    "viewAll": "Ver todas",
+    "page": {
+      "title": "Notificaciones"
+    }
   }
 }

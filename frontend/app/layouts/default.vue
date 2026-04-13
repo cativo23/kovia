@@ -38,6 +38,9 @@
 
           <!-- Auth section -->
           <div class="flex items-center gap-3">
+            <!-- Notification bell (adopter only) -->
+            <NotificationsBell v-if="isAuthenticated && userRole === 'ADOPTER'" />
+
             <template v-if="isAuthenticated">
               <UDropdownMenu :items="userMenuItems">
                 <UButton
@@ -102,6 +105,7 @@ const authStore = useAuthStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const isOrgAdmin = computed(() => authStore.isOrgAdmin)
 const user = computed(() => authStore.user)
+const userRole = computed(() => authStore.userRole)
 
 const userMenuItems = computed(() => [
   [{
