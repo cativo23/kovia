@@ -2,15 +2,22 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { PrismaService } from '../prisma/prisma.service';
 import { scoreApplication } from './engine';
+import { EventsService } from '../notifications/events.service';
 
 @Processor('scoring')
 export class ScoringProcessor extends WorkerHost {
-  constructor(private readonly publicPrisma: PrismaService) {
+  constructor(
+    private readonly publicPrisma: PrismaService,
+    private readonly eventsService: EventsService,
+  ) {
     super();
   }
 
   async process(job: Job<{ applicationId: string }>) {
     const { applicationId } = job.data;
+
+    let score: number | null = null;
+    let riskLevel: string | null = null;
 
     // All reads and writes use admin bypass — BullMQ workers have no tenant CLS context
     await this.publicPrisma.$transaction(async (tx) => {
@@ -53,10 +60,18 @@ export class ScoringProcessor extends WorkerHost {
         adopterHistory: { returnCount },
       });
 
+      score = result.total;
+      riskLevel = result.riskLevel;
+
       await tx.adoptionApplication.update({
         where: { id: applicationId },
         data: { score: result.total, scoreDetails: result as any },
       });
     });
+
+    // Emit event AFTER scoring transaction succeeds (not in same transaction)
+    if (score !== null && riskLevel !== null) {
+      await this.eventsService.emitApplicationScored(applicationId, score, riskLevel);
+    }
   }
 }

@@ -15,6 +15,7 @@ import { AuditService } from '../audit/audit.service';
 import { ClsService } from 'nestjs-cls';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { ApplicationQueryDto } from './dto/application-query.dto';
+import { EventsService } from '../notifications/events.service';
 
 interface UserContext {
   id: string;
@@ -40,6 +41,7 @@ export class ApplicationsService {
     private readonly auditService: AuditService,
     private readonly cls: ClsService,
     @InjectQueue('scoring') private readonly scoringQueue: Queue,
+    private readonly eventsService: EventsService,
   ) {}
 
   async create(dto: CreateApplicationDto, user: UserContext) {
@@ -105,6 +107,9 @@ export class ApplicationsService {
 
     // Enqueue scoring job asynchronously
     await this.scoringQueue.add('score', { applicationId: application.id });
+
+    // Emit event: notification + webhook
+    await this.eventsService.emitApplicationSubmitted(application.id);
 
     return application;
   }
@@ -284,6 +289,18 @@ export class ApplicationsService {
       newStatus,
     });
 
+    // Emit event: notification + webhook
+    await this.eventsService.emitApplicationStatusChanged(
+      id,
+      application.status,
+      newStatus,
+    );
+
+    // DEVUELTA fires an additional specific event
+    if (newStatus === 'DEVUELTA') {
+      await this.eventsService.emitApplicationDevuelta(id);
+    }
+
     return updated;
   }
 
@@ -316,6 +333,9 @@ export class ApplicationsService {
       applicationId: id,
       previousStatus: application.status,
     });
+
+    // Emit event: notification + webhook
+    await this.eventsService.emitApplicationWithdrawn(id);
 
     return updated;
   }

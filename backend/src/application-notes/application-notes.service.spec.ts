@@ -14,12 +14,21 @@ const mockCls = {
   get: vi.fn(),
 };
 
+// Mock EventsService
+const mockEventsService = {
+  emitNoteAdded: vi.fn(),
+};
+
 describe('ApplicationNotesService', () => {
   let service: ApplicationNotesService;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    service = new ApplicationNotesService(mockPrismaRls as any, mockCls as any);
+    service = new ApplicationNotesService(
+      mockPrismaRls as any,
+      mockCls as any,
+      mockEventsService as any,
+    );
   });
 
   describe('create', () => {
@@ -39,7 +48,7 @@ describe('ApplicationNotesService', () => {
       const dto = { body: 'Test note' };
       await service.create('app-1', dto, 'user-1');
 
-      expect(mockCls.get).toHaveBeenCalledWith('orgId');
+      expect(mockCls.get).toHaveBeenCalledWith('organizationId');
       expect(mockPrismaRls.applicationNote.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
@@ -92,6 +101,26 @@ describe('ApplicationNotesService', () => {
             applicationId: 'app-xyz',
           }),
         }),
+      );
+    });
+
+    it('emits note added event after creation', async () => {
+      mockCls.get.mockReturnValue('org-123');
+      mockPrismaRls.applicationNote.create.mockResolvedValue({
+        id: 'note-1',
+        applicationId: 'app-1',
+        organizationId: 'org-123',
+        authorId: 'user-1',
+        body: 'Test note',
+        createdAt: new Date(),
+        author: { firstName: 'John', lastName: 'Doe' },
+      });
+
+      await service.create('app-1', { body: 'Test note' }, 'user-1');
+
+      expect(mockEventsService.emitNoteAdded).toHaveBeenCalledWith(
+        'app-1',
+        'note-1',
       );
     });
   });

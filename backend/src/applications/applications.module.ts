@@ -6,6 +6,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { UploadModule } from '../upload/upload.module';
 import { AuditModule } from '../audit/audit.module';
 import { ScoringModule } from '../scoring/scoring.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ScoringModule } from '../scoring/scoring.module';
     UploadModule,
     AuditModule,
     ScoringModule,
+    NotificationsModule,
     BullModule.registerQueue({ name: 'scoring' }),
   ],
   controllers: [ApplicationsController],

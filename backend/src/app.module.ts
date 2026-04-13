@@ -21,6 +21,7 @@ import { ApplicationsModule } from './applications/applications.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { ApplicationNotesModule } from './application-notes/application-notes.module';
 import { AdoptersModule } from './adopters/adopters.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { AdoptersModule } from './adopters/adopters.module';
     ScoringModule,
     ApplicationNotesModule,
     AdoptersModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [
