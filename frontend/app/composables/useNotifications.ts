@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import type { Ref } from 'vue'
+import { useAuthStore } from '~/stores/auth'
 
 export interface Notification {
   id: string
@@ -19,6 +20,13 @@ export function useNotifications() {
   const error: Ref<string | null> = ref(null)
 
   const config = useRuntimeConfig()
+  const authStore = useAuthStore()
+
+  function authHeaders() {
+    return authStore.accessToken
+      ? { Authorization: `Bearer ${authStore.accessToken}` }
+      : {}
+  }
 
   async function fetchNotifications(limit = 20) {
     loading.value = true
@@ -26,7 +34,7 @@ export function useNotifications() {
     try {
       const response = await $fetch<{ notifications: Notification[]; unreadCount: number }>('/notifications', {
         baseURL: config.public.apiUrl as string,
-        credentials: 'include',
+        headers: authHeaders(),
       })
       notifications.value = response.notifications
       unreadCount.value = response.unreadCount
@@ -39,9 +47,9 @@ export function useNotifications() {
 
   async function fetchUnreadCount() {
     try {
-      const response = await $fetch<{ unreadCount: number }>('/notifications', {
+      const response = await $fetch<{ notifications: Notification[]; unreadCount: number }>('/notifications', {
         baseURL: config.public.apiUrl as string,
-        credentials: 'include',
+        headers: authHeaders(),
       })
       unreadCount.value = response.unreadCount
     } catch {
@@ -54,9 +62,8 @@ export function useNotifications() {
       await $fetch(`/notifications/${notificationId}/read`, {
         method: 'POST',
         baseURL: config.public.apiUrl as string,
-        credentials: 'include',
+        headers: authHeaders(),
       })
-      // Update local state
       const n = notifications.value.find((n) => n.id === notificationId)
       if (n) {
         n.isRead = true
@@ -72,7 +79,7 @@ export function useNotifications() {
       await $fetch('/notifications/read-all', {
         method: 'POST',
         baseURL: config.public.apiUrl as string,
-        credentials: 'include',
+        headers: authHeaders(),
       })
       notifications.value.forEach((n) => {
         n.isRead = true

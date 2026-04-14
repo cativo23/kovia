@@ -39,7 +39,7 @@
           <!-- Auth section -->
           <div class="flex items-center gap-3">
             <!-- Notification bell (adopter only) -->
-            <NotificationsBell v-if="isAuthenticated && userRole === 'ADOPTER'" />
+            <NotificationBell v-if="isAuthenticated && userRole === 'ADOPTER'" />
 
             <template v-if="isAuthenticated">
               <UDropdownMenu :items="userMenuItems">
