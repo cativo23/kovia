@@ -6,7 +6,10 @@ const mockWebhookQueue = {
 };
 
 const mockPrisma = {
-  $transaction: vi.fn((fn) => fn(mockPrisma)),
+  $transaction: vi.fn((args) => {
+    if (Array.isArray(args)) return Promise.all(args);
+    return args(mockPrisma);
+  }),
   $executeRaw: vi.fn(),
   webhookOutbox: {
     create: vi.fn(),

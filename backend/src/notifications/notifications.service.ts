@@ -49,10 +49,11 @@ export class NotificationsService {
     body?: string,
     applicationId?: string,
   ) {
-    return this.prisma.$transaction(async (tx) => {
-      // Admin bypass for creating notifications
-      await tx.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`;
-      return tx.notification.create({
+    // Batch transaction: set_config + create on same PG connection.
+    // Interactive transactions break with @prisma/adapter-pg.
+    const [, notification] = await this.prisma.$transaction([
+      this.prisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.prisma.notification.create({
         data: {
           userId,
           type,
@@ -60,8 +61,9 @@ export class NotificationsService {
           body,
           applicationId,
         },
-      });
-    });
+      }),
+    ]);
+    return notification;
   }
 
   async findByUser(userId: string, limit = 20) {

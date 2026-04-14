@@ -38,18 +38,19 @@ export class WebhookService {
 
     const idempotencyKey = crypto.randomUUID();
 
-    // Create outbox record
-    const outbox = await this.prisma.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`;
-      return tx.webhookOutbox.create({
+    // Batch transaction: set_config + create on same PG connection.
+    // Interactive transactions break with @prisma/adapter-pg.
+    const [, outbox] = await this.prisma.$transaction([
+      this.prisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.prisma.webhookOutbox.create({
         data: {
           eventType,
           payload: payload as any,
           idempotencyKey,
           status: 'PENDING',
         },
-      });
-    });
+      }),
+    ]);
 
     // Enqueue BullMQ job
     await this.webhookQueue.add(

@@ -30,11 +30,11 @@ export class WebhookProcessor extends WorkerHost {
       return;
     }
 
-    // Fetch outbox entry with admin bypass
-    const outbox = await this.publicPrisma.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`;
-      return tx.webhookOutbox.findUnique({ where: { id: outboxId } });
-    });
+    // Fetch outbox entry with admin bypass (batch transaction for adapter-pg compat)
+    const [, outbox] = await this.publicPrisma.$transaction([
+      this.publicPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.publicPrisma.webhookOutbox.findUnique({ where: { id: outboxId } }),
+    ]);
 
     if (!outbox) {
       this.logger.warn(`Outbox entry not found: ${outboxId}`);
@@ -104,17 +104,17 @@ export class WebhookProcessor extends WorkerHost {
     status: string,
     lastError?: string,
   ) {
-    await this.publicPrisma.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`;
-      await tx.webhookOutbox.update({
+    await this.publicPrisma.$transaction([
+      this.publicPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.publicPrisma.webhookOutbox.update({
         where: { id: outboxId },
         data: {
           status,
           lastError,
           ...(status === 'DELIVERED' ? { deliveredAt: new Date() } : {}),
         },
-      });
-    });
+      }),
+    ]);
   }
 
   private async incrementAttempts(outboxId: string, lastError: string) {
@@ -123,16 +123,16 @@ export class WebhookProcessor extends WorkerHost {
     const now = new Date();
     const nextAttemptIn = 30000 * Math.pow(2, 1); // simplified — BullMQ handles actual retry delay
 
-    await this.publicPrisma.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`;
-      await tx.webhookOutbox.update({
+    await this.publicPrisma.$transaction([
+      this.publicPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.publicPrisma.webhookOutbox.update({
         where: { id: outboxId },
         data: {
           attempts: { increment: 1 },
           lastError,
           nextAttemptAt: new Date(now.getTime() + nextAttemptIn),
         },
-      });
-    });
+      }),
+    ]);
   }
 }

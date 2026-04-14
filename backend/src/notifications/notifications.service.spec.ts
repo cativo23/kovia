@@ -3,7 +3,10 @@ import { NotificationsService, NOTIFICATION_TEMPLATES } from './notifications.se
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 
 const mockPrisma = {
-  $transaction: vi.fn((fn) => fn(mockPrisma)),
+  $transaction: vi.fn((args) => {
+    if (Array.isArray(args)) return Promise.all(args);
+    return args(mockPrisma);
+  }),
   $executeRaw: vi.fn(),
   notification: {
     create: vi.fn(),

@@ -194,15 +194,15 @@ export class EventsService {
     eventType: string,
     webhookData: object,
   ) {
-    // Use publicPrisma with admin bypass for atomic notification + outbox creation
-    await this.prisma.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`;
-
-      // Create notification
-      await tx.notification.create({
+    // Batch transaction: set_config + create run on same PG connection.
+    // Interactive transactions (async callback) break with @prisma/adapter-pg
+    // because it splits operations into separate PG transactions.
+    const [, notification] = await this.prisma.$transaction([
+      this.prisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.prisma.notification.create({
         data: { userId: adopterId, type, title, body, applicationId },
-      });
-    });
+      }),
+    ]);
 
     // Enqueue webhook (uses its own transaction)
     await this.webhookService.enqueue(eventType, webhookData);
@@ -212,13 +212,13 @@ export class EventsService {
 
   private async fetchApplicationContext(applicationId: string) {
     try {
-      const app = await this.prisma.$transaction(async (tx) => {
-        await tx.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`;
-        return tx.adoptionApplication.findUnique({
+      const [, app] = await this.prisma.$transaction([
+        this.prisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+        this.prisma.adoptionApplication.findUnique({
           where: { id: applicationId },
           include: { animal: { select: { name: true } } },
-        });
-      });
+        }),
+      ]);
 
       if (!app) return null;
 

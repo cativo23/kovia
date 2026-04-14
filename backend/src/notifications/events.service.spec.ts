@@ -3,7 +3,11 @@ import { EventsService } from './events.service';
 import { NotificationType } from '../generated/prisma/client';
 
 const mockPrisma = {
-  $transaction: vi.fn(async (fn) => fn(mockPrisma)),
+  $transaction: vi.fn(async (args) => {
+    // Support both batch (array) and interactive (callback) transactions
+    if (Array.isArray(args)) return Promise.all(args);
+    return args(mockPrisma);
+  }),
   $executeRaw: vi.fn(),
   adoptionApplication: {
     findUnique: vi.fn(),
