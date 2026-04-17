@@ -33,3 +33,7 @@ pgdata/
 # Logs
 *.log
 npm-debug.log*
+
+# Claude Code local state
+.claude/
+frontend/test-results/
