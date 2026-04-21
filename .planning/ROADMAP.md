@@ -50,12 +50,15 @@ Plans:
   4. Public animal listing pages are server-side rendered and include Open Graph meta tags (verifiable via curl/view-source)
   5. Each organization has a public landing page showing only their available animals
   6. Brand identity applied: custom primary color, logo placement, consistent visual theme across all pages
-**Plans**: 3 plans
+**Plans**: 6 plans (3 original + 3 gap-closure from UAT)
 
 Plans:
 - [x] 02-01-PLAN.md — Backend: Prisma schema (Species, Animal, AnimalPhoto), MinIO Docker service, upload service, animals CRUD API, species admin, RLS policies
 - [x] 02-02-PLAN.md — Org dashboard: layout, stats, animal table with status management, multi-step creation wizard, photo uploader, edit page
 - [x] 02-03-PLAN.md — Public listings: SSR animal grid with filters, animal detail with OG tags, org landing page, brand identity, E2E tests
+- [x] 02-04-PLAN.md — [gap] Cold start repeatability: preserve Prisma client across bind mount, run migrate deploy at startup, add idempotent seed script
+- [ ] 02-05-PLAN.md — [gap] Photo reorder persistence: optimistic local-state update on the edit page + rollback on PATCH failure; backend regression tests
+- [x] 02-06-PLAN.md — [gap] i18n key fix on AnimalCard: point grid/list size labels at the existing `animals.form.sizeOptions.*` keys
 
 ### Phase 3: Adoption Applications
 **Goal**: Adopters can submit structured applications for specific animals, and rescue staff can view the application queue
@@ -112,7 +115,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-04-09 |
-| 2. Animals and Public Listings | 3/3 | Complete   | 2026-04-10 |
+| 2. Animals and Public Listings | 3/6 | Gap closure pending | - |
 | 3. Adoption Applications | 0/3 | Not started | - |
 | 4. Scoring and Staff Tools | 0/3 | Not started | - |
 | 5. Notifications and Automation | 0/2 | Not started | - |

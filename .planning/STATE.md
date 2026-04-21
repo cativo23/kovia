@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 4 UI-SPEC approved
-last_updated: "2026-04-11T07:42:16.796Z"
+last_updated: "2026-04-21T07:34:13.096Z"
 progress:
   total_phases: 5
-  completed_phases: 3
-  total_plans: 14
-  completed_plans: 11
-  percent: 79
+  completed_phases: 4
+  total_plans: 19
+  completed_plans: 16
+  percent: 84
 ---
 
 # Project State
@@ -20,13 +20,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-08)
 
 **Core value:** The right pets get matched with the right people -- every adoption decision is informed by structured data, scoring, and applicant history.
-**Current focus:** Phase 04 — scoring-and-staff-tools
+**Current focus:** Phase 02 — animals-and-public-listings
 
 ## Current Position
 
-Phase: 04 (scoring-and-staff-tools) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 04
+Phase: 02 (animals-and-public-listings) — EXECUTING
+Plan: 1 of 6
+Status: Executing Phase 02
 
 Progress: [████░░░░░░] 40%
 
@@ -110,3 +110,5 @@ None yet.
 Last session: 2026-04-11T07:17:01.195Z
 Stopped at: Phase 4 UI-SPEC approved
 Resume file: .planning/phases/04-scoring-and-staff-tools/04-UI-SPEC.md
+
+**Planned Phase:** 02 (animals-and-public-listings) — 6 plans — 2026-04-21T07:21:43.922Z
