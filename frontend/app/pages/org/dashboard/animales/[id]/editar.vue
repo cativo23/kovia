@@ -231,11 +231,47 @@ async function setExistingCover(photoId: string) {
 }
 
 async function reorderExistingPhotos(photoIds: string[]) {
+  if (!animal.value) return
+
+  // Snapshot the current order so we can revert on failure
+  const previousPhotos = [...animal.value.photos]
+
+  // Build a map for O(1) lookup, then rebuild the array in the incoming order.
+  // Any photo whose id is not in photoIds (shouldn't happen, but be defensive)
+  // is appended at the end in its previous relative order.
+  const byId = new Map(previousPhotos.map(p => [p.id, p]))
+  const reordered: AnimalPhoto[] = []
+  for (const id of photoIds) {
+    const photo = byId.get(id)
+    if (photo) {
+      reordered.push({ ...photo, position: reordered.length })
+      byId.delete(id)
+    }
+  }
+  // Append any leftovers (defensive — preserves relative order)
+  for (const leftover of previousPhotos) {
+    if (byId.has(leftover.id)) {
+      reordered.push({ ...leftover, position: reordered.length })
+    }
+  }
+
+  // Optimistic update — this updates the computed `existingPhotos` and the
+  // PhotoUploader re-renders in the new order immediately.
+  animal.value.photos = reordered
+
   try {
     await patch(`/animals/${animalId.value}/photos/reorder`, { photoIds })
     toast.add({ title: t('common.success'), color: 'success' })
-  } catch {
-    toast.add({ title: t('common.error'), color: 'error' })
+  } catch (err: any) {
+    // Roll back
+    if (animal.value) {
+      animal.value.photos = previousPhotos
+    }
+    toast.add({
+      title: t('common.error'),
+      description: err?.data?.message || '',
+      color: 'error',
+    })
   }
 }
 

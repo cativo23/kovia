@@ -355,5 +355,19 @@ describe('AnimalsService', () => {
         data: { position: 2 },
       });
     });
+
+    it('should be a no-op for an empty array', async () => {
+      await service.reorderPhotos('a-1', []);
+      expect(mockPrismaRls.animalPhoto.update).not.toHaveBeenCalled();
+    });
+
+    it('should write position 0 for a single photo', async () => {
+      await service.reorderPhotos('a-1', ['p-only']);
+      expect(mockPrismaRls.animalPhoto.update).toHaveBeenCalledTimes(1);
+      expect(mockPrismaRls.animalPhoto.update).toHaveBeenCalledWith({
+        where: { id: 'p-only' },
+        data: { position: 0 },
+      });
+    });
   });
 });
