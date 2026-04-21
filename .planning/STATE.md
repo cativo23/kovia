@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready
-stopped_at: Phase 04 UAT complete — 7/7 tests passed, 3 bugs fixed during testing
-last_updated: "2026-04-21T22:00:00.000Z"
+status: milestone_complete
+stopped_at: Phase 05 UAT complete — 9/9 tests passed via Chrome automation, milestone v1.0 complete
+last_updated: "2026-04-21T23:00:00.000Z"
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 19
   completed_plans: 19
   percent: 100
@@ -17,24 +17,24 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-08)
+See: .planning/PROJECT.md (updated 2026-04-21)
 
-**Core value:** The right pets get matched with the right people -- every adoption decision is informed by structured data, scoring, and applicant history.
-**Current focus:** Phase 03 — adoption-applications (next)
+**Core value:** The right pets get matched with the right people — every adoption decision is informed by structured data, scoring, and applicant history.
+**Current focus:** Planning next milestone (v2.0)
 
 ## Current Position
 
-Phase: 02 (animals-and-public-listings) — COMPLETE
-Next: Phase 03 (adoption-applications)
-Status: Ready to plan Phase 03
+Phase: 05 (notifications-and-automation) — COMPLETE (UAT verified 2026-04-21)
+Next: Milestone v1.0 complete
+Status: All phases done — ready for /gsd-complete-milestone
 
-Progress: [██████░░░░] 58%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 2
 - Average duration: -
 - Total execution time: 0 hours
 
@@ -42,7 +42,7 @@ Progress: [██████░░░░] 58%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 05 | 2 | - | - |
 
 **Recent Trend:**
 
@@ -103,10 +103,21 @@ None yet.
 
 ### Blockers/Concerns
 
-- AUTH-05 (Google OAuth) is listed as v1 but PROJECT.md Out of Scope says "OAuth/social login -- email/password sufficient for MVP". Needs user decision: keep in v1 or defer to v2.
+None.
+
+## Deferred Items
+
+Items acknowledged and deferred at milestone close on 2026-04-21:
+
+| Category | Item | Status |
+|----------|------|--------|
+| uat_gap | Phase 02: 02-HUMAN-UAT.md — 2 pending scenarios | partial |
+| verification_gap | Phase 01: 01-VERIFICATION.md | gaps_found |
+| verification_gap | Phase 02: 02-VERIFICATION.md | human_needed |
+| verification_gap | Phase 04: 04-VERIFICATION.md | human_needed |
 
 ## Session Continuity
 
-Last session: 2026-04-21T22:00:00.000Z
-Stopped at: Phase 04 UAT complete — all 7 tests passed via Chrome automation, 3 bugs fixed
-Resume: Phase 05 (notifications/webhooks) — run /gsd-plan-phase 05 or /gsd-verify-work 05 if already implemented
+Last session: 2026-04-21T23:00:00.000Z
+Stopped at: Milestone v1.0 archived — /gsd-complete-milestone complete
+Resume: None — start v2 with /gsd-new-milestone

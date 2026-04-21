@@ -12,21 +12,21 @@ The right pets get matched with the right people — every adoption decision is 
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Public animal listings browsable without an account — Phase 2
+- ✓ Structured adoption application with photos, housing, experience — Phase 3
+- ✓ Rule-based applicant scoring (0-100) with risk levels and flags — Phase 4
+- ✓ Rescue dashboard to manage animals, applications, and statuses — Phases 2–4
+- ✓ Applicant accounts with history across organizations — Phase 4
+- ✓ In-app notifications for status changes — Phase 5
+- ✓ Webhook events for n8n automation (email + WhatsApp) — Phase 5
+- ✓ Multi-tenant with organization isolation — Phase 1
+- ✓ Admin-approved organization onboarding — Phase 1
+- ✓ Photo uploads for applications and animal listings (cloud storage) — Phases 2–3
+- ✓ Internal notes on applications for rescue staff — Phase 4
 
 ### Active
 
-- [ ] Public animal listings browsable without an account
-- [ ] Structured adoption application with photos, housing, experience
-- [ ] Rule-based applicant scoring (0-100) with risk levels and flags
-- [ ] Rescue dashboard to manage animals, applications, and statuses
-- [ ] Applicant accounts with history across organizations
-- [ ] In-app notifications for status changes
-- [ ] Webhook events for n8n automation (email + WhatsApp)
-- [ ] Multi-tenant with organization isolation
-- [ ] Admin-approved organization onboarding
-- [ ] Photo uploads for applications and animal listings (cloud storage)
-- [ ] Internal notes on applications for rescue staff
+(None — all v1.0 requirements shipped)
 
 ### Out of Scope
 
@@ -34,7 +34,7 @@ The right pets get matched with the right people — every adoption decision is 
 - Direct Instagram/WhatsApp API integration — n8n handles external messaging
 - Payment/donation system — not part of adoption workflow
 - Mobile app — web-first, responsive design sufficient for MVP
-- OAuth/social login — MOVED TO v1 per user request (simplifies adopter onboarding)
+- OAuth/social login — deferred to v2 (AUTH-05); email/password sufficient for MVP
 - Per-org webhook configuration — global n8n automation managed by admin
 - Multi-role permissions within orgs — single admin per org for MVP, roles added later
 
@@ -63,18 +63,18 @@ The right pets get matched with the right people — every adoption decision is 
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Admin-approved org onboarding | Control platform quality during early growth | — Pending |
-| Adopters must create accounts | Enables applicant history tracking and scoring across orgs | — Pending |
-| Single admin per org (MVP) | Most rescues are 1-person operations; roles added later | — Pending |
-| Spanish-first | Pilot org is in El Salvador; English added post-MVP | — Pending |
-| Global n8n automation | Simpler architecture; per-org config deferred | — Pending |
-| Rule-based scoring only | Simpler to build, validate, and debug than AI-based | — Pending |
-| Cloud storage for photos | Applications require environment photos; need reliable hosting | — Pending |
-| Generic animal model | Platform supports all pet types, not just dogs/cats | — Pending |
-| Nuxt 4 instead of Nuxt 3 | Nuxt 3 EOL July 2026 — starting greenfield on it would require immediate migration | — Pending |
-| OAuth (Google) in v1 | Simplifies adopter onboarding, reduces friction | — Pending |
-| Docker-only development | Host has no dependencies — all tooling via Docker | — Pending |
-| 80%+ test coverage | Both frontend and backend, meaningful tests only | — Pending |
+| Admin-approved org onboarding | Control platform quality during early growth | ✓ Shipped Phase 1 |
+| Adopters must create accounts | Enables applicant history tracking and scoring across orgs | ✓ Shipped Phase 1 |
+| Single admin per org (MVP) | Most rescues are 1-person operations; roles added later | ✓ Shipped Phase 1 |
+| Spanish-first | Pilot org is in El Salvador; English added post-MVP | ✓ Shipped Phase 1 |
+| Global n8n automation | Simpler architecture; per-org config deferred | ✓ Shipped Phase 5 — webhook outbox with BullMQ + exponential backoff |
+| Rule-based scoring only | Simpler to build, validate, and debug than AI-based | ✓ Shipped Phase 4 — 50+ tests, transparent rule breakdown |
+| Cloud storage for photos | Applications require environment photos; need reliable hosting | ✓ Shipped Phase 2 — MinIO with presigned URLs |
+| Generic animal model | Platform supports all pet types, not just dogs/cats | ✓ Shipped Phase 2 |
+| Nuxt 4 instead of Nuxt 3 | Nuxt 3 EOL July 2026 — starting greenfield on it would require immediate migration | ✓ Shipped Phase 1 |
+| OAuth (Google) | Simplifies adopter onboarding, reduces friction | Moved to v2 — route partially wired but not implemented in v1 |
+| Docker-only development | Host has no dependencies — all tooling via Docker | ✓ All phases — never required host Node.js |
+| 80%+ test coverage | Both frontend and backend, meaningful tests only | ✓ 28 unit tests (Phase 5), 50+ (Phase 4), full coverage across phases |
 
 ---
-*Last updated: 2026-04-08 after roadmap creation*
+*Last updated: 2026-04-21 after v1.0 milestone close*
