@@ -24,9 +24,11 @@ services:
       S3_PUBLIC_URL: http://localhost:9000/kovia-animals
       S3_PUBLIC_ENDPOINT: http://localhost:9000
       N8N_WEBHOOK_URL: ""
+      CI: "true"          # makes prisma migrate deploy non-interactive in no-TTY
     volumes:
       - ./backend:/app
       - /app/node_modules
+      - /app/src/generated/prisma   # preserve image-baked Prisma client across bind mount
     depends_on:
       postgres:
         condition: service_healthy
@@ -34,6 +36,8 @@ services:
         condition: service_started
       minio:
         condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
 
   web:
     build:
