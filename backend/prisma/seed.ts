@@ -11,9 +11,15 @@
  *   SEED_ORG_ADMIN_EMAIL, SEED_ORG_ADMIN_PASSWORD
  */
 import { PrismaClient } from '../src/generated/prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient();
+// Use MIGRATION_DATABASE_URL (superuser) so RLS policies don't block seed inserts.
+// The app_user (DATABASE_URL) is subject to RLS; the migration user bypasses it.
+const adapter = new PrismaPg({
+  connectionString: process.env.MIGRATION_DATABASE_URL ?? process.env.DATABASE_URL,
+});
+const prisma = new PrismaClient({ adapter } as ConstructorParameters<typeof PrismaClient>[0]);
 
 const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL ?? 'admin@kovia.local';
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'admin123!';
