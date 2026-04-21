@@ -57,7 +57,7 @@ Plans:
 - [x] 02-02-PLAN.md — Org dashboard: layout, stats, animal table with status management, multi-step creation wizard, photo uploader, edit page
 - [x] 02-03-PLAN.md — Public listings: SSR animal grid with filters, animal detail with OG tags, org landing page, brand identity, E2E tests
 - [x] 02-04-PLAN.md — [gap] Cold start repeatability: preserve Prisma client across bind mount, run migrate deploy at startup, add idempotent seed script
-- [ ] 02-05-PLAN.md — [gap] Photo reorder persistence: optimistic local-state update on the edit page + rollback on PATCH failure; backend regression tests
+- [x] 02-05-PLAN.md — [gap] Photo reorder persistence: optimistic local-state update on the edit page + rollback on PATCH failure; backend regression tests
 - [x] 02-06-PLAN.md — [gap] i18n key fix on AnimalCard: point grid/list size labels at the existing `animals.form.sizeOptions.*` keys
 
 ### Phase 3: Adoption Applications
