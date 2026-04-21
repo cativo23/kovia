@@ -38,6 +38,11 @@ const mockAuditService = {
   log: vi.fn(),
 };
 
+const mockCls = {
+  get: vi.fn(),
+  set: vi.fn(),
+};
+
 describe('AnimalsService', () => {
   let service: AnimalsService;
 
@@ -48,6 +53,7 @@ describe('AnimalsService', () => {
       mockPublicPrisma as any,
       mockUploadService as any,
       mockAuditService as any,
+      mockCls as any,
     );
   });
 

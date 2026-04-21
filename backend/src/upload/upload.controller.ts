@@ -14,6 +14,8 @@ const ALLOWED_CONTENT_TYPES = [
   'image/webp',
 ];
 
+const ALLOWED_FOLDERS = ['animals', 'applications'];
+
 @ApiTags('Upload')
 @ApiBearerAuth()
 @Controller('upload')
@@ -24,7 +26,7 @@ export class UploadController {
   @Roles('ORG_ADMIN', 'ADOPTER')
   @ApiOperation({ summary: 'Generate presigned URL for photo upload' })
   async getPresignedUrl(
-    @Body() body: { filename: string; contentType: string },
+    @Body() body: { filename: string; contentType: string; folder?: string },
   ) {
     if (!body.filename || body.filename.length > 255) {
       throw new BadRequestException('Filename is required and must be 255 characters or less');
@@ -36,10 +38,17 @@ export class UploadController {
       );
     }
 
+    const folder = body.folder ?? 'animals';
+    if (!ALLOWED_FOLDERS.includes(folder)) {
+      throw new BadRequestException(
+        `Folder must be one of: ${ALLOWED_FOLDERS.join(', ')}`,
+      );
+    }
+
     const { url, key } = await this.uploadService.getPresignedUrl(
       body.filename,
       body.contentType,
-      (body as any).folder,
+      folder,
     );
     return { url, key, publicUrl: this.uploadService.getPublicUrl(key) };
   }
