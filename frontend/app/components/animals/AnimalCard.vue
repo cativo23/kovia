@@ -47,7 +47,7 @@
           </span>
           <span v-if="animal.size" class="flex items-center gap-1">
             <UIcon name="i-lucide-ruler" class="w-3 h-3" />
-            {{ $t(`animals.form.size.${sizeKey(animal.size)}`) }}
+            {{ $t(`animals.form.sizeOptions.${sizeKey(animal.size)}`) }}
           </span>
         </div>
 
@@ -112,7 +112,7 @@
         <p v-if="animal.breed" class="text-xs text-gray-500 mt-0.5">{{ animal.breed }}</p>
         <div class="flex flex-wrap gap-2 mt-1 text-xs text-gray-600 dark:text-gray-400">
           <span v-if="animal.ageMonths !== null">{{ formatAge(animal.ageMonths) }}</span>
-          <span v-if="animal.size">{{ $t(`animals.form.size.${sizeKey(animal.size)}`) }}</span>
+          <span v-if="animal.size">{{ $t(`animals.form.sizeOptions.${sizeKey(animal.size)}`) }}</span>
           <span class="text-gray-400">{{ animal.organization.name }}</span>
         </div>
       </div>
