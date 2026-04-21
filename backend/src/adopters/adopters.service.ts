@@ -1,27 +1,28 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
+import { PRISMA_RLS, PRISMA_PUBLIC } from '../prisma/prisma.module';
 
 @Injectable()
 export class AdoptersService {
   constructor(
-    private readonly publicPrisma: PrismaService,
+    @Inject(PRISMA_RLS) private readonly prismaRls: any,
+    @Inject(PRISMA_PUBLIC) private readonly prismaPublic: any,
     private readonly cls: ClsService,
   ) {}
 
   async getHistory(userId: string) {
-    const currentOrgId = this.cls.get('orgId');
+    const currentOrgId = this.cls.get('organizationId');
 
     // Authorization: confirm this adopter has ever applied to the current org
-    const ownOrgCount = await this.publicPrisma.adoptionApplication.count({
+    const ownOrgCount = await this.prismaRls.adoptionApplication.count({
       where: { userId, organizationId: currentOrgId },
     });
     if (ownOrgCount === 0) {
       throw new NotFoundException('Adopter not found in this organization');
     }
 
-    // Fetch ALL applications for this adopter across ALL orgs using publicPrisma (no RLS)
-    const allApplications = await this.publicPrisma.adoptionApplication.findMany({
+    // Fetch ALL applications across ALL orgs using superuser connection (D-21)
+    const allApplications = await this.prismaPublic.adoptionApplication.findMany({
       where: { userId },
       orderBy: { submittedAt: 'desc' },
       include: {
@@ -34,14 +35,13 @@ export class AdoptersService {
     // Compute summary totals
     const summary = {
       totalApplications: allApplications.length,
-      adopted: allApplications.filter(a => a.status === 'ADOPTADA').length,
-      returned: allApplications.filter(a => a.status === 'DEVUELTA').length,
+      adopted: allApplications.filter((a: any) => a.status === 'ADOPTADA').length,
+      returned: allApplications.filter((a: any) => a.status === 'DEVUELTA').length,
     };
 
     // Project applications: full data for current org, summaries for other orgs (per D-21)
-    const applications = allApplications.map(app => {
+    const applications = allApplications.map((app: any) => {
       if (app.organizationId === currentOrgId) {
-        // Full data for own org
         return {
           id: app.id,
           status: app.status,
@@ -53,15 +53,14 @@ export class AdoptersService {
           isOwnOrg: true,
         };
       } else {
-        // Outcome summary only for other orgs (D-21)
         return {
           id: app.id,
           status: app.status,
-          animalName: null, // NOT exposed cross-org
+          animalName: null,
           animalSpecies: app.animal?.species?.name ?? null,
           submittedAt: app.submittedAt,
           updatedAt: app.updatedAt,
-          score: null, // NOT exposed cross-org
+          score: null,
           isOwnOrg: false,
         };
       }
@@ -71,21 +70,21 @@ export class AdoptersService {
   }
 
   async getSummary(userId: string) {
-    const currentOrgId = this.cls.get('orgId');
+    const currentOrgId = this.cls.get('organizationId');
 
     // Authorization: confirm this adopter has ever applied to the current org
-    const ownOrgCount = await this.publicPrisma.adoptionApplication.count({
+    const ownOrgCount = await this.prismaRls.adoptionApplication.count({
       where: { userId, organizationId: currentOrgId },
     });
     if (ownOrgCount === 0) {
       throw new NotFoundException('Adopter not found in this organization');
     }
 
-    // Lightweight version for the inline card — just counts
+    // Counts across ALL orgs using superuser connection (D-21 global history)
     const [totalApplications, adopted, returned] = await Promise.all([
-      this.publicPrisma.adoptionApplication.count({ where: { userId } }),
-      this.publicPrisma.adoptionApplication.count({ where: { userId, status: 'ADOPTADA' } }),
-      this.publicPrisma.adoptionApplication.count({ where: { userId, status: 'DEVUELTA' } }),
+      this.prismaPublic.adoptionApplication.count({ where: { userId } }),
+      this.prismaPublic.adoptionApplication.count({ where: { userId, status: 'ADOPTADA' } }),
+      this.prismaPublic.adoptionApplication.count({ where: { userId, status: 'DEVUELTA' } }),
     ]);
 
     return { totalApplications, adopted, returned };
