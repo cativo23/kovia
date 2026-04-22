@@ -9,14 +9,18 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Cookie parser for refresh token
-  app.use(cookieParser());
+  // Resolve services before middleware registration
+  const jwtService = app.get(JwtService);
+  const configService = app.get(ConfigService);
+
+  // Cookie parser — secret enables signed cookies (used by bb_session)
+  const cookieSecret = configService.get<string>('COOKIE_SECRET') ?? 'dev-cookie-secret';
+  app.use(cookieParser(cookieSecret));
 
   // Bull Board auth — applied at Express level so it intercepts before the
   // ExpressAdapter-mounted router (MiddlewareConsumer cannot reach those routes)
-  const jwtService = app.get(JwtService);
-  const configService = app.get(ConfigService);
   const BULL_BOARD_COOKIE = 'bb_session';
+  const isProduction = configService.get<string>('NODE_ENV') === 'production';
   app.use('/admin/queues', (req: any, res: any, next: any) => {
     // Static assets bundled by Bull Board don't carry the token — allow them through
     if ((req.path as string).startsWith('/static/')) {
@@ -25,9 +29,9 @@ async function bootstrap() {
     }
 
     // After the initial token-authenticated load, Bull Board's SPA makes XHR
-    // requests without the token. Accept a short-lived session cookie set on
-    // the first valid token exchange so those subsequent requests pass through.
-    const sessionCookie = req.cookies?.[BULL_BOARD_COOKIE];
+    // requests without the token. Accept a short-lived signed session cookie set
+    // on the first valid token exchange so those subsequent requests pass through.
+    const sessionCookie = req.signedCookies?.[BULL_BOARD_COOKIE];
     if (sessionCookie === 'authorized') {
       next();
       return;
@@ -51,9 +55,11 @@ async function bootstrap() {
         res.status(403).json({ message: 'Forbidden' });
         return;
       }
-      // Set a 15-minute session cookie so Bull Board's SPA XHR calls pass through
+      // Set a signed 15-minute session cookie so Bull Board's SPA XHR calls pass through
       res.cookie(BULL_BOARD_COOKIE, 'authorized', {
         httpOnly: true,
+        signed: true,
+        secure: isProduction,
         sameSite: 'strict',
         maxAge: 15 * 60 * 1000,
       });

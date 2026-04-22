@@ -18,6 +18,6 @@ import { ScoringService } from './scoring.service';
     NotificationsModule,
   ],
   providers: [ScoringProcessor, ScoringService],
-  exports: [ScoringService, BullModule.registerQueue({ name: 'scoring' })],
+  exports: [ScoringService],
 })
 export class ScoringModule {}
