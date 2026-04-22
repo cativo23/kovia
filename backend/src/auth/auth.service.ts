@@ -53,7 +53,7 @@ export class AuthService {
     const verificationToken = await this.jwtService.signAsync(
       { sub: user.id, type: 'email-verification' },
       {
-        secret: this.config.get<string>('JWT_VERIFICATION_SECRET') || this.config.get<string>('JWT_ACCESS_SECRET'),
+        secret: this.config.getOrThrow<string>('JWT_VERIFICATION_SECRET'),
         expiresIn: '1h',
       },
     );
@@ -76,7 +76,7 @@ export class AuthService {
     let payload: any;
     try {
       payload = await this.jwtService.verifyAsync(token, {
-        secret: this.config.get<string>('JWT_VERIFICATION_SECRET') || this.config.get<string>('JWT_ACCESS_SECRET'),
+        secret: this.config.getOrThrow<string>('JWT_VERIFICATION_SECRET'),
       });
     } catch (error: any) {
       if (error?.name === 'TokenExpiredError') {
@@ -146,7 +146,7 @@ export class AuthService {
     const resetToken = await this.jwtService.signAsync(
       { sub: user.id, type: 'password-reset' },
       {
-        secret: this.config.get<string>('JWT_VERIFICATION_SECRET') || this.config.get<string>('JWT_ACCESS_SECRET'),
+        secret: this.config.getOrThrow<string>('JWT_VERIFICATION_SECRET'),
         expiresIn: '1h',
       },
     );
@@ -165,7 +165,7 @@ export class AuthService {
     let payload: any;
     try {
       payload = await this.jwtService.verifyAsync(token, {
-        secret: this.config.get<string>('JWT_VERIFICATION_SECRET') || this.config.get<string>('JWT_ACCESS_SECRET'),
+        secret: this.config.getOrThrow<string>('JWT_VERIFICATION_SECRET'),
       });
     } catch (error: any) {
       if (error?.name === 'TokenExpiredError') {
@@ -233,7 +233,7 @@ export class AuthService {
     const verificationToken = await this.jwtService.signAsync(
       { sub: user.id, type: 'email-verification' },
       {
-        secret: this.config.get<string>('JWT_VERIFICATION_SECRET') || this.config.get<string>('JWT_ACCESS_SECRET'),
+        secret: this.config.getOrThrow<string>('JWT_VERIFICATION_SECRET'),
         expiresIn: '1h',
       },
     );
