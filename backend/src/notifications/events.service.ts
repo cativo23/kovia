@@ -48,6 +48,10 @@ export class EventsService {
     );
 
     // Dispatch email — AFTER $transaction commits (D-11 convention)
+    if (!context.adopterEmail) {
+      this.logger.warn(`Skipping email dispatch: no email for adopter ${context.adopterId}`);
+      return;
+    }
     await this.mailDispatcher.send(
       new ApplicationSubmittedMail(context.adopterEmail, {
         firstName: context.adopterFirstName,
@@ -91,6 +95,10 @@ export class EventsService {
     );
 
     // Dispatch email — AFTER $transaction commits (D-11 convention)
+    if (!context.adopterEmail) {
+      this.logger.warn(`Skipping email dispatch: no email for adopter ${context.adopterId}`);
+      return;
+    }
     await this.mailDispatcher.send(
       new StatusChangedMail(context.adopterEmail, {
         firstName: context.adopterFirstName,
