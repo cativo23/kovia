@@ -5,11 +5,13 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.ad
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { MailService } from './mail.service';
-import { MailProcessor } from './mail.processor';
+import { MailDispatcher } from './mail-dispatcher.service';
+import { AuthMailProcessor, TransactionalMailProcessor } from './mail.processor';
 
 @Module({
   imports: [
-    BullModule.registerQueue({ name: 'email' }),
+    BullModule.registerQueue({ name: 'emails-auth' }),
+    BullModule.registerQueue({ name: 'emails-transactional' }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -32,7 +34,12 @@ import { MailProcessor } from './mail.processor';
       }),
     }),
   ],
-  providers: [MailService, MailProcessor],
-  exports: [MailService],
+  providers: [
+    MailService,       // kept until Plan 03 removes AuthService dependency
+    MailDispatcher,
+    AuthMailProcessor,
+    TransactionalMailProcessor,
+  ],
+  exports: [MailService, MailDispatcher],  // both exported until Plan 03 cuts over
 })
 export class MailModule {}
