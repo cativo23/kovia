@@ -14,6 +14,7 @@ import { ResetPasswordMail } from '../mail/mailables/reset-password.mail';
 import { WelcomeMail } from '../mail/mailables/welcome.mail';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
+import { UserRole } from '../users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +38,7 @@ export class AuthService {
 
     // First user gets PLATFORM_ADMIN role
     const userCount = await this.prisma.user.count();
-    const role = userCount === 0 ? 'PLATFORM_ADMIN' : 'ADOPTER';
+    const role: UserRole = userCount === 0 ? UserRole.PLATFORM_ADMIN : UserRole.ADOPTER;
 
     // Create user
     const user = await this.usersService.create({
@@ -45,7 +46,7 @@ export class AuthService {
       passwordHash,
       firstName: dto.firstName,
       lastName: dto.lastName,
-      role: role as any,
+      role,
       emailVerified: false,
     });
 
