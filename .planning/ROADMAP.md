@@ -44,9 +44,9 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 **Plans**: 3 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Mailable type system: Queueable interface, decorators, QueueableMail base, metadata reader, all 6 Mailable subclasses
-- [ ] 06-02-PLAN.md — BullMQ infrastructure: MailDispatcher, BaseMailProcessor hierarchy, MailModule with two named queues
-- [ ] 06-03-PLAN.md — Integration wiring: AuthService migration, EventsService email dispatches, NotificationsModule, 3 new Handlebars templates
+- [x] 06-01-PLAN.md — Mailable type system: Queueable interface, decorators, QueueableMail base, metadata reader, all 6 Mailable subclasses
+- [x] 06-02-PLAN.md — BullMQ infrastructure: MailDispatcher, BaseMailProcessor hierarchy, MailModule with two named queues
+- [x] 06-03-PLAN.md — Integration wiring: AuthService migration, EventsService email dispatches, NotificationsModule, 3 new Handlebars templates
 
 ### Phase 7: Bull Board & Queue Observability
 **Goal**: Platform admin can observe all job queues, inspect failures, and manually retry jobs from a protected web UI

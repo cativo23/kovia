@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.0
-milestone_name: Automation, Auth & Adopter Experience
-status: defining_requirements
-stopped_at: Milestone v2.0 started — defining requirements
-last_updated: "2026-04-21T00:00:00.000Z"
+milestone_name: — Automation, Auth & Adopter Experience
+status: ready_to_plan
+last_updated: "2026-04-22T18:01:15.754Z"
+last_activity: 2026-04-22 -- Phase --phase execution started
 progress:
-  total_phases: 0
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 5
+  completed_phases: 1
+  total_plans: 4
+  completed_plans: 3
+  percent: 20
 ---
 
 # Project State
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-21)
 
 **Core value:** The right pets get matched with the right people — every adoption decision is informed by structured data, scoring, and applicant history.
-**Current focus:** Milestone v2.0 — Automation, Auth & Adopter Experience
+**Current focus:** Phase --phase — 06
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-21 — Milestone v2.0 started
+Phase: 7
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-04-22
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -68,13 +68,15 @@ Recent decisions affecting current work:
 - [Phase 02-animals-and-public-listings]: URL-driven filters use navigateTo({ query }) so each filter state is a bookmarkable SSR URL
 - [Phase 02-animals-and-public-listings]: PhotoGallery uses Teleport for lightbox overlay to avoid z-index stacking issues
 - [Phase 02-animals-and-public-listings]: org/[slug].vue converted from onMounted to useFetch for full SSR support on org landing page
-- [v2.0]: n8n will run as a Docker Compose service — not an external dependency
-- [v2.0]: Per-org webhook config is a prerequisite for n8n to be useful across multiple orgs
-- [v2.0]: Google OAuth route is partially wired from v1.0 (AUTH-05)
+- [v2.0-roadmap]: BullMQ already installed (v5.73.1) — use @bull-board v6.21.0 (not v7, breaking changes)
+- [v2.0-roadmap]: RBAC via OrgMembership junction table — no RLS changes needed, role checks are app-layer
+- [v2.0-roadmap]: Google OAuth is 95% complete from v1.0 — missing only env credentials and UI button
+- [v2.0-roadmap]: Don't encode org role in JWT — query OrgMembership on each request (revocation safety)
+- [v2.0-roadmap]: Bull Board protected with express-basic-auth at /admin/queues route
 
 ### Pending Todos
 
-None yet.
+- **[OSS-01] Contribute `@TransactionalEventListener` upstream to nestjs-cls** — Tracked in [kovia#1](https://github.com/cativo23/kovia/issues/1). Open issue [Papooch/nestjs-cls#443](https://github.com/Papooch/nestjs-cls/issues/443) requests Spring-like afterCommit dispatch for NestJS+Prisma/TypeORM/MikroORM. Kovia currently uses a convention-based workaround (Phase 6 D-11). Revisit during v3.0 planning.
 
 ### Blockers/Concerns
 
@@ -84,8 +86,7 @@ None.
 
 | Category | Item | Status |
 |----------|------|--------|
-| v2.0 | n8n Docker Compose + real flows | planned |
-| v2.0 | Per-org webhook configuration | planned |
-| v2.0 | Google OAuth (AUTH-05) | planned |
-| v2.0 | Multi-role permissions within orgs | planned |
-| v2.0 | Adopter dashboard | planned |
+| v3.0 | n8n Docker Compose + real WhatsApp flows | deferred to v3.0 |
+| v3.0 | Per-org webhook configuration | deferred to v3.0 |
+| v3.0+ | AI-based matching | deferred post v2.0 |
+| v3.0+ | Mobile app | deferred, web-first not yet validated |
