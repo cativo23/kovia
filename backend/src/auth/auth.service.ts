@@ -8,7 +8,10 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
-import { MailService } from '../mail/mail.service';
+import { MailDispatcher } from '../mail/mail-dispatcher.service';
+import { VerificationMail } from '../mail/mailables/verification.mail';
+import { ResetPasswordMail } from '../mail/mailables/reset-password.mail';
+import { WelcomeMail } from '../mail/mailables/welcome.mail';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 
@@ -16,7 +19,7 @@ import { RegisterDto } from './dto/register.dto';
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly mailService: MailService,
+    private readonly mailDispatcher: MailDispatcher,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
@@ -56,10 +59,11 @@ export class AuthService {
     );
 
     // Queue verification email
-    await this.mailService.sendVerificationEmail(
-      dto.email,
-      verificationToken,
-      dto.firstName,
+    await this.mailDispatcher.send(
+      new VerificationMail(dto.email, {
+        firstName: dto.firstName,
+        verificationUrl: `${this.config.get<string>('APP_URL')}/verify-email?token=${verificationToken}`,
+      }),
     );
 
     return {
@@ -95,6 +99,11 @@ export class AuthService {
       where: { id: user.id },
       data: { emailVerified: true },
     });
+
+    // Dispatch welcome email — AFTER prisma.user.update commits (D-11 convention)
+    await this.mailDispatcher.send(
+      new WelcomeMail(user.email, { firstName: user.firstName || '' }),
+    );
 
     // Auto-login: generate tokens (magic link pattern per CONTEXT.md)
     return this.generateTokens(user);
@@ -142,10 +151,11 @@ export class AuthService {
       },
     );
 
-    await this.mailService.sendResetPasswordEmail(
-      email,
-      resetToken,
-      user.firstName || '',
+    await this.mailDispatcher.send(
+      new ResetPasswordMail(email, {
+        firstName: user.firstName || '',
+        resetUrl: `${this.config.get<string>('APP_URL')}/reset-password?token=${resetToken}`,
+      }),
     );
 
     return { message: 'Si el correo existe, recibiras un enlace para restablecer tu contrasena' };
@@ -228,10 +238,11 @@ export class AuthService {
       },
     );
 
-    await this.mailService.sendVerificationEmail(
-      email,
-      verificationToken,
-      user.firstName || '',
+    await this.mailDispatcher.send(
+      new VerificationMail(email, {
+        firstName: user.firstName || '',
+        verificationUrl: `${this.config.get<string>('APP_URL')}/verify-email?token=${verificationToken}`,
+      }),
     );
 
     return { message: 'Se ha enviado un nuevo enlace de verificacion' };

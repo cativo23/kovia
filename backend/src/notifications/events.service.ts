@@ -3,6 +3,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService, NOTIFICATION_TEMPLATES } from './notifications.service';
 import { WebhookService } from './webhook.service';
 import { NotificationType } from '../generated/prisma/client';
+import { MailDispatcher } from '../mail/mail-dispatcher.service';
+import { ApplicationSubmittedMail } from '../mail/mailables/application-submitted.mail';
+import { StatusChangedMail } from '../mail/mailables/status-changed.mail';
 
 /**
  * EventsService — centralized event emission service.
@@ -17,6 +20,7 @@ export class EventsService {
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
     private readonly webhookService: WebhookService,
+    private readonly mailDispatcher: MailDispatcher,
   ) {}
 
   async emitApplicationSubmitted(applicationId: string) {
@@ -41,6 +45,15 @@ export class EventsService {
         organizationId: context.organizationId,
         metadata: { animalName: context.animalName },
       },
+    );
+
+    // Dispatch email — AFTER $transaction commits (D-11 convention)
+    await this.mailDispatcher.send(
+      new ApplicationSubmittedMail(context.adopterEmail, {
+        firstName: context.adopterFirstName,
+        animalName: context.animalName,
+        orgName: context.orgName,
+      }),
     );
   }
 
@@ -75,6 +88,15 @@ export class EventsService {
         previousStatus,
         metadata: { animalName: context.animalName },
       },
+    );
+
+    // Dispatch email — AFTER $transaction commits (D-11 convention)
+    await this.mailDispatcher.send(
+      new StatusChangedMail(context.adopterEmail, {
+        firstName: context.adopterFirstName,
+        animalName: context.animalName,
+        newStatus,
+      }),
     );
   }
 
@@ -216,7 +238,11 @@ export class EventsService {
         this.prisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
         this.prisma.adoptionApplication.findUnique({
           where: { id: applicationId },
-          include: { animal: { select: { name: true } } },
+          include: {
+            animal: { select: { name: true } },
+            user: { select: { email: true, firstName: true } },
+            organization: { select: { name: true } },
+          },
         }),
       ]);
 
@@ -227,6 +253,9 @@ export class EventsService {
         animalId: app.animalId,
         organizationId: app.organizationId,
         animalName: (app.animal as any)?.name ?? 'mascota',
+        adopterEmail: (app.user as any)?.email ?? '',
+        adopterFirstName: (app.user as any)?.firstName ?? '',
+        orgName: (app.organization as any)?.name ?? '',
       };
     } catch {
       return null;
