@@ -162,6 +162,9 @@
       "editSuccess": "Especie actualizada exitosamente",
       "deleteSuccess": "Especie eliminada exitosamente"
     },
+    "queues": {
+      "title": "Colas de Jobs"
+    },
     "users": {
       "title": "Usuarios",
       "description": "Gestiona los usuarios de la plataforma",
