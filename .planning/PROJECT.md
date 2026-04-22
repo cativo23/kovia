@@ -1,5 +1,16 @@
 # Kovia — Smart Pet Adoption Platform
 
+## Current Milestone: v2.0 — Automation, Auth & Adopter Experience
+
+**Goal:** Complete the automation story, finish deferred auth, and give adopters visibility into their applications.
+
+**Target features:**
+- n8n in Docker Compose — fully operational with real email + WhatsApp flows triggered by application events
+- Per-org webhook configuration — each org sets their own n8n URL instead of a global env var
+- Google OAuth (AUTH-05) — complete the partially-wired route from v1.0
+- Multi-role permissions within orgs — staff/viewer roles beyond single admin
+- Adopter dashboard — adopters can track application statuses, history, and notifications in one place
+
 ## What This Is
 
 A centralized platform that helps animal rescues and shelters manage adoptions through structured workflows, applicant scoring, and tracking. It replaces the chaos of DMs, spreadsheets, and memory with a system designed to increase responsible adoptions and reduce animal suffering. Built web-first, Spanish-first, with DameTuPataSV (El Salvador) as the pilot organization.
@@ -26,7 +37,11 @@ The right pets get matched with the right people — every adoption decision is 
 
 ### Active
 
-(None — all v1.0 requirements shipped)
+- [ ] n8n in Docker Compose — fully operational with real email + WhatsApp flows
+- [ ] Per-org webhook configuration — each org configures their own n8n URL
+- [ ] Google OAuth (AUTH-05) — complete the partially-wired route
+- [ ] Multi-role permissions within orgs — staff/viewer roles beyond single admin
+- [ ] Adopter dashboard — adopters track application statuses, history, notifications
 
 ### Out of Scope
 
@@ -76,5 +91,22 @@ The right pets get matched with the right people — every adoption decision is 
 | Docker-only development | Host has no dependencies — all tooling via Docker | ✓ All phases — never required host Node.js |
 | 80%+ test coverage | Both frontend and backend, meaningful tests only | ✓ 28 unit tests (Phase 5), 50+ (Phase 4), full coverage across phases |
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
-*Last updated: 2026-04-21 after v1.0 milestone close*
+*Last updated: 2026-04-21 — Milestone v2.0 started*

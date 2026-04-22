@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: milestone_complete
-stopped_at: Phase 05 UAT complete — 9/9 tests passed via Chrome automation, milestone v1.0 complete
-last_updated: "2026-04-21T23:00:00.000Z"
+milestone: v2.0
+milestone_name: Automation, Auth & Adopter Experience
+status: defining_requirements
+stopped_at: Milestone v2.0 started — defining requirements
+last_updated: "2026-04-21T00:00:00.000Z"
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 19
-  completed_plans: 19
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -20,44 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-21)
 
 **Core value:** The right pets get matched with the right people — every adoption decision is informed by structured data, scoring, and applicant history.
-**Current focus:** Planning next milestone (v2.0)
+**Current focus:** Milestone v2.0 — Automation, Auth & Adopter Experience
 
 ## Current Position
 
-Phase: 05 (notifications-and-automation) — COMPLETE (UAT verified 2026-04-21)
-Next: Milestone v1.0 complete
-Status: All phases done — ready for /gsd-complete-milestone
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-21 — Milestone v2.0 started
 
-Progress: [██████████] 100%
-
-## Performance Metrics
-
-**Velocity:**
-
-- Total plans completed: 2
-- Average duration: -
-- Total execution time: 0 hours
-
-**By Phase:**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 05 | 2 | - | - |
-
-**Recent Trend:**
-
-- Last 5 plans: -
-- Trend: -
-
-*Updated after each plan completion*
-| Phase 01-foundation P01 | 41min | 2 tasks | 37 files |
-| Phase 01-foundation P02 | 8min | 2 tasks | 37 files |
-| Phase 01-foundation P03 | 8min | 3 tasks | 23 files |
-| Phase 01-foundation P05 | 31min | 2 tasks | 15 files |
-| Phase 01-foundation P04 | 45min | 3 tasks | 28 files |
-| Phase 02-animals P01 | 10min | 2 tasks | 17 files |
-| Phase 02-animals P02 | 8min | 2 tasks | 14 files |
-| Phase 02-animals-and-public-listings P03 | 30 | 2 tasks | 13 files |
+Progress: [░░░░░░░░░░] 0%
 
 ## Accumulated Context
 
@@ -96,6 +68,9 @@ Recent decisions affecting current work:
 - [Phase 02-animals-and-public-listings]: URL-driven filters use navigateTo({ query }) so each filter state is a bookmarkable SSR URL
 - [Phase 02-animals-and-public-listings]: PhotoGallery uses Teleport for lightbox overlay to avoid z-index stacking issues
 - [Phase 02-animals-and-public-listings]: org/[slug].vue converted from onMounted to useFetch for full SSR support on org landing page
+- [v2.0]: n8n will run as a Docker Compose service — not an external dependency
+- [v2.0]: Per-org webhook config is a prerequisite for n8n to be useful across multiple orgs
+- [v2.0]: Google OAuth route is partially wired from v1.0 (AUTH-05)
 
 ### Pending Todos
 
@@ -107,17 +82,10 @@ None.
 
 ## Deferred Items
 
-Items acknowledged and deferred at milestone close on 2026-04-21:
-
 | Category | Item | Status |
 |----------|------|--------|
-| uat_gap | Phase 02: 02-HUMAN-UAT.md — 2 pending scenarios | partial |
-| verification_gap | Phase 01: 01-VERIFICATION.md | gaps_found |
-| verification_gap | Phase 02: 02-VERIFICATION.md | human_needed |
-| verification_gap | Phase 04: 04-VERIFICATION.md | human_needed |
-
-## Session Continuity
-
-Last session: 2026-04-21T23:00:00.000Z
-Stopped at: Milestone v1.0 archived — /gsd-complete-milestone complete
-Resume: None — start v2 with /gsd-new-milestone
+| v2.0 | n8n Docker Compose + real flows | planned |
+| v2.0 | Per-org webhook configuration | planned |
+| v2.0 | Google OAuth (AUTH-05) | planned |
+| v2.0 | Multi-role permissions within orgs | planned |
+| v2.0 | Adopter dashboard | planned |
