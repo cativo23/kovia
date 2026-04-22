@@ -7,7 +7,9 @@ import { randomBytes } from 'crypto';
 import { Inject } from '@nestjs/common';
 import { PRISMA_RLS } from '../prisma/prisma.module';
 import { AuditService } from '../audit/audit.service';
-import { MailService } from '../mail/mail.service';
+import { ConfigService } from '@nestjs/config';
+import { MailDispatcher } from '../mail/mail-dispatcher.service';
+import { OrgInviteMail } from '../mail/mailables/org-invite.mail';
 import { CreateInviteDto } from './dto/create-invite.dto';
 
 
@@ -16,7 +18,8 @@ export class AdminService {
   constructor(
     @Inject(PRISMA_RLS) private readonly prisma: any,
     private readonly auditService: AuditService,
-    private readonly mailService: MailService,
+    private readonly mailDispatcher: MailDispatcher,
+    private readonly config: ConfigService,
   ) {}
 
   async createInvite(dto: CreateInviteDto, userId: string) {
@@ -47,7 +50,12 @@ export class AdminService {
       },
     });
 
-    await this.mailService.sendOrgInviteEmail(dto.email, token, dto.orgName);
+    await this.mailDispatcher.send(
+      new OrgInviteMail(dto.email, {
+        orgName: dto.orgName,
+        inviteUrl: `${this.config.get<string>('APP_URL')}/invite/${token}`,
+      }),
+    );
     await this.auditService.log('org_invited', userId, {
       email: dto.email,
       orgName: dto.orgName,
@@ -85,10 +93,11 @@ export class AdminService {
       data: { token, expiresAt },
     });
 
-    await this.mailService.sendOrgInviteEmail(
-      invite.email,
-      token,
-      invite.orgName,
+    await this.mailDispatcher.send(
+      new OrgInviteMail(invite.email, {
+        orgName: invite.orgName,
+        inviteUrl: `${this.config.get<string>('APP_URL')}/invite/${token}`,
+      }),
     );
     await this.auditService.log('invite_resent', userId, {
       inviteId,
