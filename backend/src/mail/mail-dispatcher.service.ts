@@ -13,6 +13,11 @@ export class MailDispatcher {
 
   async send(mail: QueueableMail): Promise<void> {
     const meta = getQueueMetadata(mail);
+    if (meta.queue !== 'emails-auth' && meta.queue !== 'emails-transactional') {
+      throw new Error(
+        `Unknown mail queue: "${meta.queue}". Check @Queue decorator on ${mail.constructor.name}.`,
+      );
+    }
     const queue = meta.queue === 'emails-auth' ? this.authQueue : this.txQueue;
     await queue.add(
       mail.constructor.name,
