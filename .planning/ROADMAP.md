@@ -53,12 +53,16 @@ Plans:
 **Depends on**: Phase 6 (email queue must exist to be monitored)
 **Requirements**: QUEUE-04, QUEUE-05
 **Success Criteria** (what must be TRUE):
-  1. Navigating to `/admin/queues` shows the Bull Board UI protected by HTTP basic auth — unauthenticated requests are rejected
-  2. Both the `webhook` and `email` queues appear in the dashboard with live job counts (waiting, active, completed, failed)
+  1. Navigating to `/admin/queues` with a valid PLATFORM_ADMIN JWT shows the Bull Board UI — unauthenticated requests return 401, wrong-role returns 403
+  2. All 4 queues (`webhook`, `emails-auth`, `emails-transactional`, `scoring`) appear in the dashboard with live job counts (waiting, active, completed, failed)
   3. A failed job shows its error message and stack trace in the dashboard detail view
   4. Admin can click "Retry" on a failed job and see it move back to the active queue
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 3 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Package install, BullBoardAuthMiddleware (TDD: RED spec + GREEN impl), AdminModule.forRoot wiring
+- [ ] 07-02-PLAN.md — BullBoardModule.forFeature registrations in all 3 feature modules (webhook, emails-auth, emails-transactional, scoring)
+- [ ] 07-03-PLAN.md — Admin frontend link: "Colas de Jobs" external href with ?token= query param + i18n key + human verification checkpoint
 
 ### Phase 8: Google OAuth
 **Goal**: Users can sign in or register with Google, with automatic account linking when the Google email matches an existing account
@@ -109,7 +113,7 @@ Plans:
 | 4. Scoring and Staff Tools | v1.0 | 3/3 | Complete | 2026-04-21 |
 | 5. Notifications and Automation | v1.0 | 2/2 | Complete | 2026-04-21 |
 | 6. Queue Infrastructure & Email Jobs | v2.0 | 0/3 | Not started | - |
-| 7. Bull Board & Queue Observability | v2.0 | 0/? | Not started | - |
+| 7. Bull Board & Queue Observability | v2.0 | 0/3 | Not started | - |
 | 8. Google OAuth | v2.0 | 0/? | Not started | - |
 | 9. Multi-Role Permissions | v2.0 | 0/? | Not started | - |
 | 10. Adopter Dashboard | v2.0 | 0/? | Not started | - |
