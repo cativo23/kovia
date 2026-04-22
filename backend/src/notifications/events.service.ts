@@ -257,7 +257,11 @@ export class EventsService {
         adopterFirstName: (app.user as any)?.firstName ?? '',
         orgName: (app.organization as any)?.name ?? '',
       };
-    } catch {
+    } catch (error: unknown) {
+      this.logger.error(
+        `fetchApplicationContext failed for application ${applicationId}: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
       return null;
     }
   }
