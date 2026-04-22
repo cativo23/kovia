@@ -18,7 +18,8 @@ import { AuthMailProcessor, TransactionalMailProcessor } from './mail.processor'
         transport: {
           host: config.get<string>('MAIL_HOST', 'mailpit'),
           port: config.get<number>('MAIL_PORT', 1025),
-          ignoreTLS: true,
+          ignoreTLS: config.get<string>('NODE_ENV') !== 'production',
+          secure: config.get<string>('NODE_ENV') === 'production',
         },
         defaults: {
           from: '"Kovia" <noreply@kovia.app>',
