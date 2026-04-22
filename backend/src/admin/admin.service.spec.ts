@@ -32,8 +32,12 @@ const mockAuditService = {
   log: vi.fn(),
 };
 
-const mockMailService = {
-  sendOrgInviteEmail: vi.fn(),
+const mockMailDispatcher = {
+  send: vi.fn(),
+};
+
+const mockConfig = {
+  get: vi.fn().mockReturnValue('https://app.kovia.com'),
 };
 
 describe('AdminService', () => {
@@ -44,7 +48,8 @@ describe('AdminService', () => {
     service = new AdminService(
       mockPrisma as any,
       mockAuditService as any,
-      mockMailService as any,
+      mockMailDispatcher as any,
+      mockConfig as any,
     );
   });
 
@@ -64,7 +69,7 @@ describe('AdminService', () => {
       const result = await service.createInvite({
         email: 'org@test.com',
         orgName: 'Test Org',
-      });
+      }, 'user-1');
 
       expect(result).toBeDefined();
       expect(result.email).toBe('org@test.com');
@@ -76,10 +81,14 @@ describe('AdminService', () => {
           }),
         }),
       );
-      expect(mockMailService.sendOrgInviteEmail).toHaveBeenCalledWith(
-        'org@test.com',
-        expect.any(String),
-        'Test Org',
+      expect(mockMailDispatcher.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'org@test.com',
+          context: expect.objectContaining({
+            orgName: 'Test Org',
+            inviteUrl: expect.stringContaining('/invite/'),
+          }),
+        }),
       );
       expect(mockAuditService.log).toHaveBeenCalledWith(
         'org_invited',
@@ -97,7 +106,7 @@ describe('AdminService', () => {
       });
 
       await expect(
-        service.createInvite({ email: 'org@test.com', orgName: 'Org' }),
+        service.createInvite({ email: 'org@test.com', orgName: 'Org' }, 'user-1'),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -163,7 +172,7 @@ describe('AdminService', () => {
         acceptedAt: null,
       });
 
-      const result = await service.resendInvite('inv-1');
+      const result = await service.resendInvite('inv-1', 'user-1');
 
       expect(result).toBeDefined();
       expect(mockPrisma.orgInvite.update).toHaveBeenCalledWith(
@@ -175,10 +184,18 @@ describe('AdminService', () => {
           }),
         }),
       );
-      expect(mockMailService.sendOrgInviteEmail).toHaveBeenCalled();
+      expect(mockMailDispatcher.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'org@test.com',
+          context: expect.objectContaining({
+            orgName: 'Test Org',
+            inviteUrl: expect.stringContaining('/invite/'),
+          }),
+        }),
+      );
       expect(mockAuditService.log).toHaveBeenCalledWith(
         'invite_resent',
-        expect.any(String),
+        'user-1',
         expect.objectContaining({ inviteId: 'inv-1' }),
       );
     });
@@ -232,7 +249,7 @@ describe('AdminService', () => {
         status: 'DEACTIVATED',
       });
 
-      await service.updateOrgStatus('org-1', 'DEACTIVATED');
+      await service.updateOrgStatus('org-1', 'DEACTIVATED', 'user-1');
 
       expect(mockPrisma.organization.update).toHaveBeenCalledWith({
         where: { id: 'org-1' },
@@ -240,7 +257,7 @@ describe('AdminService', () => {
       });
       expect(mockAuditService.log).toHaveBeenCalledWith(
         'org_deactivated',
-        expect.any(String),
+        'user-1',
         expect.objectContaining({ orgId: 'org-1' }),
       );
     });
@@ -251,7 +268,7 @@ describe('AdminService', () => {
         status: 'ACTIVE',
       });
 
-      await service.updateOrgStatus('org-1', 'ACTIVE');
+      await service.updateOrgStatus('org-1', 'ACTIVE', 'user-1');
 
       expect(mockPrisma.organization.update).toHaveBeenCalledWith({
         where: { id: 'org-1' },
@@ -259,7 +276,7 @@ describe('AdminService', () => {
       });
       expect(mockAuditService.log).toHaveBeenCalledWith(
         'org_reactivated',
-        expect.any(String),
+        'user-1',
         expect.objectContaining({ orgId: 'org-1' }),
       );
     });
@@ -300,7 +317,7 @@ describe('AdminService', () => {
         isActive: false,
       });
 
-      await service.deactivateUser('u-1');
+      await service.deactivateUser('u-1', 'user-1');
 
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: { id: 'u-1' },
@@ -308,8 +325,8 @@ describe('AdminService', () => {
       });
       expect(mockAuditService.log).toHaveBeenCalledWith(
         'user_deactivated',
-        expect.any(String),
-        expect.objectContaining({ userId: 'u-1' }),
+        'user-1',
+        expect.objectContaining({ targetUserId: 'u-1' }),
       );
     });
   });
@@ -321,7 +338,7 @@ describe('AdminService', () => {
         isActive: true,
       });
 
-      await service.reactivateUser('u-1');
+      await service.reactivateUser('u-1', 'user-1');
 
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: { id: 'u-1' },
@@ -329,8 +346,8 @@ describe('AdminService', () => {
       });
       expect(mockAuditService.log).toHaveBeenCalledWith(
         'user_reactivated',
-        expect.any(String),
-        expect.objectContaining({ userId: 'u-1' }),
+        'user-1',
+        expect.objectContaining({ targetUserId: 'u-1' }),
       );
     });
   });
@@ -340,22 +357,22 @@ describe('AdminService', () => {
       mockPrisma.user.findUnique.mockResolvedValue({ id: 'u-1', email: 'u@t.com' });
       mockPrisma.user.delete.mockResolvedValue({ id: 'u-1' });
 
-      await service.deleteUser('u-1');
+      await service.deleteUser('u-1', 'user-1');
 
       expect(mockPrisma.user.delete).toHaveBeenCalledWith({
         where: { id: 'u-1' },
       });
       expect(mockAuditService.log).toHaveBeenCalledWith(
         'user_deleted',
-        expect.any(String),
-        expect.objectContaining({ userId: 'u-1' }),
+        'user-1',
+        expect.objectContaining({ targetUserId: 'u-1' }),
       );
     });
 
     it('should throw if user not found', async () => {
       mockPrisma.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.deleteUser('nonexistent')).rejects.toThrow(
+      await expect(service.deleteUser('nonexistent', 'user-1')).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -380,7 +397,7 @@ describe('AdminService', () => {
       expect(stats.activeOrgs).toBe(2);
       expect(stats.inactiveOrgs).toBe(1);
       expect(stats.pendingInvites).toBe(1);
-      expect(stats.recentActivity).toBe(5);
+      expect(stats.recentActivity).toBe(5); // auditLog.count returns number directly
     });
   });
 
