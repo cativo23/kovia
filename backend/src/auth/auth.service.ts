@@ -321,10 +321,10 @@ export class AuthService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    await this.prisma.refreshToken.upsert({
-      where: { id: user.id }, // Use a deterministic lookup
-      update: { token: hashedRefresh, expiresAt },
-      create: { userId: user.id, token: hashedRefresh, expiresAt },
+    // Delete any existing tokens for this user (rotation), then create fresh
+    await this.prisma.refreshToken.deleteMany({ where: { userId: user.id } });
+    await this.prisma.refreshToken.create({
+      data: { userId: user.id, token: hashedRefresh, expiresAt },
     });
 
     return { accessToken, refreshToken };
