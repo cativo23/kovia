@@ -24,7 +24,7 @@ import { AuthMailProcessor, TransactionalMailProcessor } from './mail.processor'
           from: '"Kovia" <noreply@kovia.app>',
         },
         template: {
-          dir: join(process.cwd(), 'src', 'mail', 'templates'),
+          dir: join(__dirname, 'templates'),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
