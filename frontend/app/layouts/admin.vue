@@ -25,6 +25,20 @@
           <UIcon :name="item.icon" class="w-5 h-5" />
           {{ item.label }}
         </NuxtLink>
+
+        <!-- Security: token in URL is intentional for this internal-only tool.
+             Access token is short-lived. Bull Board cannot receive Bearer headers
+             via browser navigation (token lives in Pinia, not a cookie). -->
+        <!-- Bull Board: external link to backend — NuxtLink cannot cross origins -->
+        <a
+          :href="`${config.public.backendUrl}/admin/queues?token=${authStore.accessToken ?? ''}`"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
+          <UIcon name="i-lucide-activity" class="w-5 h-5" />
+          {{ t('admin.queues.title') }}
+        </a>
       </nav>
 
       <div class="p-4 border-t border-gray-200 dark:border-gray-800">
@@ -69,6 +83,7 @@ import { useAuthStore } from '~/stores/auth'
 const { t } = useI18n()
 const route = useRoute()
 const authStore = useAuthStore()
+const config = useRuntimeConfig()
 
 const user = computed(() => authStore.user)
 
