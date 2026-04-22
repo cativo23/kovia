@@ -22,8 +22,8 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 
 ### v2.0 — Automation, Auth & Adopter Experience
 
-- [ ] **Phase 6: Queue Infrastructure & Email Jobs** — Emails sent as queued BullMQ jobs with typed Mailable classes and exponential backoff
-- [ ] **Phase 7: Bull Board & Queue Observability** — Platform admin can monitor and manage all job queues from a protected dashboard
+- [x] **Phase 6: Queue Infrastructure & Email Jobs** (3/3 plans) — completed 2026-04-22
+- [x] **Phase 7: Bull Board & Queue Observability** (3/3 plans) — completed 2026-04-22
 - [ ] **Phase 8: Google OAuth** — Users can authenticate with Google, with account linking for existing email accounts
 - [ ] **Phase 9: Multi-Role Permissions** — Org admins can invite team members with granular STAFF/VIEWER roles enforced across the application
 - [ ] **Phase 10: Adopter Dashboard** — Adopters can track all their applications, notifications, and history in one place
@@ -60,9 +60,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — Package install, BullBoardAuthMiddleware (TDD: RED spec + GREEN impl), AdminModule.forRoot wiring
-- [ ] 07-02-PLAN.md — BullBoardModule.forFeature registrations in all 3 feature modules (webhook, emails-auth, emails-transactional, scoring)
-- [ ] 07-03-PLAN.md — Admin frontend link: "Colas de Jobs" external href with ?token= query param + i18n key + human verification checkpoint
+- [x] 07-01-PLAN.md — Package install, BullBoardAuthMiddleware (TDD: RED spec + GREEN impl), AdminModule.forRoot wiring
+- [x] 07-02-PLAN.md — BullBoardModule.forFeature registrations in all 3 feature modules (webhook, emails-auth, emails-transactional, scoring)
+- [x] 07-03-PLAN.md — Admin frontend link: "Colas de Jobs" external href with ?token= query param + i18n key + human verification checkpoint
 
 ### Phase 8: Google OAuth
 **Goal**: Users can sign in or register with Google, with automatic account linking when the Google email matches an existing account
@@ -112,8 +112,8 @@ Plans:
 | 3. Adoption Applications | v1.0 | 3/3 | Complete | 2026-04-21 |
 | 4. Scoring and Staff Tools | v1.0 | 3/3 | Complete | 2026-04-21 |
 | 5. Notifications and Automation | v1.0 | 2/2 | Complete | 2026-04-21 |
-| 6. Queue Infrastructure & Email Jobs | v2.0 | 0/3 | Not started | - |
-| 7. Bull Board & Queue Observability | v2.0 | 0/3 | Not started | - |
+| 6. Queue Infrastructure & Email Jobs | v2.0 | 3/3 | Complete | 2026-04-22 |
+| 7. Bull Board & Queue Observability | v2.0 | 3/3 | Complete | 2026-04-22 |
 | 8. Google OAuth | v2.0 | 0/? | Not started | - |
 | 9. Multi-Role Permissions | v2.0 | 0/? | Not started | - |
 | 10. Adopter Dashboard | v2.0 | 0/? | Not started | - |

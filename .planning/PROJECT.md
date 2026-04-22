@@ -83,6 +83,7 @@ The right pets get matched with the right people — every adoption decision is 
 | Single admin per org (MVP) | Most rescues are 1-person operations; roles added later | ✓ Shipped Phase 1 |
 | Spanish-first | Pilot org is in El Salvador; English added post-MVP | ✓ Shipped Phase 1 |
 | Global n8n automation | Simpler architecture; per-org config deferred | ✓ Shipped Phase 5 — webhook outbox with BullMQ + exponential backoff |
+| Bull Board auth via Express middleware (not NestJS) | ExpressAdapter mounts routes outside NestJS pipeline; MiddlewareConsumer cannot reach them | ✓ Shipped Phase 7 — app.use() guard with signed session cookie |
 | Rule-based scoring only | Simpler to build, validate, and debug than AI-based | ✓ Shipped Phase 4 — 50+ tests, transparent rule breakdown |
 | Cloud storage for photos | Applications require environment photos; need reliable hosting | ✓ Shipped Phase 2 — MinIO with presigned URLs |
 | Generic animal model | Platform supports all pet types, not just dogs/cats | ✓ Shipped Phase 2 |
@@ -109,4 +110,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-21 — Milestone v2.0 started*
+*Last updated: 2026-04-22 — Phase 07 complete*

@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: — Automation, Auth & Adopter Experience
-status: executing
+status: ready_to_plan
 last_updated: "2026-04-22T20:29:20.195Z"
-last_activity: 2026-04-22 -- Phase --phase execution started
+last_activity: 2026-04-22 — Phase 07 complete, ready to plan Phase 08
 progress:
   total_phases: 5
-  completed_phases: 1
-  total_plans: 7
-  completed_plans: 4
-  percent: 57
+  completed_phases: 2
+  total_plans: 10
+  completed_plans: 6
+  percent: 60
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-21)
 
 **Core value:** The right pets get matched with the right people — every adoption decision is informed by structured data, scoring, and applicant history.
-**Current focus:** Phase --phase — 07
+**Current focus:** Phase 08 — google-oauth
 
 ## Current Position
 
-Phase: --phase (07) — EXECUTING
-Plan: 1 of --name
-Status: Executing Phase --phase
-Last activity: 2026-04-22 -- Phase --phase execution started
+Phase: 8
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-04-22
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [████████░░░░░░░░░░░░] 40% (2/5 phases, 6/10 plans)
 
 ## Accumulated Context
 
@@ -73,6 +73,9 @@ Recent decisions affecting current work:
 - [v2.0-roadmap]: Google OAuth is 95% complete from v1.0 — missing only env credentials and UI button
 - [v2.0-roadmap]: Don't encode org role in JWT — query OrgMembership on each request (revocation safety)
 - [v2.0-roadmap]: Bull Board protected with express-basic-auth at /admin/queues route
+- [Phase 07-bull-board]: Bull Board ExpressAdapter bypasses NestJS MiddlewareConsumer — auth must live in app.use() in main.ts
+- [Phase 07-bull-board]: bb_session signed httpOnly cookie (15 min) handles SPA XHR calls after initial token auth
+- [Phase 07-bull-board]: config.public.backendUrl (not apiUrl) needed for frontend Bull Board link — apiUrl is a Nuxt proxy prefix (/api/v1)
 
 ### Pending Todos
 
