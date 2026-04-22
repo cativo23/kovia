@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -10,7 +12,9 @@ import { AuthMailProcessor, TransactionalMailProcessor } from './mail.processor'
 @Module({
   imports: [
     BullModule.registerQueue({ name: 'emails-auth' }),
+    BullBoardModule.forFeature({ name: 'emails-auth', adapter: BullMQAdapter }),
     BullModule.registerQueue({ name: 'emails-transactional' }),
+    BullBoardModule.forFeature({ name: 'emails-transactional', adapter: BullMQAdapter }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { PrismaModule } from '../prisma/prisma.module';
 import { MailModule } from '../mail/mail.module';
 import { NotificationsService } from './notifications.service';
@@ -12,6 +14,10 @@ import { EventsService } from './events.service';
   imports: [
     PrismaModule,
     BullModule.registerQueue({ name: 'webhook' }),
+    BullBoardModule.forFeature({
+      name: 'webhook',
+      adapter: BullMQAdapter,
+    }),
     MailModule,
   ],
   controllers: [NotificationsController],
