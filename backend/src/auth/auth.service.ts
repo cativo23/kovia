@@ -312,10 +312,7 @@ export class AuthService {
 
   async getProfile(userId: string) {
     const user = await this.usersService.findById(userId);
-    const org = await this.prisma.organization.findFirst({
-      where: { adminId: userId },
-      select: { id: true },
-    });
+    // Single source of truth: User.orgId (Phase 9 Plan 09-01 Task 3).
     return {
       id: user.id,
       email: user.email,
@@ -323,7 +320,7 @@ export class AuthService {
       lastName: user.lastName,
       role: user.role,
       emailVerified: user.emailVerified,
-      organizationId: org?.id ?? null,
+      organizationId: (user as any).orgId ?? null,
     };
   }
 
@@ -345,14 +342,9 @@ export class AuthService {
   }
 
   private async generateTokens(user: any) {
-    let organizationId: string | null = null;
-    if (user.role === 'ORG_ADMIN') {
-      const org = await this.prisma.organization.findFirst({
-        where: { adminId: user.id },
-        select: { id: true },
-      });
-      organizationId = org?.id ?? null;
-    }
+    // Single source of truth: User.orgId (backfilled in multi_role_permissions migration).
+    // ORG_ADMIN and ORG_STAFF both carry orgId; ADOPTER/PLATFORM_ADMIN have it as null.
+    const organizationId: string | null = user.orgId ?? null;
 
     const payload: Record<string, any> = {
       sub: user.id,

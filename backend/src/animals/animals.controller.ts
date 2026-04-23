@@ -49,7 +49,7 @@ export class AnimalsController {
   // ─── Org-scoped Endpoints (require auth + ORG_ADMIN) ───────
 
   @Get('org')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'List org animals with query filters' })
   findOrgAnimals(@Query() query: AnimalQueryDto) {
@@ -57,7 +57,7 @@ export class AnimalsController {
   }
 
   @Get('org/stats')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Org dashboard animal stats' })
   getOrgStats() {
@@ -65,7 +65,7 @@ export class AnimalsController {
   }
 
   @Get('org/:id')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get single animal for editing (org-scoped)' })
   findOneForOrg(@Param('id') id: string) {
@@ -73,7 +73,7 @@ export class AnimalsController {
   }
 
   @Post()
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new animal' })
   create(
@@ -84,7 +84,7 @@ export class AnimalsController {
   }
 
   @Patch(':id')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update animal profile' })
   update(
@@ -96,7 +96,7 @@ export class AnimalsController {
   }
 
   @Patch(':id/status')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Change animal status' })
   updateStatus(
@@ -108,7 +108,7 @@ export class AnimalsController {
   }
 
   @Patch(':id/archive')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Archive animal' })
   archive(
@@ -119,7 +119,7 @@ export class AnimalsController {
   }
 
   @Patch(':id/restore')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Restore archived animal' })
   restore(
@@ -130,7 +130,7 @@ export class AnimalsController {
   }
 
   @Delete(':id')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Hard delete animal and photos' })
   remove(
@@ -143,7 +143,7 @@ export class AnimalsController {
   // ─── Photo Management ──────────────────────────────────────
 
   @Post(':id/photos')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Add photos to animal' })
   addPhotos(
@@ -154,7 +154,7 @@ export class AnimalsController {
   }
 
   @Delete(':id/photos/:photoId')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Remove a photo from animal' })
   removePhoto(
@@ -165,7 +165,7 @@ export class AnimalsController {
   }
 
   @Patch(':id/photos/cover')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Set cover photo' })
   setCoverPhoto(
@@ -176,7 +176,7 @@ export class AnimalsController {
   }
 
   @Patch(':id/photos/reorder')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Reorder photos' })
   reorderPhotos(

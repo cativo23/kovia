@@ -56,19 +56,19 @@ export class ApplicationsController {
   }
 
   @Get('org')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   async findOrgApplications(@Query() query: ApplicationQueryDto) {
     return this.applicationsService.findAllByOrg(query);
   }
 
   @Get('org/:id')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   async findOrgApplication(@Param('id') id: string) {
     return this.applicationsService.findByIdForOrg(id);
   }
 
   @Patch(':id/status')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   async updateStatus(
     @Param('id') id: string,
     @Body() dto: UpdateApplicationStatusDto,
@@ -78,7 +78,7 @@ export class ApplicationsController {
   }
 
   @Post(':id/rescore')
-  @Roles('ORG_ADMIN')
+  @Roles('ORG_ADMIN', 'ORG_STAFF')
   async rescore(@Param('id') id: string) {
     const result = await this.scoringService.rescore(id);
     return { score: result.total, scoreDetails: result };
