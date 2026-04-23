@@ -55,6 +55,11 @@ export const useAuthStore = defineStore('auth', {
 
     loginWithGoogle() {
       const config = useRuntimeConfig()
+      const router = useRouter()
+      const currentPath = router.currentRoute.value.fullPath
+      if (currentPath !== '/login' && currentPath !== '/register') {
+        sessionStorage.setItem('kovia:oauth_redirect', currentPath)
+      }
       window.location.href = `${config.public.apiUrl}/auth/google`
     },
 

@@ -82,6 +82,8 @@
     "resetError": "No se pudo restablecer tu contrasena",
     "oauthError": "Error al iniciar sesion con Google",
     "oauthCallback": "Completando inicio de sesion...",
+    "welcomeToKovia": "¡Bienvenido a Kovia, {firstName}!",
+    "googleLinked": "Tu cuenta de Google ha sido vinculada exitosamente",
     "sessionExpired": "Tu sesion ha expirado. Inicia sesion de nuevo."
   },
   "nav": {

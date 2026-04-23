@@ -6,7 +6,7 @@
     </template>
 
     <template v-else>
-      <UIcon name="i-lucide-x-circle" class="w-16 h-16 text-red-500 mx-auto" />
+      <UIcon name="i-lucide-x-circle" class="w-16 h-16 text-error mx-auto" />
       <h2 class="text-xl font-semibold">{{ $t('auth.oauthError') }}</h2>
       <UButton variant="outline" to="/login" :label="$t('auth.goToLogin')" />
     </template>
@@ -22,6 +22,8 @@ definePageMeta({
 
 const route = useRoute()
 const authStore = useAuthStore()
+const toast = useToast()
+const { t } = useI18n()
 
 const status = ref<'loading' | 'error'>('loading')
 
@@ -33,8 +35,21 @@ onMounted(async () => {
   }
 
   try {
-    await authStore.handleOAuthCallback(token)
-    await navigateTo('/')
+    await authStore.handleOAuthCallback(token) // populates authStore.user
+
+    if (route.query.new === 'true') {
+      toast.add({
+        title: t('auth.welcomeToKovia', { firstName: authStore.user?.firstName ?? '' }),
+        color: 'success',
+      })
+    }
+    else if (route.query.linked === 'true') {
+      toast.add({ title: t('auth.googleLinked'), color: 'info' })
+    }
+
+    const dest = sessionStorage.getItem('kovia:oauth_redirect') ?? '/'
+    sessionStorage.removeItem('kovia:oauth_redirect')
+    await navigateTo(dest)
   }
   catch {
     status.value = 'error'
