@@ -23,7 +23,7 @@
           </div>
           <!-- Species badge -->
           <div class="absolute top-2 left-2">
-            <UBadge color="primary" variant="solid" size="sm">
+            <UBadge v-if="animal.species" color="primary" variant="solid" size="sm">
               {{ animal.species.name }}
             </UBadge>
           </div>
@@ -75,7 +75,7 @@
         </div>
 
         <!-- Org name -->
-        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+        <p v-if="animal.organization" class="text-xs text-gray-400 dark:text-gray-500 mt-1">
           {{ animal.organization.name }}
         </p>
       </div>
@@ -105,7 +105,7 @@
           <h3 class="font-bold text-sm text-gray-900 dark:text-white group-hover:text-primary transition-colors truncate">
             {{ animal.name }}
           </h3>
-          <UBadge color="primary" variant="soft" size="sm" class="flex-shrink-0">
+          <UBadge v-if="animal.species" color="primary" variant="soft" size="sm" class="flex-shrink-0">
             {{ animal.species.name }}
           </UBadge>
         </div>
@@ -113,7 +113,7 @@
         <div class="flex flex-wrap gap-2 mt-1 text-xs text-gray-600 dark:text-gray-400">
           <span v-if="animal.ageMonths !== null">{{ formatAge(animal.ageMonths) }}</span>
           <span v-if="animal.size">{{ $t(`animals.form.sizeOptions.${sizeKey(animal.size)}`) }}</span>
-          <span class="text-gray-400">{{ animal.organization.name }}</span>
+          <span v-if="animal.organization" class="text-gray-400">{{ animal.organization.name }}</span>
         </div>
       </div>
     </div>

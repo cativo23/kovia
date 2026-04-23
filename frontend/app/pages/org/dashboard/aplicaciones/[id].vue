@@ -197,7 +197,7 @@
                 <ApplicationStatusBadge :status="application.status" />
               </div>
 
-              <UDivider />
+              <USeparator />
 
               <!-- Transition buttons -->
               <div v-if="allowedTransitions.length" class="space-y-2">

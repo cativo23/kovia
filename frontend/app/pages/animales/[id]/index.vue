@@ -74,7 +74,7 @@
             <p class="text-gray-600 dark:text-gray-300 leading-relaxed">{{ animal.description }}</p>
           </div>
 
-          <UDivider />
+          <USeparator />
 
           <!-- Compatibility -->
           <div>
@@ -136,7 +136,7 @@
             <UAlert color="warning" variant="soft" :description="animal.specialNeeds" />
           </div>
 
-          <UDivider />
+          <USeparator />
 
           <!-- Organization -->
           <div>
