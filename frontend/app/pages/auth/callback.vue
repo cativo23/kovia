@@ -47,9 +47,16 @@ onMounted(async () => {
       toast.add({ title: t('auth.googleLinked'), color: 'info' })
     }
 
-    const dest = sessionStorage.getItem('kovia:oauth_redirect') ?? '/'
+    const stored = sessionStorage.getItem('kovia:oauth_redirect')
     sessionStorage.removeItem('kovia:oauth_redirect')
-    await navigateTo(dest)
+    const defaultDest = authStore.isAdmin
+      ? '/admin'
+      : authStore.isOrgAdmin || authStore.isOrgStaff
+        ? '/org/dashboard'
+        : authStore.userRole === 'ADOPTER'
+          ? '/panel'
+          : '/'
+    await navigateTo(stored ?? defaultDest)
   }
   catch {
     status.value = 'error'

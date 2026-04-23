@@ -27,6 +27,14 @@
                 {{ $t('nav.animals') }}
               </NuxtLink>
               <NuxtLink
+                v-if="userRole === 'ADOPTER'"
+                to="/panel"
+                class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+                :class="{ 'text-primary font-medium': route.path.startsWith('/panel') }"
+              >
+                {{ $t('nav.myPanel') }}
+              </NuxtLink>
+              <NuxtLink
                 v-if="isOrgAdmin"
                 :to="`/org/dashboard`"
                 class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"

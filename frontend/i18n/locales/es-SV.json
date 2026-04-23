@@ -90,11 +90,37 @@
     "home": "Inicio",
     "animals": "Animales",
     "myOrg": "Mi organizacion",
+    "myPanel": "Mi panel",
     "login": "Iniciar sesion",
     "register": "Crear cuenta",
     "logout": "Cerrar sesion",
     "profile": "Mi perfil",
     "admin": "Administracion"
+  },
+  "dashboard": {
+    "panel": {
+      "title": "Mi panel",
+      "greeting": "Hola, {nombre}",
+      "recentApplications": "Mis solicitudes recientes",
+      "recentActivity": "Actividad reciente",
+      "seeAllApplications": "Ver todas",
+      "seeAllNotifications": "Ver todas",
+      "stats": {
+        "active": "Activas",
+        "adopted": "Adoptadas",
+        "historic": "Históricas"
+      },
+      "empty": {
+        "heading": "¡Aún no has aplicado!",
+        "body": "Explora los animales disponibles y envía tu primera solicitud de adopción.",
+        "cta": "Explorar animales"
+      },
+      "error": {
+        "heading": "No pudimos cargar tu panel",
+        "body": "Revisa tu conexión e inténtalo de nuevo.",
+        "retry": "Reintentar"
+      }
+    }
   },
   "admin": {
     "dashboard": "Panel de administracion",
@@ -624,7 +650,25 @@
       "emptyBody": "Explora los animales disponibles y aplica para adoptar.",
       "emptyCta": "Ver animales disponibles",
       "viewApplication": "Ver solicitud",
-      "submittedAt": "Enviada el"
+      "submittedAt": "Enviada el",
+      "sectionHeading": "Historial de estados",
+      "fallbackSubmitted": "Enviada el {fecha}"
+    },
+    "withdraw": {
+      "confirmTitle": "Retirar solicitud",
+      "confirmBody": "¿Seguro que quieres retirar tu solicitud para {animalName}? Esta acción no se puede deshacer.",
+      "confirmCta": "Retirar",
+      "cancelCta": "Cancelar",
+      "toastSuccess": "Solicitud retirada",
+      "toastError": "No se pudo retirar la solicitud. Inténtalo de nuevo."
+    },
+    "tabs": {
+      "active": "Activas",
+      "historic": "Histórico"
+    },
+    "emptyByTab": {
+      "active": "No tienes solicitudes activas.",
+      "historic": "No tienes solicitudes en el histórico."
     },
     "detail": {
       "withdraw": "Retirar solicitud",

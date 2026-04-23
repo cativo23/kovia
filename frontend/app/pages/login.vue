@@ -97,7 +97,14 @@ async function onSubmit(event: any) {
   try {
     await authStore.login(event.data.email, event.data.password)
     const redirect = route.query.redirect as string
-    await navigateTo(redirect || (authStore.isAdmin ? '/admin' : '/'))
+    const defaultDest = authStore.isAdmin
+      ? '/admin'
+      : authStore.isOrgAdmin || authStore.isOrgStaff
+        ? '/org/dashboard'
+        : authStore.userRole === 'ADOPTER'
+          ? '/panel'
+          : '/'
+    await navigateTo(redirect || defaultDest)
   }
   catch (err: any) {
     const status = err?.response?.status || err?.statusCode
