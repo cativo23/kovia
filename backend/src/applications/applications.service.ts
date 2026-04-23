@@ -60,9 +60,16 @@ export class ApplicationsService {
       );
     }
 
-    // Check uniqueness: one application per animalId+userId
-    const existing = await this.prismaRls.adoptionApplication.findUnique({
-      where: { animalId_userId: { animalId: dto.animalId, userId: user.id } },
+    // Check uniqueness: one active (non-RETIRADA) application per animalId+userId.
+    // Use publicPrisma (RLS-bypass) with explicit userId filter for consistency with
+    // other self-scoped adopter reads (D-19-BE) and to allow resubmit after withdraw (D-14/D-18-BE).
+    const existing = await this.publicPrisma.adoptionApplication.findFirst({
+      where: {
+        animalId: dto.animalId,
+        userId: user.id,
+        status: { not: 'RETIRADA' },
+      },
+      select: { id: true },
     });
 
     if (existing) {
@@ -119,9 +126,9 @@ export class ApplicationsService {
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
 
-    // Use publicPrisma with explicit userId filter — NOT prismaRls (adopter has no org context)
+    // Use publicPrisma (RLS-bypass). Authorization enforced via where: { userId } + findById ownership check.
     const [data, total] = await Promise.all([
-      this.prismaRls.adoptionApplication.findMany({
+      this.publicPrisma.adoptionApplication.findMany({
         where: { userId },
         skip,
         take: limit,
@@ -131,12 +138,15 @@ export class ApplicationsService {
             include: {
               species: true,
               photos: { orderBy: { position: 'asc' }, take: 1 },
+              organization: {
+                select: { id: true, name: true, slug: true, logoUrl: true },
+              },
             },
           },
           photos: { orderBy: { position: 'asc' }, take: 1 },
         },
       }),
-      this.prismaRls.adoptionApplication.count({ where: { userId } }),
+      this.publicPrisma.adoptionApplication.count({ where: { userId } }),
     ]);
 
     return {
@@ -149,7 +159,8 @@ export class ApplicationsService {
   }
 
   async findById(id: string, userId: string) {
-    const application = await this.prismaRls.adoptionApplication.findUnique({
+    // Use publicPrisma (RLS-bypass). Ownership enforced via explicit userId check below.
+    const application = await this.publicPrisma.adoptionApplication.findUnique({
       where: { id },
       include: {
         photos: { orderBy: { position: 'asc' } },
@@ -157,6 +168,9 @@ export class ApplicationsService {
           include: {
             species: true,
             photos: { orderBy: { position: 'asc' }, take: 1 },
+            organization: {
+              select: { id: true, name: true, slug: true, logoUrl: true },
+            },
           },
         },
       },
@@ -250,8 +264,10 @@ export class ApplicationsService {
   }
 
   async checkExisting(animalId: string, userId: string) {
-    const application = await this.prismaRls.adoptionApplication.findUnique({
-      where: { animalId_userId: { animalId, userId } },
+    // D-18-BE: RETIRADA rows must not block re-application (D-14).
+    // Use publicPrisma for consistency with the other self-scoped adopter reads (D-19-BE).
+    const application = await this.publicPrisma.adoptionApplication.findFirst({
+      where: { animalId, userId, status: { not: 'RETIRADA' } },
       select: { id: true },
     });
 
@@ -260,6 +276,12 @@ export class ApplicationsService {
     }
 
     return { exists: true, applicationId: application.id };
+  }
+
+  async findStatusHistory(applicationId: string, userId: string) {
+    // Ownership check reuses findById — throws ForbiddenException if caller is not the owner.
+    await this.findById(applicationId, userId);
+    return this.auditService.findByApplication(applicationId);
   }
 
   async updateStatus(id: string, newStatus: string, userId: string) {
@@ -319,9 +341,11 @@ export class ApplicationsService {
       throw new ForbiddenException('You can only withdraw your own applications');
     }
 
-    // Cannot withdraw if already adopted per D-17
-    if (application.status === 'ADOPTADA') {
-      throw new BadRequestException('Cannot withdraw an application that has been adopted');
+    // D-17: Adopter may only withdraw from ENVIADA or REVISANDO. Any other status is a hard reject.
+    if (!['ENVIADA', 'REVISANDO'].includes(application.status)) {
+      throw new BadRequestException(
+        `No puedes retirar una solicitud en estado ${application.status}`,
+      );
     }
 
     const updated = await this.publicPrisma.adoptionApplication.update({
