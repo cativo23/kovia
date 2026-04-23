@@ -62,11 +62,13 @@ const emit = defineEmits<{
 async function handleClick(n: Notification) {
   // D-10 parity with PanelNotificationItem: deep-link when applicationId present.
   // LANDMINE (PATTERNS.md): applicationId is a top-level field on Notification.
+  // Emit select first so the parent's markAsRead can fire its request before
+  // navigation unmounts the page — otherwise the await on navigateTo completes
+  // after the parent handler is gone and isRead stays false in the DB.
+  emit('select', n.id)
   if (n.applicationId) {
     await navigateTo(`/perfil/aplicaciones/${n.applicationId}`)
   }
-  // Parent still owns markAsRead (existing onNotificationSelect contract).
-  emit('select', n.id)
 }
 
 function formatRelativeTime(dateStr: string) {

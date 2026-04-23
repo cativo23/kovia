@@ -34,13 +34,14 @@ const { markAsRead } = useNotifications()
 
 async function handleClick() {
   const n = props.notification
-  // D-10 deep-link: useNotifications already flattens applicationId to top-level
-  if (n.applicationId) {
-    await navigateTo(`/perfil/aplicaciones/${n.applicationId}`)
-  }
-  // Mark read regardless of applicationId presence
+  // D-10 deep-link: useNotifications already flattens applicationId to top-level.
+  // Mark read FIRST so the request is in flight before navigation unmounts us;
+  // otherwise awaiting navigateTo lets the route change discard the handler.
   if (!n.isRead) {
     await markAsRead(n.id)
+  }
+  if (n.applicationId) {
+    await navigateTo(`/perfil/aplicaciones/${n.applicationId}`)
   }
 }
 
