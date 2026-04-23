@@ -473,4 +473,85 @@ describe('AuthService', () => {
       ).rejects.toThrow(UnauthorizedException);
     });
   });
+
+  describe('generateTokens (via login) — organizationId from User.orgId', () => {
+    // Phase 9 Plan 09-01 Task 3: generateTokens reads user.orgId as the single
+    // source of truth instead of deriving it from Organization.adminId.
+    // This enables ORG_STAFF users (who are not the org admin) to receive
+    // organizationId in their JWT payload.
+
+    beforeEach(() => {
+      (bcrypt.hash as ReturnType<typeof vi.fn>).mockResolvedValue('hashed-refresh');
+      mockPrisma.refreshToken.deleteMany.mockResolvedValue({});
+      mockPrisma.refreshToken.create.mockResolvedValue({});
+    });
+
+    it('includes organizationId in JWT payload for ORG_STAFF users using user.orgId', async () => {
+      const staffUser = {
+        id: 'user-staff',
+        email: 'staff@org.com',
+        role: 'ORG_STAFF',
+        emailVerified: true,
+        isActive: true,
+        orgId: 'org-123',
+      };
+      mockJwtService.signAsync
+        .mockResolvedValueOnce('access-token')
+        .mockResolvedValueOnce('refresh-token');
+
+      await service.login(staffUser);
+
+      // First signAsync call is the access token — assert payload includes organizationId
+      const accessCall = (mockJwtService.signAsync as ReturnType<typeof vi.fn>).mock.calls[0];
+      expect(accessCall[0]).toMatchObject({
+        sub: 'user-staff',
+        role: 'ORG_STAFF',
+        organizationId: 'org-123',
+      });
+    });
+
+    it('includes organizationId in JWT payload for ORG_ADMIN users from user.orgId (no adminId lookup)', async () => {
+      const adminUser = {
+        id: 'user-admin',
+        email: 'admin@org.com',
+        role: 'ORG_ADMIN',
+        emailVerified: true,
+        isActive: true,
+        orgId: 'org-456',
+      };
+      mockJwtService.signAsync
+        .mockResolvedValueOnce('access-token')
+        .mockResolvedValueOnce('refresh-token');
+
+      await service.login(adminUser);
+
+      const accessCall = (mockJwtService.signAsync as ReturnType<typeof vi.fn>).mock.calls[0];
+      expect(accessCall[0]).toMatchObject({
+        sub: 'user-admin',
+        role: 'ORG_ADMIN',
+        organizationId: 'org-456',
+      });
+      // generateTokens must no longer derive org via organization.findFirst({ adminId })
+      expect(mockPrisma.organization.findFirst).not.toHaveBeenCalled();
+    });
+
+    it('omits organizationId from JWT payload for ADOPTER users (orgId null)', async () => {
+      const adopter = {
+        id: 'user-adopter',
+        email: 'adopter@test.com',
+        role: 'ADOPTER',
+        emailVerified: true,
+        isActive: true,
+        orgId: null,
+      };
+      mockJwtService.signAsync
+        .mockResolvedValueOnce('access-token')
+        .mockResolvedValueOnce('refresh-token');
+
+      await service.login(adopter);
+
+      const accessCall = (mockJwtService.signAsync as ReturnType<typeof vi.fn>).mock.calls[0];
+      expect(accessCall[0]).not.toHaveProperty('organizationId');
+    });
+  });
 });
