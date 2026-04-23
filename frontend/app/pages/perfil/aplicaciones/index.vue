@@ -22,7 +22,7 @@
       <UButton :label="$t('common.retry')" @click="loadApplications" />
     </UCard>
 
-    <!-- Empty State -->
+    <!-- Empty State (zero applications total across all buckets) -->
     <UCard v-else-if="applications.length === 0" class="text-center py-16">
       <UIcon name="i-lucide-clipboard-list" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
       <h2 class="text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
@@ -32,53 +32,44 @@
       <UButton to="/animales" :label="$t('applications.history.emptyCta')" />
     </UCard>
 
-    <!-- Application List -->
-    <div v-else class="space-y-4">
-      <UCard
-        v-for="app in applications"
-        :key="app.id"
-        class="hover:shadow-md transition-shadow"
-      >
-        <div class="flex items-center gap-4">
-          <!-- Animal thumbnail -->
-          <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
-            <img
-              v-if="app.animal?.coverPhoto?.url"
-              :src="app.animal.coverPhoto.url"
-              :alt="app.animal.name"
-              class="w-full h-full object-cover"
-            />
-            <UIcon v-else name="i-lucide-paw-print" class="w-6 h-6 text-gray-400 m-auto mt-3" />
-          </div>
-
-          <!-- Info -->
-          <div class="flex-1 min-w-0">
-            <p class="font-medium text-gray-900 dark:text-white truncate">
-              {{ app.animal?.name || '—' }}
-            </p>
-            <p class="text-xs text-gray-500">
-              {{ $t('applications.history.submittedAt') }}
-              {{ formatDate(app.submittedAt) }}
-            </p>
-          </div>
-
-          <!-- Status badge -->
-          <ApplicationStatusBadge :status="app.status" />
-
-          <!-- View link -->
-          <NuxtLink
-            :to="`/perfil/aplicaciones/${app.id}`"
-            class="text-sm text-primary hover:underline whitespace-nowrap"
-          >
-            {{ $t('applications.history.viewApplication') }}
-          </NuxtLink>
+    <!-- Tabs (Activas / Histórico) -->
+    <UTabs
+      v-else
+      v-model="activeTab"
+      :items="tabItems"
+      :default-value="activeTab"
+    >
+      <template #activas>
+        <div v-if="activeApps.length === 0" class="text-sm text-gray-500 py-6 text-center">
+          {{ $t('applications.emptyByTab.active') }}
         </div>
-      </UCard>
-    </div>
+        <div v-else class="space-y-4">
+          <PanelApplicationRow
+            v-for="app in activeApps"
+            :key="app.id"
+            :app="app"
+          />
+        </div>
+      </template>
+      <template #historico>
+        <div v-if="historicApps.length === 0" class="text-sm text-gray-500 py-6 text-center">
+          {{ $t('applications.emptyByTab.historic') }}
+        </div>
+        <div v-else class="space-y-4">
+          <PanelApplicationRow
+            v-for="app in historicApps"
+            :key="app.id"
+            :app="app"
+          />
+        </div>
+      </template>
+    </UTabs>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue'
+
 definePageMeta({
   layout: 'default',
   middleware: 'auth',
@@ -86,40 +77,80 @@ definePageMeta({
 
 const { t } = useI18n()
 const { get } = useApi()
+const route = useRoute()
+const router = useRouter()
+
+type ApplicationStatus =
+  | 'ENVIADA' | 'REVISANDO' | 'APROBADA' | 'RECHAZADA'
+  | 'SEGUIMIENTO' | 'ADOPTADA' | 'RETIRADA' | 'DEVUELTA'
 
 interface ApplicationListItem {
   id: string
-  status: string
+  status: ApplicationStatus
   submittedAt: string
   animal: {
+    id: string
     name: string
     coverPhoto?: { url: string } | null
+    organization?: {
+      id: string
+      name: string
+      slug: string
+      logoUrl: string | null
+    } | null
   } | null
 }
+
+const ACTIVE_STATUSES = ['ENVIADA', 'REVISANDO', 'APROBADA', 'SEGUIMIENTO'] as const
+const HISTORIC_STATUSES = ['ADOPTADA', 'RECHAZADA', 'RETIRADA', 'DEVUELTA'] as const
 
 const applications = ref<ApplicationListItem[]>([])
 const loading = ref(true)
 const error = ref(false)
 
+const validTabs = ['activas', 'historico'] as const
+type TabValue = typeof validTabs[number]
+
+const activeTab = ref<TabValue>(
+  (validTabs as readonly string[]).includes(route.query.tab as string)
+    ? (route.query.tab as TabValue)
+    : 'activas',
+)
+
+watch(activeTab, (v) => {
+  router.replace({ query: { ...route.query, tab: v } })
+})
+
+const tabItems = computed(() => [
+  { label: t('applications.tabs.active'), value: 'activas', slot: 'activas' },
+  { label: t('applications.tabs.historic'), value: 'historico', slot: 'historico' },
+])
+
+const activeApps = computed(() =>
+  applications.value
+    .filter(a => (ACTIVE_STATUSES as readonly string[]).includes(a.status))
+    .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()),
+)
+
+const historicApps = computed(() =>
+  applications.value
+    .filter(a => (HISTORIC_STATUSES as readonly string[]).includes(a.status))
+    .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()),
+)
+
 async function loadApplications() {
   loading.value = true
   error.value = false
   try {
-    const result = await get<{ data: ApplicationListItem[]; total: number }>('/applications/my')
-    applications.value = result.data || (result as any) || []
+    const result = await get<ApplicationListItem[] | { data: ApplicationListItem[]; total: number }>('/applications/my')
+    applications.value = Array.isArray(result)
+      ? result
+      : ((result as { data?: ApplicationListItem[] })?.data ?? [])
   } catch {
     error.value = true
   } finally {
     loading.value = false
   }
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('es-SV', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
 }
 
 onMounted(() => {
