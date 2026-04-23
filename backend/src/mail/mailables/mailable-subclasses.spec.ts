@@ -3,6 +3,7 @@ import { getQueueMetadata } from './metadata-reader';
 import { VerificationMail } from './verification.mail';
 import { ResetPasswordMail } from './reset-password.mail';
 import { OrgInviteMail } from './org-invite.mail';
+import { TeamInviteMail } from './team-invite.mail';
 import { WelcomeMail } from './welcome.mail';
 import { ApplicationSubmittedMail } from './application-submitted.mail';
 import { StatusChangedMail } from './status-changed.mail';
@@ -46,6 +47,29 @@ describe('OrgInviteMail', () => {
   });
   it('routes to emails-auth queue', () => expect(getQueueMetadata(mail).queue).toBe('emails-auth'));
   it('has 5 attempts', () => expect(getQueueMetadata(mail).attempts).toBe(5));
+});
+
+describe('TeamInviteMail', () => {
+  const mail = new TeamInviteMail('new@team.com', {
+    orgName: 'DameTuPata',
+    inviterName: 'Ana Admin',
+    roleLabel: 'Staff',
+    inviteUrl: 'https://example.com/team/accept/abc',
+  });
+
+  it('sets to correctly', () => expect(mail.to).toBe('new@team.com'));
+  it('sets template to team-invite', () => expect(mail.template).toBe('team-invite'));
+  it('sets subject to Spanish invite copy', () =>
+    expect(mail.subject).toBe('Has sido invitado a unirte al equipo'));
+  it('sets context with orgName, inviterName, roleLabel, inviteUrl', () => {
+    expect(mail.context.orgName).toBe('DameTuPata');
+    expect(mail.context.inviterName).toBe('Ana Admin');
+    expect(mail.context.roleLabel).toBe('Staff');
+    expect(mail.context.inviteUrl).toBe('https://example.com/team/accept/abc');
+  });
+  it('routes to emails-auth queue', () => expect(getQueueMetadata(mail).queue).toBe('emails-auth'));
+  it('has 5 attempts', () => expect(getQueueMetadata(mail).attempts).toBe(5));
+  it('has backoff delay 10000', () => expect(getQueueMetadata(mail).backoff.delay).toBe(10_000));
 });
 
 describe('WelcomeMail', () => {
