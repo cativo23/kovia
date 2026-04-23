@@ -24,6 +24,21 @@
         {{ $t('applications.history.title') }}
       </NuxtLink>
 
+      <!-- Org header (D-20) -->
+      <div
+        v-if="application.animal?.organization"
+        class="flex items-center gap-2 text-sm text-gray-500 mb-2"
+      >
+        <UAvatar
+          v-if="application.animal.organization.logoUrl"
+          :src="application.animal.organization.logoUrl"
+          size="xs"
+          :alt="application.animal.organization.name"
+        />
+        <UIcon v-else name="i-lucide-building-2" class="w-4 h-4" aria-hidden="true" />
+        <span>{{ application.animal.organization.name }}</span>
+      </div>
+
       <!-- Status header -->
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">
@@ -145,43 +160,51 @@
         </div>
       </UCard>
 
-      <!-- Withdraw Button -->
+      <!-- Historial de estados (D-22) -->
+      <UCard class="mb-6">
+        <template #header>
+          <h2 class="text-xl font-semibold">{{ $t('applications.history.sectionHeading') }}</h2>
+        </template>
+        <ul v-if="history.length > 0" class="space-y-3">
+          <li
+            v-for="entry in history"
+            :key="entry.id"
+            class="flex items-start gap-3"
+          >
+            <div class="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" aria-hidden="true" />
+            <div class="flex-1">
+              <p class="text-sm font-medium">{{ describeEntry(entry) }}</p>
+              <p class="text-xs text-gray-500">{{ formatDate(entry.createdAt) }}</p>
+            </div>
+          </li>
+        </ul>
+        <p v-else class="text-sm text-gray-500">
+          {{ $t('applications.history.fallbackSubmitted', { fecha: formatDate(application.submittedAt ?? application.createdAt) }) }}
+        </p>
+      </UCard>
+
+      <!-- Withdraw Button (D-21 — only ENVIADA / REVISANDO) -->
       <div
-        v-if="application.status !== 'ADOPTADA' && application.status !== 'RETIRADA'"
+        v-if="application && ['ENVIADA', 'REVISANDO'].includes(application.status)"
         class="flex justify-end"
       >
         <UButton
           color="error"
           variant="soft"
           icon="i-lucide-x-circle"
-          :label="$t('applications.detail.withdraw')"
+          :label="$t('applications.withdraw.confirmTitle')"
           @click="showWithdrawModal = true"
         />
       </div>
     </div>
 
-    <!-- Withdraw Confirmation Modal -->
-    <UModal v-model:open="showWithdrawModal">
-      <template #content>
-        <div class="p-6">
-          <h2 class="text-lg font-bold mb-2">{{ $t('applications.detail.withdrawConfirmTitle') }}</h2>
-          <p class="text-sm text-gray-500 mb-6">{{ $t('applications.detail.withdrawConfirmBody') }}</p>
-          <div class="flex gap-3 justify-end">
-            <UButton
-              variant="outline"
-              :label="$t('applications.detail.withdrawCancel')"
-              @click="showWithdrawModal = false"
-            />
-            <UButton
-              color="error"
-              :label="$t('applications.detail.withdrawConfirmCta')"
-              :loading="withdrawing"
-              @click="withdrawApplication"
-            />
-          </div>
-        </div>
-      </template>
-    </UModal>
+    <!-- Withdraw Confirmation Modal (reusable — 10-02) -->
+    <WithdrawApplicationModal
+      v-model="showWithdrawModal"
+      :animal-name="application?.animal?.name ?? ''"
+      :application-id="String(route.params.id)"
+      @withdrawn="onWithdrawn"
+    />
 
     <!-- Lightbox -->
     <Teleport to="body">
@@ -208,6 +231,9 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { useAuthStore } from '~/stores/auth'
+
 definePageMeta({
   layout: 'default',
   middleware: 'auth',
@@ -215,8 +241,9 @@ definePageMeta({
 
 const { t } = useI18n()
 const route = useRoute()
-const { get, patch } = useApi()
-const toast = useToast()
+const { get } = useApi()
+const config = useRuntimeConfig()
+const authStore = useAuthStore()
 
 interface ApplicationPhoto {
   id: string
@@ -229,7 +256,17 @@ interface ApplicationDetail {
   id: string
   status: string
   createdAt: string
-  animal: { id: string; name: string } | null
+  submittedAt?: string
+  animal: {
+    id: string
+    name: string
+    organization?: {
+      id: string
+      name: string
+      slug: string
+      logoUrl: string | null
+    } | null
+  } | null
   personalInfo: { phone: string; occupation: string; birthDate: string } | null
   housing: {
     housingType: string
@@ -251,18 +288,32 @@ interface ApplicationDetail {
   additionalContext?: string | null
 }
 
+interface StatusHistoryEntry {
+  id: string
+  action: 'application.create' | 'application.status_change' | 'application.withdraw' | string
+  createdAt: string
+  details: {
+    applicationId: string
+    oldStatus?: string
+    newStatus?: string
+    [key: string]: unknown
+  }
+  user: { firstName: string; lastName: string } | null
+}
+
 const application = ref<ApplicationDetail | null>(null)
 const loading = ref(true)
 const error = ref(false)
 const showWithdrawModal = ref(false)
-const withdrawing = ref(false)
 const lightboxIndex = ref<number | null>(null)
+const history = ref<StatusHistoryEntry[]>([])
 
 async function loadApplication() {
   loading.value = true
   error.value = false
   try {
     application.value = await get<ApplicationDetail>(`/applications/my/${route.params.id}`)
+    await loadHistory()
   } catch {
     error.value = true
   } finally {
@@ -270,24 +321,49 @@ async function loadApplication() {
   }
 }
 
-async function withdrawApplication() {
-  withdrawing.value = true
+async function loadHistory() {
   try {
-    const updated = await patch<ApplicationDetail>(`/applications/${route.params.id}/retirar`)
-    if (application.value) {
-      application.value.status = updated.status
-    }
-    showWithdrawModal.value = false
-    toast.add({ title: t('common.success'), color: 'success' })
-  } catch (err: any) {
-    toast.add({
-      title: t('common.error'),
-      description: err?.data?.message || '',
-      color: 'error',
-    })
-  } finally {
-    withdrawing.value = false
+    history.value = await $fetch<StatusHistoryEntry[]>(
+      `/applications/my/${route.params.id}/history`,
+      {
+        baseURL: config.public.apiUrl as string,
+        headers: authStore.accessToken
+          ? { Authorization: `Bearer ${authStore.accessToken}` }
+          : {},
+      },
+    )
+  } catch {
+    history.value = []
   }
+}
+
+function describeEntry(e: StatusHistoryEntry): string {
+  // AuditLog action strings match backend exactly (PATTERNS.md landmine):
+  //   'application.create', 'application.status_change', 'application.withdraw'
+  // (CONTEXT D-22's past-tense wording is a typo — backend emits present tense.)
+  if (e.action === 'application.create') return t('applications.history.entryCreate')
+  if (e.action === 'application.withdraw') return t('applications.history.entryWithdraw')
+  if (e.action === 'application.status_change') {
+    return t('applications.history.entryStatusChange', {
+      from: e.details.oldStatus ?? '—',
+      to: e.details.newStatus ?? '—',
+    })
+  }
+  return e.action
+}
+
+function formatDate(dateStr: string): string {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleDateString('es-SV', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+}
+
+async function onWithdrawn() {
+  // D-21: redirect to Histórico tab after success (modal already showed toast).
+  await navigateTo('/perfil/aplicaciones?tab=historico')
 }
 
 function openLightbox(index: number) {

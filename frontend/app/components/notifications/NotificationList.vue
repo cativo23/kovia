@@ -25,7 +25,7 @@
         :key="n.id"
         class="px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
         :class="{ 'font-medium': !n.isRead }"
-        @click="$emit('select', n.id)"
+        @click="handleClick(n)"
       >
         <div class="flex items-start gap-2">
           <div v-if="!n.isRead" class="mt-1.5 w-2 h-2 rounded-full bg-primary shrink-0" />
@@ -54,10 +54,20 @@ defineProps<{
   error: string | null
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   select: [notificationId: string]
   retry: []
 }>()
+
+async function handleClick(n: Notification) {
+  // D-10 parity with PanelNotificationItem: deep-link when applicationId present.
+  // LANDMINE (PATTERNS.md): applicationId is a top-level field on Notification.
+  if (n.applicationId) {
+    await navigateTo(`/perfil/aplicaciones/${n.applicationId}`)
+  }
+  // Parent still owns markAsRead (existing onNotificationSelect contract).
+  emit('select', n.id)
+}
 
 function formatRelativeTime(dateStr: string) {
   const date = new Date(dateStr)

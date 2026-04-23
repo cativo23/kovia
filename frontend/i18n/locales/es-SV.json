@@ -652,7 +652,10 @@
       "viewApplication": "Ver solicitud",
       "submittedAt": "Enviada el",
       "sectionHeading": "Historial de estados",
-      "fallbackSubmitted": "Enviada el {fecha}"
+      "fallbackSubmitted": "Enviada el {fecha}",
+      "entryCreate": "Solicitud enviada",
+      "entryWithdraw": "Solicitud retirada",
+      "entryStatusChange": "Estado cambió de {from} a {to}"
     },
     "withdraw": {
       "confirmTitle": "Retirar solicitud",
