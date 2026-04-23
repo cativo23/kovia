@@ -529,7 +529,7 @@ describe('TeamService', () => {
           data: expect.objectContaining({ role: 'ADOPTER', orgId: null }),
         }),
       );
-      expect(mockPrisma.user.delete).not.toHaveBeenCalled?.();
+      // D-15: user row is preserved — update was called, not delete (no delete mock on purpose).
       expect(mockAuditService.log).toHaveBeenCalledWith(
         'team_member_removed',
         'admin-1',
