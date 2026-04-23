@@ -31,11 +31,12 @@ type Role = 'ORG_ADMIN' | 'ORG_STAFF';
 export class TeamService {
   constructor(
     @Inject(PRISMA_RLS) private readonly prisma: any,
-    // NOTE: `publicPrisma` is a misleading name — this is the app_user-bound
-    // PrismaService and is subject to RLS. Kept here for callsites where
-    // that behavior is intentional. For pre-auth or cross-org lookups use
-    // `rlsBypassPrisma` (PublicPrismaService) below. Follow-up: rename.
-    private readonly publicPrisma: PrismaService,
+    // `rlsPrisma` is the app_user-bound PrismaService (subject to RLS). Use
+    // for callsites where RLS enforcement is desirable (e.g. the caller's
+    // own row, RLS-disabled tables). For cross-org admin reads, cross-tenant
+    // lookups, or post-auth state mutations that depend on stale CLS context,
+    // use `rlsBypassPrisma` (PublicPrismaService, superuser connection).
+    private readonly rlsPrisma: PrismaService,
     private readonly auditService: AuditService,
     private readonly mailDispatcher: MailDispatcher,
     private readonly config: ConfigService,
@@ -61,11 +62,11 @@ export class TeamService {
     }
 
     // 2. D-06 conflict-of-interest — block if invitee has a pending application at this org.
-    const invitee = await this.publicPrisma.user.findUnique({
+    const invitee = await this.rlsPrisma.user.findUnique({
       where: { email: dto.email },
     });
     if (invitee) {
-      const conflicting = await this.publicPrisma.adoptionApplication.findFirst({
+      const conflicting = await this.rlsPrisma.adoptionApplication.findFirst({
         where: {
           userId: invitee.id,
           organizationId: orgId,
@@ -164,7 +165,7 @@ export class TeamService {
     // invite lookup itself. Do NOT include the org join here — `organizations`
     // is under RLS, and pre-auth callers have no app.current_user_id, so the
     // join silently drops the row and orgName comes back undefined.
-    const invite = await this.publicPrisma.teamInvite.findUnique({
+    const invite = await this.rlsPrisma.teamInvite.findUnique({
       where: { token },
     });
 
@@ -200,7 +201,7 @@ export class TeamService {
 
   async acceptInvite(token: string, currentUserId: string) {
     // 1. Load + validate invite.
-    const invite = await this.publicPrisma.teamInvite.findUnique({
+    const invite = await this.rlsPrisma.teamInvite.findUnique({
       where: { token },
       include: { org: { select: { name: true } } },
     } as any);
@@ -217,7 +218,7 @@ export class TeamService {
     }
 
     // 2. Email-match check — prevents T-09-02-01 elevation of privilege.
-    const currentUser = await this.publicPrisma.user.findUnique({
+    const currentUser = await this.rlsPrisma.user.findUnique({
       where: { id: currentUserId },
     });
     if (!currentUser) {
@@ -233,7 +234,7 @@ export class TeamService {
     }
 
     // 3. Transactional upgrade (D-05 upgrade in place) + mark invite accepted.
-    await this.publicPrisma.$transaction(async (tx: any) => {
+    await this.rlsPrisma.$transaction(async (tx: any) => {
       await tx.user.update({
         where: { id: currentUserId },
         data: { role: anyInvite.role, orgId: anyInvite.orgId },
@@ -251,7 +252,7 @@ export class TeamService {
     });
 
     // 4. Re-issue tokens with the new role + orgId claim.
-    const updatedUser = await this.publicPrisma.user.findUnique({
+    const updatedUser = await this.rlsPrisma.user.findUnique({
       where: { id: currentUserId },
     });
     const tokens = await (this.authService as any).generateTokens(updatedUser);
@@ -276,7 +277,7 @@ export class TeamService {
 
   async changeRole(targetUserId: string, newRole: Role, actorId: string) {
     // SERIALIZABLE isolation guards against concurrent last-admin demotions (Pitfall P-3 / Assumption A1).
-    return this.publicPrisma.$transaction(
+    return this.rlsPrisma.$transaction(
       async (tx: any) => {
         const target = await tx.user.findUnique({ where: { id: targetUserId } });
         if (!target) {
@@ -306,7 +307,7 @@ export class TeamService {
   }
 
   async removeMember(targetUserId: string, actorId: string) {
-    return this.publicPrisma.$transaction(
+    return this.rlsPrisma.$transaction(
       async (tx: any) => {
         const target = await tx.user.findUnique({ where: { id: targetUserId } });
         if (!target) {
@@ -358,11 +359,11 @@ export class TeamService {
     role: Role,
     token: string,
   ) {
-    const org = await this.publicPrisma.organization.findUnique({
+    const org = await this.rlsPrisma.organization.findUnique({
       where: { id: orgId },
       select: { name: true },
     });
-    const inviter = await this.publicPrisma.user.findUnique({
+    const inviter = await this.rlsPrisma.user.findUnique({
       where: { id: inviterId },
       select: { firstName: true, lastName: true },
     });
