@@ -10,6 +10,7 @@ import { randomBytes } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { PRISMA_RLS } from '../prisma/prisma.module';
 import { PrismaService } from '../prisma/prisma.service';
+import { PublicPrismaService } from '../prisma/public-prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { MailDispatcher } from '../mail/mail-dispatcher.service';
 import { TeamInviteMail } from '../mail/mailables/team-invite.mail';
@@ -30,12 +31,17 @@ type Role = 'ORG_ADMIN' | 'ORG_STAFF';
 export class TeamService {
   constructor(
     @Inject(PRISMA_RLS) private readonly prisma: any,
+    // NOTE: `publicPrisma` is a misleading name — this is the app_user-bound
+    // PrismaService and is subject to RLS. Kept here for callsites where
+    // that behavior is intentional. For pre-auth or cross-org lookups use
+    // `rlsBypassPrisma` (PublicPrismaService) below. Follow-up: rename.
     private readonly publicPrisma: PrismaService,
     private readonly auditService: AuditService,
     private readonly mailDispatcher: MailDispatcher,
     private readonly config: ConfigService,
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
+    private readonly rlsBypassPrisma: PublicPrismaService,
   ) {}
 
   async createInvite(dto: CreateTeamInviteDto, userId: string, orgId: string) {
@@ -154,10 +160,13 @@ export class TeamService {
   }
 
   async validateToken(token: string) {
+    // team_invites has RLS disabled so the existing provider is fine for the
+    // invite lookup itself. Do NOT include the org join here — `organizations`
+    // is under RLS, and pre-auth callers have no app.current_user_id, so the
+    // join silently drops the row and orgName comes back undefined.
     const invite = await this.publicPrisma.teamInvite.findUnique({
       where: { token },
-      include: { org: { select: { name: true } } },
-    } as any);
+    });
 
     if (!invite) {
       throw new NotFoundException('Invitación no encontrada');
@@ -170,12 +179,21 @@ export class TeamService {
     }
 
     const anyInvite = invite as any;
+
+    // Fetch org name via the genuine RLS-bypass client (postgres superuser
+    // connection). This is safe: we only expose the org name to a caller who
+    // already holds the invite token.
+    const organization = await this.rlsBypassPrisma.organization.findUnique({
+      where: { id: anyInvite.orgId },
+      select: { name: true },
+    });
+
     return {
       id: anyInvite.id,
       email: anyInvite.email,
       role: anyInvite.role,
       orgId: anyInvite.orgId,
-      orgName: anyInvite.org?.name,
+      orgName: organization?.name ?? '',
       expiresAt: anyInvite.expiresAt,
     };
   }
