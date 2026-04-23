@@ -165,11 +165,12 @@ export class TeamService {
   }
 
   async validateToken(token: string) {
-    // team_invites has RLS disabled so the existing provider is fine for the
-    // invite lookup itself. Do NOT include the org join here — `organizations`
-    // is under RLS, and pre-auth callers have no app.current_user_id, so the
-    // join silently drops the row and orgName comes back undefined.
-    const invite = await this.rlsPrisma.teamInvite.findUnique({
+    // team_invites has RLS disabled so either client works, but standardize
+    // on rlsBypassPrisma for all team-related lookups (see class constructor).
+    // Do NOT include the org join here — `organizations` is under RLS, and
+    // pre-auth callers have no app.current_user_id, so an RLS-bound join
+    // would silently drop the row. Org name is fetched separately below.
+    const invite = await this.rlsBypassPrisma.teamInvite.findUnique({
       where: { token },
     });
 
@@ -204,8 +205,10 @@ export class TeamService {
   }
 
   async acceptInvite(token: string, currentUserId: string) {
-    // 1. Load + validate invite.
-    const invite = await this.rlsPrisma.teamInvite.findUnique({
+    // 1. Load + validate invite. Standardized on rlsBypassPrisma for team
+    // lookups (see class constructor); team_invites has RLS disabled so
+    // either client is functionally equivalent here.
+    const invite = await this.rlsBypassPrisma.teamInvite.findUnique({
       where: { token },
       include: { org: { select: { name: true } } },
     } as any);
