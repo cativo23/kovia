@@ -89,7 +89,8 @@ describe('RLS Integration Tests', () => {
 
     try {
       await client.query('BEGIN');
-      await client.query(`SELECT set_config('app.current_org_id', $1, true)`, [orgAId]);
+      // org_owner policy on organizations matches adminId = app.current_user_id
+      await client.query(`SELECT set_config('app.current_user_id', $1, true)`, [userAId]);
 
       const result = await client.query('SELECT id, name, slug FROM organizations');
 
@@ -109,7 +110,8 @@ describe('RLS Integration Tests', () => {
 
     try {
       await client.query('BEGIN');
-      await client.query(`SELECT set_config('app.current_org_id', $1, true)`, [orgBId]);
+      // org_owner policy on organizations matches adminId = app.current_user_id
+      await client.query(`SELECT set_config('app.current_user_id', $1, true)`, [userBId]);
 
       const result = await client.query('SELECT id, name, slug FROM organizations');
 
