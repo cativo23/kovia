@@ -66,8 +66,14 @@ describe('TeamService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockPrisma = makeMockPrisma();
+    // The `rlsPrisma` (app_user-bound PrismaService) and `rlsBypassPrisma`
+    // (PublicPrismaService, superuser) clients are separate DI tokens in
+    // production. For unit tests we alias them to a single mock so existing
+    // assertions keep working regardless of which client the service uses
+    // internally. The RED/GREEN of the RLS routing is covered by
+    // team.service.rls.integration.spec.ts against a real DB.
     mockPublicPrisma = makeMockPrisma();
-    mockRlsBypassPrisma = makeMockPrisma();
+    mockRlsBypassPrisma = mockPublicPrisma;
     mockConfig.get.mockReturnValue('https://app.kovia.com');
     mockAuthService.generateTokens.mockResolvedValue({
       accessToken: 'new.jwt.token',
@@ -433,14 +439,16 @@ describe('TeamService', () => {
 
   describe('listMembers', () => {
     it('returns users where orgId matches, ordered by createdAt desc', async () => {
-      mockPrisma.user.findMany.mockResolvedValue([
+      // listMembers now routes through the RLS-bypass client (the `users`
+      // table has no RLS policy permitting org-wide reads by an admin).
+      mockRlsBypassPrisma.user.findMany.mockResolvedValue([
         { id: 'u-1', email: 'a@t.com', role: 'ORG_ADMIN', firstName: 'Ana', lastName: 'A' },
       ]);
 
       const result = await service.listMembers('org-1');
 
       expect(result).toHaveLength(1);
-      expect(mockPrisma.user.findMany).toHaveBeenCalledWith(
+      expect(mockRlsBypassPrisma.user.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { orgId: 'org-1' },
           orderBy: { createdAt: 'desc' },
@@ -449,7 +457,7 @@ describe('TeamService', () => {
     });
 
     it('returns empty array when no members', async () => {
-      mockPrisma.user.findMany.mockResolvedValue([]);
+      mockRlsBypassPrisma.user.findMany.mockResolvedValue([]);
       expect(await service.listMembers('org-1')).toEqual([]);
     });
   });

@@ -62,11 +62,15 @@ export class TeamService {
     }
 
     // 2. D-06 conflict-of-interest — block if invitee has a pending application at this org.
-    const invitee = await this.rlsPrisma.user.findUnique({
+    // Must bypass RLS: the invitee may be an ADOPTER in no tenant (org admin
+    // has no RLS visibility to them) and the application row is cross-tenant
+    // from the caller's CLS context. Going through the RLS-bound client
+    // silently returns null and the guard is bypassed (D-06 failure).
+    const invitee = await this.rlsBypassPrisma.user.findUnique({
       where: { email: dto.email },
     });
     if (invitee) {
-      const conflicting = await this.rlsPrisma.adoptionApplication.findFirst({
+      const conflicting = await this.rlsBypassPrisma.adoptionApplication.findFirst({
         where: {
           userId: invitee.id,
           organizationId: orgId,
@@ -218,7 +222,11 @@ export class TeamService {
     }
 
     // 2. Email-match check — prevents T-09-02-01 elevation of privilege.
-    const currentUser = await this.rlsPrisma.user.findUnique({
+    // Use RLS-bypass: the caller's CLS context may not yet carry orgId
+    // (they were an ADOPTER pre-accept), and owner_isolation via the RLS
+    // client is fragile across pooled connections. Bypass is safe — we
+    // only read by the authenticated currentUserId.
+    const currentUser = await this.rlsBypassPrisma.user.findUnique({
       where: { id: currentUserId },
     });
     if (!currentUser) {
@@ -234,7 +242,10 @@ export class TeamService {
     }
 
     // 3. Transactional upgrade (D-05 upgrade in place) + mark invite accepted.
-    await this.rlsPrisma.$transaction(async (tx: any) => {
+    // Bypass RLS: the user being updated is transitioning into a new orgId
+    // that is not yet reflected in CLS; a UPDATE via the RLS client would
+    // be filtered by owner_isolation in some pooled-connection scenarios.
+    await this.rlsBypassPrisma.$transaction(async (tx: any) => {
       await tx.user.update({
         where: { id: currentUserId },
         data: { role: anyInvite.role, orgId: anyInvite.orgId },
@@ -252,7 +263,10 @@ export class TeamService {
     });
 
     // 4. Re-issue tokens with the new role + orgId claim.
-    const updatedUser = await this.rlsPrisma.user.findUnique({
+    // Bypass RLS: CLS context for the current request still carries the
+    // pre-accept tenant, so an RLS read of the just-updated row can be
+    // filtered. Bypass is safe — lookup is by the authenticated user id.
+    const updatedUser = await this.rlsBypassPrisma.user.findUnique({
       where: { id: currentUserId },
     });
     const tokens = await (this.authService as any).generateTokens(updatedUser);
@@ -261,7 +275,13 @@ export class TeamService {
   }
 
   async listMembers(orgId: string) {
-    return this.prisma.user.findMany({
+    // Must bypass RLS: no RLS policy on `users` allows an ORG_ADMIN to
+    // read other users in their org — `owner_isolation` limits reads to
+    // the caller's own row, and there is no `org_admin_read` policy.
+    // Controller-level @Roles('ORG_ADMIN') + the orgId passed from the
+    // caller's CurrentUser context gate this endpoint correctly; the
+    // query itself scopes by orgId so cross-tenant exposure is not a risk.
+    return this.rlsBypassPrisma.user.findMany({
       where: { orgId },
       select: {
         id: true,
@@ -277,7 +297,9 @@ export class TeamService {
 
   async changeRole(targetUserId: string, newRole: Role, actorId: string) {
     // SERIALIZABLE isolation guards against concurrent last-admin demotions (Pitfall P-3 / Assumption A1).
-    return this.rlsPrisma.$transaction(
+    // Must bypass RLS: target user ≠ caller, so owner_isolation blocks the
+    // findUnique/update. Controller-level @Roles('ORG_ADMIN') gates access.
+    return this.rlsBypassPrisma.$transaction(
       async (tx: any) => {
         const target = await tx.user.findUnique({ where: { id: targetUserId } });
         if (!target) {
@@ -307,7 +329,8 @@ export class TeamService {
   }
 
   async removeMember(targetUserId: string, actorId: string) {
-    return this.rlsPrisma.$transaction(
+    // Same reasoning as changeRole: target user ≠ caller.
+    return this.rlsBypassPrisma.$transaction(
       async (tx: any) => {
         const target = await tx.user.findUnique({ where: { id: targetUserId } });
         if (!target) {
@@ -359,11 +382,15 @@ export class TeamService {
     role: Role,
     token: string,
   ) {
-    const org = await this.rlsPrisma.organization.findUnique({
+    // Bypass RLS: dispatchInviteMail is called post-createInvite where the
+    // caller's CLS org context is set, but standardize on the bypass client
+    // for both org + inviter lookups so mail dispatch is robust even if
+    // CLS context is unset (background worker, retry, etc.).
+    const org = await this.rlsBypassPrisma.organization.findUnique({
       where: { id: orgId },
       select: { name: true },
     });
-    const inviter = await this.rlsPrisma.user.findUnique({
+    const inviter = await this.rlsBypassPrisma.user.findUnique({
       where: { id: inviterId },
       select: { firstName: true, lastName: true },
     });
