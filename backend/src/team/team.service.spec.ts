@@ -53,6 +53,7 @@ describe('TeamService', () => {
   let service: TeamService;
   let mockPrisma: MockPrisma;
   let mockPublicPrisma: MockPrisma;
+  let mockRlsBypassPrisma: MockPrisma;
   const mockAuditService = { log: vi.fn() };
   const mockMailDispatcher = { send: vi.fn() };
   const mockConfig = { get: vi.fn().mockReturnValue('https://app.kovia.com') };
@@ -66,6 +67,7 @@ describe('TeamService', () => {
     vi.clearAllMocks();
     mockPrisma = makeMockPrisma();
     mockPublicPrisma = makeMockPrisma();
+    mockRlsBypassPrisma = makeMockPrisma();
     mockConfig.get.mockReturnValue('https://app.kovia.com');
     mockAuthService.generateTokens.mockResolvedValue({
       accessToken: 'new.jwt.token',
@@ -78,6 +80,7 @@ describe('TeamService', () => {
       mockMailDispatcher as any,
       mockConfig as any,
       mockAuthService as any,
+      mockRlsBypassPrisma as any,
     );
   });
 
@@ -298,7 +301,10 @@ describe('TeamService', () => {
   });
 
   describe('validateToken', () => {
-    it('returns invite metadata for a valid token', async () => {
+    it('fetches orgName via PublicPrismaService (RLS bypass) and returns invite metadata', async () => {
+      // The team_invites lookup uses the (misleadingly named) publicPrisma provider.
+      // It returns the invite WITHOUT the org join — the join is done separately via the
+      // genuine RLS-bypass client to avoid RLS filtering organizations pre-auth.
       mockPublicPrisma.teamInvite.findUnique.mockResolvedValue({
         id: 'inv-1',
         email: 'new@team.com',
@@ -306,17 +312,27 @@ describe('TeamService', () => {
         orgId: 'org-1',
         expiresAt: new Date(Date.now() + 86400000),
         acceptedAt: null,
-        org: { name: 'DameTuPata' },
+      });
+      mockRlsBypassPrisma.organization.findUnique.mockResolvedValue({
+        name: 'DameTuPataSV',
       });
 
       const result = await service.validateToken('a'.repeat(64));
+
+      // Must call the RLS-bypass client for organization lookup — pre-auth callers
+      // have no app.current_user_id, so the RLS-bound client would return null.
+      expect(mockRlsBypassPrisma.organization.findUnique).toHaveBeenCalledWith({
+        where: { id: 'org-1' },
+        select: { name: true },
+      });
 
       expect(result).toEqual(
         expect.objectContaining({
           id: 'inv-1',
           email: 'new@team.com',
           role: 'ORG_STAFF',
-          orgName: 'DameTuPata',
+          orgId: 'org-1',
+          orgName: 'DameTuPataSV',
         }),
       );
     });
