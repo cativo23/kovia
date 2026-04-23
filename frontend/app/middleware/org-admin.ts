@@ -11,7 +11,7 @@ export default defineNuxtRouteMiddleware(async () => {
     return navigateTo('/login')
   }
 
-  if (!authStore.isOrgAdmin && !authStore.isOrgStaff) {
-    return navigateTo({ path: '/', query: { denied: '1' } })
+  if (!authStore.isOrgAdmin) {
+    return navigateTo({ path: '/org/dashboard', query: { denied: '1' } })
   }
 })

@@ -77,6 +77,7 @@ const navItems = computed(() => [
   { to: '/org/dashboard/animales', label: t('org.nav.animals'), icon: 'i-lucide-paw-print' },
   { to: '/org/dashboard/aplicaciones', label: t('org.nav.applications'), icon: 'i-lucide-clipboard-list' },
   { to: '/org/dashboard/adoptantes', label: t('org.nav.adopters'), icon: 'i-lucide-users' },
+  ...(authStore.isOrgAdmin ? [{ to: '/org/dashboard/equipo', label: t('org.nav.team'), icon: 'i-lucide-users-round' }] : []),
   { to: '/org/dashboard/perfil', label: t('org.nav.profile'), icon: 'i-lucide-building-2' },
 ])
 

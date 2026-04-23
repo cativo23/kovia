@@ -323,6 +323,7 @@
       "animals": "Animales",
       "applications": "Aplicaciones",
       "adopters": "Adoptantes",
+      "team": "Equipo",
       "profile": "Perfil",
       "backToSite": "Volver al sitio"
     },
@@ -375,6 +376,57 @@
     "alreadyLoggedIn": "Ya iniciaste sesion. Continua con la configuracion de tu organizacion.",
     "createAccountFirst": "Crea una cuenta para continuar con la configuracion de tu organizacion.",
     "setupOrg": "Configurar organizacion"
+  },
+  "team": {
+    "title": "Equipo",
+    "description": "Gestiona los miembros de tu organización",
+    "invite": "Invitar miembro",
+    "inviteHeading": "Invitar miembro al equipo",
+    "sendInvite": "Enviar invitación",
+    "discardInvite": "Descartar",
+    "role": "Rol",
+    "roles": { "staff": "Staff" },
+    "status": { "pending": "Pendiente", "active": "Activo" },
+    "columns": { "name": "Nombre", "email": "Correo", "role": "Rol", "date": "Fecha", "status": "Estado" },
+    "resendInvite": "Reenviar",
+    "revokeInvite": "Revocar",
+    "removeMember": "Remover",
+    "empty": {
+      "heading": "Sin miembros en el equipo",
+      "body": "Invita a colaboradores para gestionar animales y solicitudes juntos."
+    },
+    "loadError": "No se pudo cargar el equipo. Intenta de nuevo.",
+    "inviteConflict": "este usuario tiene una solicitud pendiente en tu organización — resuélvela antes de invitarlo",
+    "inviteError": "No se pudo enviar la invitación. Intenta de nuevo.",
+    "inviteSent": "Invitación enviada exitosamente",
+    "roleUpdated": "Rol actualizado",
+    "roleUpdateError": "No se pudo actualizar el rol",
+    "resendSuccess": "Invitación reenviada exitosamente",
+    "resendError": "No se pudo reenviar la invitación",
+    "revokeSuccess": "Invitación revocada",
+    "revokeError": "No se pudo revocar la invitación",
+    "removeSuccess": "Miembro removido del equipo",
+    "removeError": "No se pudo remover al miembro",
+    "lastAdminTooltip": "No puedes remover al único administrador",
+    "removeModal": {
+      "heading": "Remover miembro",
+      "body": "Esta acción removerá a {name} de tu organización. Su rol volverá a Adoptante y su historial se conservará.",
+      "confirmPrompt": "Para confirmar, escribe el nombre \"{name}\"",
+      "mismatch": "El nombre no coincide",
+      "cancel": "Mantener miembro",
+      "confirm": "Remover miembro"
+    }
+  },
+  "teamInvite": {
+    "heading": "Has sido invitado a unirte al equipo",
+    "description": "Te invitaron como {role} en {orgName}.",
+    "accept": "Unirme al equipo",
+    "alreadyLoggedIn": "Iniciaste sesión como {email}. Acepta la invitación para unirte.",
+    "expired": "Esta invitación ha expirado",
+    "expiredDescription": "El enlace ya no es válido. Contacta al administrador de tu organización.",
+    "invalid": "Invitación no válida",
+    "invalidDescription": "Verifica que el enlace sea correcto.",
+    "success": "¡Bienvenido al equipo!"
   },
   "validation": {
     "required": "Este campo es requerido",

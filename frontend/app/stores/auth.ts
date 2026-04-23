@@ -5,7 +5,7 @@ export interface User {
   email: string
   firstName: string
   lastName: string
-  role: 'ADOPTER' | 'ORG_ADMIN' | 'PLATFORM_ADMIN'
+  role: 'ADOPTER' | 'ORG_ADMIN' | 'ORG_STAFF' | 'PLATFORM_ADMIN'
   emailVerified: boolean
   organizationId?: string | null
 }
@@ -27,6 +27,7 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: (state): boolean => !!state.accessToken && !!state.user,
     isAdmin: (state): boolean => state.user?.role === 'PLATFORM_ADMIN',
     isOrgAdmin: (state): boolean => state.user?.role === 'ORG_ADMIN',
+    isOrgStaff: (state): boolean => state.user?.role === 'ORG_STAFF',
     userRole: (state): string | null => state.user?.role ?? null,
   },
 
