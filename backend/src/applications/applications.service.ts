@@ -10,6 +10,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PRISMA_RLS } from '../prisma/prisma.module';
 import { PrismaService } from '../prisma/prisma.service';
+import { PublicPrismaService } from '../prisma/public-prisma.service';
 import { UploadService } from '../upload/upload.service';
 import { AuditService } from '../audit/audit.service';
 import { ClsService } from 'nestjs-cls';
@@ -36,7 +37,7 @@ const staffTransitions: Record<string, string[]> = {
 export class ApplicationsService {
   constructor(
     @Inject(PRISMA_RLS) private readonly prismaRls: any,
-    private readonly publicPrisma: PrismaService,
+    private readonly publicPrisma: PublicPrismaService,
     private readonly uploadService: UploadService,
     private readonly auditService: AuditService,
     private readonly cls: ClsService,
