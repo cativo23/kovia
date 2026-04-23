@@ -49,6 +49,11 @@ export class ApplicationsController {
     return this.applicationsService.findById(id, req.user.id);
   }
 
+  @Get('my/:id/history')
+  async findMyApplicationHistory(@Param('id') id: string, @Req() req: any) {
+    return this.applicationsService.findStatusHistory(id, req.user.id);
+  }
+
   @Patch(':id/retirar')
   @Roles('ADOPTER')
   async withdraw(@Param('id') id: string, @Req() req: any) {
