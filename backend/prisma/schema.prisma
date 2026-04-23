@@ -10,6 +10,7 @@ datasource db {
 enum UserRole {
   ADOPTER
   ORG_ADMIN
+  ORG_STAFF
   PLATFORM_ADMIN
 }
 
@@ -77,12 +78,17 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  refreshTokens RefreshToken[]
-  organization  Organization? @relation("OrgAdmin")
-  auditLogs     AuditLog[]
-  applications  AdoptionApplication[]
-  authoredNotes ApplicationNote[] @relation("NoteAuthor")
+  orgId         String?
+  org           Organization? @relation("OrgMembers", fields: [orgId], references: [id], onDelete: SetNull)
 
+  refreshTokens   RefreshToken[]
+  organization    Organization? @relation("OrgAdmin")
+  auditLogs       AuditLog[]
+  applications    AdoptionApplication[]
+  authoredNotes   ApplicationNote[] @relation("NoteAuthor")
+  sentTeamInvites TeamInvite[]      @relation("InvitedBy")
+
+  @@index([orgId])
   @@map("users")
 }
 
@@ -115,6 +121,8 @@ model Organization {
   updatedAt    DateTime  @updatedAt
 
   animals      Animal[]
+  members      User[]       @relation("OrgMembers")
+  teamInvites  TeamInvite[]
 
   @@map("organizations")
 }
@@ -129,6 +137,24 @@ model OrgInvite {
   createdAt  DateTime  @default(now())
 
   @@map("org_invites")
+}
+
+model TeamInvite {
+  id           String       @id @default(uuid())
+  orgId        String
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  email        String
+  role         UserRole
+  token        String       @unique
+  invitedById  String
+  invitedBy    User         @relation("InvitedBy", fields: [invitedById], references: [id])
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  createdAt    DateTime     @default(now())
+
+  @@index([orgId, email])
+  @@index([email])
+  @@map("team_invites")
 }
 
 model Species {
