@@ -7,6 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { Profile } from 'passport-google-oauth20';
 import { UsersService } from '../users/users.service';
 import { MailDispatcher } from '../mail/mail-dispatcher.service';
 import { VerificationMail } from '../mail/mailables/verification.mail';
@@ -247,6 +248,66 @@ export class AuthService {
     );
 
     return { message: 'Se ha enviado un nuevo enlace de verificacion' };
+  }
+
+  async loginWithGoogle(profile: Profile): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    isNew: boolean;
+    isLinked: boolean;
+  }> {
+    const email = profile.emails?.[0]?.value;
+    if (!email) {
+      throw new UnauthorizedException('Google profile missing email');
+    }
+
+    const googleId = profile.id;
+    const firstName = profile.name?.givenName ?? null;
+    const lastName = profile.name?.familyName ?? null;
+
+    // 1. Returning user: find by googleId
+    let user = await this.prisma.user.findFirst({ where: { googleId } });
+    let isNew = false;
+    let isLinked = false;
+
+    if (!user) {
+      // 2. Link branch: find by email
+      user = await this.prisma.user.findFirst({ where: { email } });
+      if (user) {
+        user = await this.prisma.user.update({
+          where: { id: user.id },
+          data: { googleId, emailVerified: true },
+        });
+        isLinked = true;
+      } else {
+        // 3. Create branch: first user gets PLATFORM_ADMIN, otherwise ADOPTER
+        const userCount = await this.prisma.user.count();
+        const role: UserRole = userCount === 0 ? UserRole.PLATFORM_ADMIN : UserRole.ADOPTER;
+        user = await this.prisma.user.create({
+          data: {
+            email,
+            googleId,
+            firstName,
+            lastName,
+            emailVerified: true,
+            role,
+          },
+        });
+        isNew = true;
+        // Dispatch WelcomeMail AFTER create completes (D-11 convention: never inside $transaction)
+        await this.mailDispatcher.send(
+          new WelcomeMail(email, { firstName: firstName ?? '' }),
+        );
+      }
+    }
+
+    // 4. D-02 fix: use DB value, never override
+    if (!user.isActive) {
+      throw new ForbiddenException('Tu cuenta ha sido desactivada');
+    }
+
+    const tokens = await this.generateTokens(user);
+    return { ...tokens, isNew, isLinked };
   }
 
   async getProfile(userId: string) {
