@@ -123,6 +123,7 @@ model Organization {
   animals      Animal[]
   members      User[]       @relation("OrgMembers")
   teamInvites  TeamInvite[]
+  applications AdoptionApplication[]
 
   @@map("organizations")
 }
@@ -206,6 +207,7 @@ model AdoptionApplication {
   userId            String
   user              User              @relation(fields: [userId], references: [id])
   organizationId    String
+  organization      Organization      @relation(fields: [organizationId], references: [id])
   status            ApplicationStatus @default(ENVIADA)
   personalInfo      Json?
   housing           Json?
@@ -224,7 +226,10 @@ model AdoptionApplication {
   notes             ApplicationNote[]
   notifications     Notification[]
 
-  @@unique([animalId, userId])
+  // Active-application uniqueness is enforced via a PostgreSQL partial unique index
+  // (migration 10_partial_unique_active_applications): UNIQUE (animalId, userId) WHERE status != 'RETIRADA'.
+  // Prisma @@unique cannot express a WHERE clause, so the constraint lives in raw SQL.
+  // D-14: allows resubmit after withdraw; service layer rejects duplicates in non-RETIRADA states.
   @@map("adoption_applications")
 }
 
