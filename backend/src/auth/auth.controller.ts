@@ -190,15 +190,20 @@ export class AuthController {
     @Req() req: Request,
     @Res() res: Response,
   ) {
-    const result = await this.authService.login({
-      ...req.user,
-      emailVerified: true,
-      isActive: true,
-    });
-    this.setRefreshCookie(res, result.refreshToken);
+    const { accessToken, refreshToken, isNew, isLinked } = req.user as {
+      accessToken: string;
+      refreshToken: string;
+      isNew: boolean;
+      isLinked: boolean;
+    };
+    this.setRefreshCookie(res, refreshToken);
 
-    const appUrl = this.config.get<string>('APP_URL') || 'http://localhost:3001';
-    res.redirect(`${appUrl}/auth/callback?token=${result.accessToken}`);
+    const params = new URLSearchParams({ token: accessToken });
+    if (isNew) params.set('new', 'true');
+    if (isLinked) params.set('linked', 'true');
+
+    const appUrl = this.config.get<string>('APP_URL') ?? 'http://localhost:3001';
+    res.redirect(`${appUrl}/auth/callback?${params.toString()}`);
   }
 
   private setRefreshCookie(res: Response, refreshToken: string) {
