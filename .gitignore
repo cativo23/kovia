@@ -5,8 +5,10 @@ node_modules/
 
 # Build output
 dist/
+dist-seed/
 .nuxt/
 .output/
+*.tsbuildinfo
 
 # Generated
 backend/src/generated/prisma/
