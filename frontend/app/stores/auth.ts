@@ -60,7 +60,7 @@ export const useAuthStore = defineStore('auth', {
       if (currentPath !== '/login' && currentPath !== '/register') {
         sessionStorage.setItem('kovia:oauth_redirect', currentPath)
       }
-      window.location.href = `${config.public.apiUrl}/auth/google`
+      window.location.href = `${config.public.backendUrl}/auth/google`
     },
 
     async handleOAuthCallback(token: string) {
