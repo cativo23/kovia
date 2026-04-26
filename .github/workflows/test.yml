@@ -1,0 +1,100 @@
+name: Backend Tests
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/test.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/test.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: kovia
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://app_user:app_password@localhost:5432/kovia
+      MIGRATION_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/kovia
+      DB_HOST: localhost
+      DB_PORT: '5432'
+      DB_NAME: kovia
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      N8N_WEBHOOK_URL: ''
+      CI: 'true'
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Bootstrap app_user role
+        # docker-compose mounts prisma/init.sql via /docker-entrypoint-initdb.d
+        # in dev; the GHA Postgres service container has no such mount, so we
+        # replay it manually. Without this, PrismaService (which connects as
+        # app_user) errors with: role "app_user" does not exist (SQLSTATE 28000).
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d kovia -f prisma/init.sql
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+
+      - name: Run schema migrations
+        run: npm run prisma:migrate:deploy
+
+      - name: Skip-grep guard
+        # D-08 / D-09: disabled, todo, focused tests cannot reach main.
+        # Catches .skip / .todo / .only / xit / xdescribe / xfail / fit / fdescribe.
+        run: |
+          if rg -n \
+               -e '\.skip\b' \
+               -e '\bit\.todo\b' \
+               -e '\btest\.todo\b' \
+               -e '\bdescribe\.skip\b' \
+               -e '\bxit\(' \
+               -e '\bxdescribe\(' \
+               -e '\bxfail\b' \
+               -e '\bit\.only\b' \
+               -e '\bdescribe\.only\b' \
+               -e '\btest\.only\b' \
+               -e '\bfit\(' \
+               -e '\bfdescribe\(' \
+               --glob 'src/**/*.spec.ts' --glob 'test/**/*.spec.ts'; then
+            echo '::error::Disabled, todo, or focused tests are not allowed on main. Fix or delete the spec.'
+            exit 1
+          fi
+
+      - name: Run tests
+        run: npm test
