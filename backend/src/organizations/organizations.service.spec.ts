@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { OrganizationsService } from './organizations.service';
 import { BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 
+// RLS-bound Prisma (writes; read-after-write via tenant context)
 const mockPrisma = {
   orgInvite: {
     findUnique: vi.fn(),
@@ -18,18 +19,32 @@ const mockPrisma = {
   },
 };
 
+// Public (RLS-bypass) Prisma — used for pre-auth lookups: acceptInvite, findBySlug
+const mockPublicPrisma = {
+  orgInvite: {
+    findUnique: vi.fn(),
+  },
+  organization: {
+    findUnique: vi.fn(),
+  },
+};
+
 describe('OrganizationsService', () => {
   let service: OrganizationsService;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    service = new OrganizationsService(mockPrisma as any);
+    service = new OrganizationsService(
+      mockPrisma as any,
+      mockPublicPrisma as any,
+    );
   });
 
   describe('acceptInvite', () => {
+    // acceptInvite reads from publicPrisma (pre-auth lookup, RLS-bypass per D-09 phase 09)
     it('should validate token and return invite data', async () => {
       const futureDate = new Date(Date.now() + 86400000 * 3);
-      mockPrisma.orgInvite.findUnique.mockResolvedValue({
+      mockPublicPrisma.orgInvite.findUnique.mockResolvedValue({
         id: 'inv-1',
         email: 'org@test.com',
         orgName: 'Test Org',
@@ -47,7 +62,7 @@ describe('OrganizationsService', () => {
 
     it('should reject expired token', async () => {
       const pastDate = new Date(Date.now() - 86400000);
-      mockPrisma.orgInvite.findUnique.mockResolvedValue({
+      mockPublicPrisma.orgInvite.findUnique.mockResolvedValue({
         id: 'inv-1',
         email: 'org@test.com',
         orgName: 'Test Org',
@@ -62,7 +77,7 @@ describe('OrganizationsService', () => {
     });
 
     it('should reject already accepted invite', async () => {
-      mockPrisma.orgInvite.findUnique.mockResolvedValue({
+      mockPublicPrisma.orgInvite.findUnique.mockResolvedValue({
         id: 'inv-1',
         email: 'org@test.com',
         token: 'used-token',
@@ -76,7 +91,7 @@ describe('OrganizationsService', () => {
     });
 
     it('should throw if token not found', async () => {
-      mockPrisma.orgInvite.findUnique.mockResolvedValue(null);
+      mockPublicPrisma.orgInvite.findUnique.mockResolvedValue(null);
 
       await expect(service.acceptInvite('bad-token')).rejects.toThrow(
         NotFoundException,
@@ -85,7 +100,11 @@ describe('OrganizationsService', () => {
   });
 
   describe('create', () => {
-    it('should create org with slug, link admin, and update user role', async () => {
+    // Production `create(dto, userId)` only persists the org. The legacy spec
+    // asserted user-role + invite-update side effects which actually live in
+    // `claimInvite`; that scenario now has its own `describe('claimInvite')`
+    // block below.
+    it('should create org with generated slug and link admin', async () => {
       mockPrisma.organization.findFirst.mockResolvedValue(null);
       mockPrisma.organization.create.mockResolvedValue({
         id: 'org-1',
@@ -94,14 +113,6 @@ describe('OrganizationsService', () => {
         status: 'ACTIVE',
         adminId: 'u-1',
       });
-      mockPrisma.user.update.mockResolvedValue({ id: 'u-1', role: 'ORG_ADMIN' });
-      mockPrisma.orgInvite.findUnique.mockResolvedValue({
-        id: 'inv-1',
-        token: 'tok',
-        acceptedAt: null,
-        expiresAt: new Date(Date.now() + 86400000),
-      });
-      mockPrisma.orgInvite.update.mockResolvedValue({});
 
       const result = await service.create(
         {
@@ -110,19 +121,17 @@ describe('OrganizationsService', () => {
           contactEmail: 'contact@test.com',
         },
         'u-1',
-        'tok',
       );
 
       expect(result).toBeDefined();
       expect(result.slug).toBe('test-org');
-      expect(mockPrisma.user.update).toHaveBeenCalledWith({
-        where: { id: 'u-1' },
-        data: { role: 'ORG_ADMIN' },
-      });
-      expect(mockPrisma.orgInvite.update).toHaveBeenCalledWith(
+      expect(mockPrisma.organization.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { token: 'tok' },
-          data: expect.objectContaining({ acceptedAt: expect.any(Date) }),
+          data: expect.objectContaining({
+            name: 'Test Org',
+            slug: 'test-org',
+            adminId: 'u-1',
+          }),
         }),
       );
     });
@@ -138,22 +147,40 @@ describe('OrganizationsService', () => {
         slug: 'test-org-1',
         adminId: 'u-1',
       });
-      mockPrisma.user.update.mockResolvedValue({});
-      mockPrisma.orgInvite.findUnique.mockResolvedValue({
+
+      const result = await service.create(
+        { name: 'Test Org', contactEmail: 'c@t.com' },
+        'u-1',
+      );
+
+      expect(result.slug).toMatch(/^test-org-/);
+    });
+  });
+
+  describe('claimInvite', () => {
+    it('should set user role to ORG_ADMIN and mark invite accepted', async () => {
+      mockPublicPrisma.orgInvite.findUnique.mockResolvedValue({
         id: 'inv-1',
         token: 'tok',
         acceptedAt: null,
         expiresAt: new Date(Date.now() + 86400000),
       });
+      mockPrisma.user.update.mockResolvedValue({ id: 'u-1', role: 'ORG_ADMIN' });
       mockPrisma.orgInvite.update.mockResolvedValue({});
 
-      const result = await service.create(
-        { name: 'Test Org', contactEmail: 'c@t.com' },
-        'u-1',
-        'tok',
-      );
+      const result = await service.claimInvite('tok', 'u-1');
 
-      expect(result.slug).toMatch(/^test-org-/);
+      expect(result).toBeDefined();
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'u-1' },
+        data: { role: 'ORG_ADMIN' },
+      });
+      expect(mockPrisma.orgInvite.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { token: 'tok' },
+          data: expect.objectContaining({ acceptedAt: expect.any(Date) }),
+        }),
+      );
     });
   });
 
@@ -190,8 +217,9 @@ describe('OrganizationsService', () => {
   });
 
   describe('findBySlug', () => {
+    // findBySlug reads from publicPrisma (anonymous public org pages).
     it('should return org public profile', async () => {
-      mockPrisma.organization.findUnique.mockResolvedValue({
+      mockPublicPrisma.organization.findUnique.mockResolvedValue({
         id: 'org-1',
         name: 'Test Org',
         slug: 'test-org',
@@ -213,7 +241,7 @@ describe('OrganizationsService', () => {
     });
 
     it('should throw if org not found', async () => {
-      mockPrisma.organization.findUnique.mockResolvedValue(null);
+      mockPublicPrisma.organization.findUnique.mockResolvedValue(null);
 
       await expect(service.findBySlug('nonexistent')).rejects.toThrow(
         NotFoundException,

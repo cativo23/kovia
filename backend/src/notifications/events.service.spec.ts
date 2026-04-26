@@ -25,6 +25,10 @@ const mockWebhookService = {
   enqueue: vi.fn(),
 };
 
+const mockMailDispatcher = {
+  send: vi.fn().mockResolvedValue(undefined),
+};
+
 describe('EventsService', () => {
   let service: EventsService;
 
@@ -34,6 +38,7 @@ describe('EventsService', () => {
       mockPrisma as any,
       mockNotificationsService as any,
       mockWebhookService as any,
+      mockMailDispatcher as any,
     );
 
     // Default mock for fetching application context

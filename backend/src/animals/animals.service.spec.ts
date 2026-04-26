@@ -48,6 +48,10 @@ describe('AnimalsService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Production resolves organizationId via cls.get('organizationId')
+    mockCls.get.mockImplementation((key: string) =>
+      key === 'organizationId' ? 'org-1' : undefined,
+    );
     service = new AnimalsService(
       mockPrismaRls as any,
       mockPublicPrisma as any,
@@ -93,7 +97,9 @@ describe('AnimalsService', () => {
         expect.objectContaining({
           data: expect.objectContaining({
             name: 'Max',
-            speciesId: 'species-1',
+            // Production wires the species relation via Prisma `connect`,
+            // not a flat speciesId scalar.
+            species: { connect: { id: 'species-1' } },
           }),
           include: expect.objectContaining({
             species: true,

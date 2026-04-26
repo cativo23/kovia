@@ -16,7 +16,14 @@ const makeApp = (overrides: Record<string, any> = {}) => ({
   ...overrides,
 });
 
-// Mock publicPrisma
+// Mock RLS prisma (used for the authorization "ownOrgCount" check)
+const mockPrismaRls = {
+  adoptionApplication: {
+    count: vi.fn(),
+  },
+};
+
+// Mock public prisma (cross-org reads)
 const mockPublicPrisma = {
   adoptionApplication: {
     findMany: vi.fn(),
@@ -24,7 +31,7 @@ const mockPublicPrisma = {
   },
 };
 
-// Mock ClsService
+// Mock ClsService — production reads `organizationId` (not `orgId`)
 const mockCls = {
   get: vi.fn(),
 };
@@ -35,7 +42,13 @@ describe('AdoptersService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockCls.get.mockReturnValue('org-current');
-    service = new AdoptersService(mockPublicPrisma as any, mockCls as any);
+    // Default: caller has applied to current org (passes authorization)
+    mockPrismaRls.adoptionApplication.count.mockResolvedValue(1);
+    service = new AdoptersService(
+      mockPrismaRls as any,
+      mockPublicPrisma as any,
+      mockCls as any,
+    );
   });
 
   describe('getHistory', () => {
@@ -112,7 +125,7 @@ describe('AdoptersService', () => {
       expect(result.applications[0].id).toBe('a1');
     });
 
-    it('uses cls.get("orgId") to determine current org context', async () => {
+    it('uses cls.get("organizationId") to determine current org context', async () => {
       mockCls.get.mockReturnValue('org-specific');
       mockPublicPrisma.adoptionApplication.findMany.mockResolvedValue([
         makeApp({ organizationId: 'org-specific', score: 90 }),
@@ -120,7 +133,7 @@ describe('AdoptersService', () => {
 
       const result = await service.getHistory('user-1');
 
-      expect(mockCls.get).toHaveBeenCalledWith('orgId');
+      expect(mockCls.get).toHaveBeenCalledWith('organizationId');
       expect(result.applications[0].isOwnOrg).toBe(true);
     });
   });
