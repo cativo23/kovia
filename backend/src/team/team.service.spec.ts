@@ -308,7 +308,7 @@ describe('TeamService', () => {
 
   describe('validateToken', () => {
     it('fetches orgName via PublicPrismaService (RLS bypass) and returns invite metadata', async () => {
-      // The team_invites lookup uses the (misleadingly named) publicPrisma provider.
+      // The team_invites lookup uses the rlsBypassPrisma provider.
       // It returns the invite WITHOUT the org join — the join is done separately via the
       // genuine RLS-bypass client to avoid RLS filtering organizations pre-auth.
       mockPublicPrisma.teamInvite.findUnique.mockResolvedValue({

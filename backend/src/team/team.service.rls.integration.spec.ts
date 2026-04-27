@@ -153,7 +153,7 @@ describe('TeamService RLS integration', () => {
     };
 
     // NOTE: we wire BOTH the PRISMA_RLS-extended client and the legacy
-    // `publicPrisma` (which is PrismaService-bound, app_user, RLS-enforced)
+    // `rlsBypassPrisma` (which is PrismaService-bound, app_user, RLS-enforced)
     // through the extended client in the test harness. In production, the
     // non-extended PrismaService can still leak CLS-set `SET LOCAL` context
     // across a pooled connection when the same adapter connection was
