@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
 import { PRISMA_RLS } from '../prisma/prisma.module';
-import { PrismaService } from '../prisma/prisma.service';
+import { PublicPrismaService } from '../prisma/public-prisma.service';
 import { UploadService } from '../upload/upload.service';
 import { AuditService } from '../audit/audit.service';
 
@@ -52,7 +52,7 @@ interface PhotoInput {
 export class AnimalsService {
   constructor(
     @Inject(PRISMA_RLS) private readonly prismaRls: any,
-    private readonly publicPrisma: PrismaService,
+    private readonly rlsBypassPrisma: PublicPrismaService,
     private readonly uploadService: UploadService,
     private readonly auditService: AuditService,
     private readonly cls: ClsService,
@@ -112,7 +112,7 @@ export class AnimalsService {
   }
 
   async findById(id: string) {
-    const animal = await this.publicPrisma.animal.findUnique({
+    const animal = await this.rlsBypassPrisma.animal.findUnique({
       where: { id },
       include: {
         species: true,
@@ -222,7 +222,7 @@ export class AnimalsService {
     }
 
     const [data, total] = await Promise.all([
-      this.publicPrisma.animal.findMany({
+      this.rlsBypassPrisma.animal.findMany({
         where,
         skip,
         take: limit,
@@ -235,7 +235,7 @@ export class AnimalsService {
           photos: { orderBy: { position: 'asc' }, take: 1 },
         },
       }),
-      this.publicPrisma.animal.count({ where }),
+      this.rlsBypassPrisma.animal.count({ where }),
     ]);
 
     return {
@@ -476,7 +476,7 @@ export class AnimalsService {
   }
 
   async getStats(orgId?: string) {
-    const prisma = orgId ? this.publicPrisma : this.prismaRls;
+    const prisma = orgId ? this.rlsBypassPrisma : this.prismaRls;
     const where = orgId ? { organizationId: orgId } : {};
 
     const [total, available, inProcess, adopted, archived] = await Promise.all([
