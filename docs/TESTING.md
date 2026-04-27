@@ -3,7 +3,7 @@
 
 Kovia uses a layered testing strategy across two workspaces:
 
-- **Backend** (`backend/`) — Vitest unit tests for NestJS services, plus a Vitest-based RLS integration suite that requires a live PostgreSQL instance. Jest is also scaffolded in `package.json` for end-to-end NestJS tests but Vitest is the active runner for unit tests.
+- **Backend** (`backend/`) — Vitest unit tests for NestJS services, plus a Vitest-based RLS integration suite that requires a live PostgreSQL instance.
 - **Frontend** (`frontend/`) — Vitest unit tests for Vue components, Pinia stores, composables, and middleware; Playwright end-to-end tests for full browser flows.
 
 All tests run inside Docker. The host machine has no required runtime dependencies.
@@ -16,10 +16,9 @@ All tests run inside Docker. The host machine has no required runtime dependenci
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Vitest | `^4.1.3` | Unit tests for NestJS services |
+| Vitest | `^4.1.3` | Unit and integration tests |
 | `@vitest/coverage-v8` | `^4.1.3` | Coverage collection |
 | `unplugin-swc` | `^1.5.9` | SWC transpiler plugin for Vitest |
-| Jest / `ts-jest` | `^30.0.0` / `^29.2.5` | NestJS e2e test runner (configured via `test/jest-e2e.json`) |
 | `@nestjs/testing` | `^11.0.1` | NestJS `TestingModule` utilities |
 | Supertest | `^7.0.0` | HTTP assertion helper for e2e tests |
 
@@ -92,10 +91,8 @@ docker compose exec api npx vitest
 docker compose exec api npx vitest run --coverage
 ```
 
-The backend `package.json` includes a `test:e2e` script referencing `./test/jest-e2e.json`, but the `backend/test/` directory and that config file have not been created yet:
-
 ```bash
-# Run NestJS e2e tests (requires running services)
+# Run e2e tests (requires running services)
 docker compose exec api npm run test:e2e
 ```
 

@@ -12,7 +12,7 @@ import { OrganizationsService } from './organizations.service';
  *
  * Proves the dual-client injection wiring is correct:
  *   - rlsBypassPrisma (PublicPrismaService) handles org-invite lookups and public reads
- *   - prisma (@Inject(PRISMA_RLS)) handles org-scoped writes
+ *   - rlsPrisma (@Inject(PRISMA_RLS)) handles org-scoped writes
  *
  * Harness mirrors team.service.rls.integration.spec.ts exactly:
  *   - Superuser pg.Client for fixture INSERTs (RLS-bypass)

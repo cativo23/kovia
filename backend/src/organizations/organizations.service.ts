@@ -13,7 +13,7 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 @Injectable()
 export class OrganizationsService {
   constructor(
-    @Inject(PRISMA_RLS) private readonly prisma: any,
+    @Inject(PRISMA_RLS) private readonly rlsPrisma: any,
     private readonly rlsBypassPrisma: PublicPrismaService,
   ) {}
 
@@ -41,13 +41,13 @@ export class OrganizationsService {
     const invite = await this.acceptInvite(token);
 
     // Set user role to ORG_ADMIN
-    await this.prisma.user.update({
+    await this.rlsPrisma.user.update({
       where: { id: userId },
       data: { role: 'ORG_ADMIN' as any },
     });
 
     // Mark invite as accepted
-    await this.prisma.orgInvite.update({
+    await this.rlsPrisma.orgInvite.update({
       where: { token },
       data: { acceptedAt: new Date() },
     });
@@ -58,7 +58,7 @@ export class OrganizationsService {
   async create(dto: CreateOrganizationDto, userId: string) {
     const slug = await this.generateSlug(dto.name);
 
-    const org = await this.prisma.organization.create({
+    const org = await this.rlsPrisma.organization.create({
       data: {
         name: dto.name,
         slug,
@@ -77,7 +77,7 @@ export class OrganizationsService {
   }
 
   async update(orgId: string, dto: UpdateOrganizationDto, userId: string) {
-    const org = await this.prisma.organization.findUnique({
+    const org = await this.rlsPrisma.organization.findUnique({
       where: { id: orgId },
     });
 
@@ -91,7 +91,7 @@ export class OrganizationsService {
       );
     }
 
-    return this.prisma.organization.update({
+    return this.rlsPrisma.organization.update({
       where: { id: orgId },
       data: dto,
     });
@@ -110,7 +110,7 @@ export class OrganizationsService {
   }
 
   async findByAdminId(userId: string) {
-    const org = await this.prisma.organization.findFirst({
+    const org = await this.rlsPrisma.organization.findFirst({
       where: { adminId: userId },
     });
 
@@ -129,7 +129,7 @@ export class OrganizationsService {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
 
-    const existing = await this.prisma.organization.findFirst({
+    const existing = await this.rlsPrisma.organization.findFirst({
       where: { slug: base },
     });
 
@@ -139,7 +139,7 @@ export class OrganizationsService {
     let suffix = 1;
     while (true) {
       const candidate = `${base}-${suffix}`;
-      const found = await this.prisma.organization.findFirst({
+      const found = await this.rlsPrisma.organization.findFirst({
         where: { slug: candidate },
       });
       if (!found) return candidate;

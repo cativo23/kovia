@@ -19,18 +19,29 @@ project.addSourceFilesAtPaths([
   '!src/generated/**',
 ]);
 
+const scannedFiles = project.getSourceFiles();
+if (scannedFiles.length === 0) {
+  console.error(
+    '::error::PATTERN-03 check found 0 source files. ' +
+    'Run from backend/ and verify tsconfig.json exists.',
+  );
+  process.exit(1);
+}
+
 const violations: string[] = [];
 
-for (const sourceFile of project.getSourceFiles()) {
-  // Import-level detection: PRISMA_RLS token + PublicPrismaService both present.
-  // NOTE: Do NOT check for 'PrismaService' — animals.service.ts and organizations.service.ts
-  // use PRISMA_RLS without importing PrismaService directly.
+for (const sourceFile of scannedFiles) {
+  // Import-level detection: PRISMA_RLS token + bypass client both present.
+  // Bypass client may be PublicPrismaService (class import) OR PRISMA_PUBLIC (token injection).
+  // AdoptersService uses @Inject(PRISMA_PUBLIC) instead of PublicPrismaService class import.
   const importNames = sourceFile
     .getImportDeclarations()
     .flatMap((i) => i.getNamedImports().map((n) => n.getName()));
 
   const usesPrismaRls = importNames.includes('PRISMA_RLS');
-  const usesBypassClient = importNames.includes('PublicPrismaService');
+  const usesBypassClient =
+    importNames.includes('PublicPrismaService') ||
+    importNames.includes('PRISMA_PUBLIC');
 
   if (!(usesPrismaRls && usesBypassClient)) continue;
 
