@@ -159,9 +159,11 @@ describe('AnimalsService integration (PATTERN-03)', () => {
   }, 30000);
 
   it('findPublic returns animals without RLS context — publicPrisma path works', async () => {
-    const result = await animalsService.findPublic({});
+    // Filter by orgSlug to avoid pagination sensitivity: default limit=12 would fail
+    // if >12 AVAILABLE animals exist in the DB (e.g. shared dev environment with seed data).
+    const result = await animalsService.findPublic({ organization: orgSlug });
     expect(Array.isArray(result.data)).toBe(true);
-    // The seeded animal should be in the public listing (status AVAILABLE matches default filter)
+    // The seeded animal should be in the result scoped to this org
     const ids = result.data.map((a: any) => a.id);
     expect(ids).toContain(animalId);
   });
