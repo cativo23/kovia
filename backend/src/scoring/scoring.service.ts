@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PublicPrismaService } from '../prisma/public-prisma.service';
 import { scoreApplication } from './engine';
 import { ScoringResult } from './engine.types';
 
 @Injectable()
 export class ScoringService {
-  constructor(private readonly publicPrisma: PrismaService) {}
+  constructor(private readonly rlsBypassPrisma: PublicPrismaService) {}
 
   async rescore(applicationId: string): Promise<ScoringResult> {
     let result!: ScoringResult;
@@ -13,9 +13,9 @@ export class ScoringService {
     // Batch transactions for @prisma/adapter-pg compatibility.
     // Interactive transactions split set_config into separate PG transactions.
 
-    const [, application] = await this.publicPrisma.$transaction([
-      this.publicPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
-      this.publicPrisma.adoptionApplication.findUnique({
+    const [, application] = await this.rlsBypassPrisma.$transaction([
+      this.rlsBypassPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.rlsBypassPrisma.adoptionApplication.findUnique({
         where: { id: applicationId },
         include: {
           animal: { include: { species: true } },
@@ -28,9 +28,9 @@ export class ScoringService {
       throw new Error(`Application ${applicationId} not found`);
     }
 
-    const [, returnCount] = await this.publicPrisma.$transaction([
-      this.publicPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
-      this.publicPrisma.adoptionApplication.count({
+    const [, returnCount] = await this.rlsBypassPrisma.$transaction([
+      this.rlsBypassPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.rlsBypassPrisma.adoptionApplication.count({
         where: { userId: application.userId, status: 'DEVUELTA' as any },
       }),
     ]);
@@ -55,9 +55,9 @@ export class ScoringService {
       adopterHistory: { returnCount },
     });
 
-    await this.publicPrisma.$transaction([
-      this.publicPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
-      this.publicPrisma.adoptionApplication.update({
+    await this.rlsBypassPrisma.$transaction([
+      this.rlsBypassPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.rlsBypassPrisma.adoptionApplication.update({
         where: { id: applicationId },
         data: { score: result.total, scoreDetails: result as any },
       }),

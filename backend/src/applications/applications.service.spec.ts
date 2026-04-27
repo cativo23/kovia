@@ -221,7 +221,7 @@ describe('ApplicationsService', () => {
   });
 
   describe('findMyApplications', () => {
-    it("should return only the authenticated user's applications using publicPrisma with explicit userId filter", async () => {
+    it("should return only the authenticated user's applications using rlsBypassPrisma with explicit userId filter", async () => {
       const apps = [{ id: 'app-1', userId: 'user-1' }];
       mockPublicPrisma.adoptionApplication.findMany.mockResolvedValue(apps);
       mockPublicPrisma.adoptionApplication.count.mockResolvedValue(1);
@@ -252,7 +252,7 @@ describe('ApplicationsService', () => {
   });
 
   describe('findById', () => {
-    it('should use publicPrisma and include animal.organization (D-16 + D-19-BE)', async () => {
+    it('should use rlsBypassPrisma and include animal.organization (D-16 + D-19-BE)', async () => {
       mockPublicPrisma.adoptionApplication.findUnique.mockResolvedValue({
         id: 'app-1',
         userId: 'user-1',

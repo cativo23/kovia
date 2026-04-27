@@ -1,13 +1,13 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { PrismaService } from '../prisma/prisma.service';
+import { PublicPrismaService } from '../prisma/public-prisma.service';
 import { scoreApplication } from './engine';
 import { EventsService } from '../notifications/events.service';
 
 @Processor('scoring')
 export class ScoringProcessor extends WorkerHost {
   constructor(
-    private readonly publicPrisma: PrismaService,
+    private readonly rlsBypassPrisma: PublicPrismaService,
     private readonly eventsService: EventsService,
   ) {
     super();
@@ -24,9 +24,9 @@ export class ScoringProcessor extends WorkerHost {
     // breaking set_config scope. Split into: read → compute → write.
 
     // 1. Fetch application data with admin bypass
-    const [, application] = await this.publicPrisma.$transaction([
-      this.publicPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
-      this.publicPrisma.adoptionApplication.findUnique({
+    const [, application] = await this.rlsBypassPrisma.$transaction([
+      this.rlsBypassPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.rlsBypassPrisma.adoptionApplication.findUnique({
         where: { id: applicationId },
         include: {
           animal: { include: { species: true } },
@@ -38,9 +38,9 @@ export class ScoringProcessor extends WorkerHost {
     if (!application) return;
 
     // 2. Fetch adopter history (return count) for red flag detection
-    const [, returnCount] = await this.publicPrisma.$transaction([
-      this.publicPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
-      this.publicPrisma.adoptionApplication.count({
+    const [, returnCount] = await this.rlsBypassPrisma.$transaction([
+      this.rlsBypassPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.rlsBypassPrisma.adoptionApplication.count({
         where: { userId: application.userId, status: 'DEVUELTA' as any },
       }),
     ]);
@@ -70,9 +70,9 @@ export class ScoringProcessor extends WorkerHost {
     riskLevel = result.riskLevel;
 
     // 4. Write score back with admin bypass
-    await this.publicPrisma.$transaction([
-      this.publicPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
-      this.publicPrisma.adoptionApplication.update({
+    await this.rlsBypassPrisma.$transaction([
+      this.rlsBypassPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.rlsBypassPrisma.adoptionApplication.update({
         where: { id: applicationId },
         data: { score: result.total, scoreDetails: result as any },
       }),

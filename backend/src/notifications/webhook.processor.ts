@@ -1,6 +1,6 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { PrismaService } from '../prisma/prisma.service';
+import { PublicPrismaService } from '../prisma/public-prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 
@@ -15,7 +15,7 @@ export class WebhookProcessor extends WorkerHost {
   private readonly logger = new Logger(WebhookProcessor.name);
 
   constructor(
-    private readonly publicPrisma: PrismaService,
+    private readonly rlsBypassPrisma: PublicPrismaService,
     private readonly config: ConfigService,
   ) {
     super();
@@ -31,9 +31,9 @@ export class WebhookProcessor extends WorkerHost {
     }
 
     // Fetch outbox entry with admin bypass (batch transaction for adapter-pg compat)
-    const [, outbox] = await this.publicPrisma.$transaction([
-      this.publicPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
-      this.publicPrisma.webhookOutbox.findUnique({ where: { id: outboxId } }),
+    const [, outbox] = await this.rlsBypassPrisma.$transaction([
+      this.rlsBypassPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.rlsBypassPrisma.webhookOutbox.findUnique({ where: { id: outboxId } }),
     ]);
 
     if (!outbox) {
@@ -104,9 +104,9 @@ export class WebhookProcessor extends WorkerHost {
     status: string,
     lastError?: string,
   ) {
-    await this.publicPrisma.$transaction([
-      this.publicPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
-      this.publicPrisma.webhookOutbox.update({
+    await this.rlsBypassPrisma.$transaction([
+      this.rlsBypassPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.rlsBypassPrisma.webhookOutbox.update({
         where: { id: outboxId },
         data: {
           status,
@@ -123,9 +123,9 @@ export class WebhookProcessor extends WorkerHost {
     const now = new Date();
     const nextAttemptIn = 30000 * Math.pow(2, 1); // simplified — BullMQ handles actual retry delay
 
-    await this.publicPrisma.$transaction([
-      this.publicPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
-      this.publicPrisma.webhookOutbox.update({
+    await this.rlsBypassPrisma.$transaction([
+      this.rlsBypassPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
+      this.rlsBypassPrisma.webhookOutbox.update({
         where: { id: outboxId },
         data: {
           attempts: { increment: 1 },

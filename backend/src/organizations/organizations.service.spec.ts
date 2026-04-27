@@ -41,7 +41,7 @@ describe('OrganizationsService', () => {
   });
 
   describe('acceptInvite', () => {
-    // acceptInvite reads from publicPrisma (pre-auth lookup, RLS-bypass per D-09 phase 09)
+    // acceptInvite reads from rlsBypassPrisma (pre-auth lookup, RLS-bypass per D-09 phase 09)
     it('should validate token and return invite data', async () => {
       const futureDate = new Date(Date.now() + 86400000 * 3);
       mockPublicPrisma.orgInvite.findUnique.mockResolvedValue({
@@ -217,7 +217,7 @@ describe('OrganizationsService', () => {
   });
 
   describe('findBySlug', () => {
-    // findBySlug reads from publicPrisma (anonymous public org pages).
+    // findBySlug reads from rlsBypassPrisma (anonymous public org pages).
     it('should return org public profile', async () => {
       mockPublicPrisma.organization.findUnique.mockResolvedValue({
         id: 'org-1',

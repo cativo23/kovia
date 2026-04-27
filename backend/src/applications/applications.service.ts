@@ -37,7 +37,7 @@ const staffTransitions: Record<string, string[]> = {
 export class ApplicationsService {
   constructor(
     @Inject(PRISMA_RLS) private readonly prismaRls: any,
-    private readonly publicPrisma: PublicPrismaService,
+    private readonly rlsBypassPrisma: PublicPrismaService,
     private readonly uploadService: UploadService,
     private readonly auditService: AuditService,
     private readonly cls: ClsService,
@@ -47,7 +47,7 @@ export class ApplicationsService {
 
   async create(dto: CreateApplicationDto, user: UserContext) {
     // Lookup animal to get organizationId and verify availability
-    const animal = await this.publicPrisma.animal.findUnique({
+    const animal = await this.rlsBypassPrisma.animal.findUnique({
       where: { id: dto.animalId },
     });
 
@@ -62,9 +62,9 @@ export class ApplicationsService {
     }
 
     // Check uniqueness: one active (non-RETIRADA) application per animalId+userId.
-    // Use publicPrisma (RLS-bypass) with explicit userId filter for consistency with
+    // Use rlsBypassPrisma (RLS-bypass) with explicit userId filter for consistency with
     // other self-scoped adopter reads (D-19-BE) and to allow resubmit after withdraw (D-14/D-18-BE).
-    const existing = await this.publicPrisma.adoptionApplication.findFirst({
+    const existing = await this.rlsBypassPrisma.adoptionApplication.findFirst({
       where: {
         animalId: dto.animalId,
         userId: user.id,
@@ -127,9 +127,9 @@ export class ApplicationsService {
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
 
-    // Use publicPrisma (RLS-bypass). Authorization enforced via where: { userId } + findById ownership check.
+    // Use rlsBypassPrisma (RLS-bypass). Authorization enforced via where: { userId } + findById ownership check.
     const [data, total] = await Promise.all([
-      this.publicPrisma.adoptionApplication.findMany({
+      this.rlsBypassPrisma.adoptionApplication.findMany({
         where: { userId },
         skip,
         take: limit,
@@ -147,7 +147,7 @@ export class ApplicationsService {
           photos: { orderBy: { position: 'asc' }, take: 1 },
         },
       }),
-      this.publicPrisma.adoptionApplication.count({ where: { userId } }),
+      this.rlsBypassPrisma.adoptionApplication.count({ where: { userId } }),
     ]);
 
     return {
@@ -160,8 +160,8 @@ export class ApplicationsService {
   }
 
   async findById(id: string, userId: string) {
-    // Use publicPrisma (RLS-bypass). Ownership enforced via explicit userId check below.
-    const application = await this.publicPrisma.adoptionApplication.findUnique({
+    // Use rlsBypassPrisma (RLS-bypass). Ownership enforced via explicit userId check below.
+    const application = await this.rlsBypassPrisma.adoptionApplication.findUnique({
       where: { id },
       include: {
         photos: { orderBy: { position: 'asc' } },
@@ -266,8 +266,8 @@ export class ApplicationsService {
 
   async checkExisting(animalId: string, userId: string) {
     // D-18-BE: RETIRADA rows must not block re-application (D-14).
-    // Use publicPrisma for consistency with the other self-scoped adopter reads (D-19-BE).
-    const application = await this.publicPrisma.adoptionApplication.findFirst({
+    // Use rlsBypassPrisma for consistency with the other self-scoped adopter reads (D-19-BE).
+    const application = await this.rlsBypassPrisma.adoptionApplication.findFirst({
       where: { animalId, userId, status: { not: 'RETIRADA' } },
       select: { id: true },
     });
@@ -328,8 +328,8 @@ export class ApplicationsService {
   }
 
   async withdraw(id: string, userId: string) {
-    // Use publicPrisma — adopter has no org context
-    const application = await this.publicPrisma.adoptionApplication.findUnique({
+    // Use rlsBypassPrisma — adopter has no org context
+    const application = await this.rlsBypassPrisma.adoptionApplication.findUnique({
       where: { id },
     });
 
@@ -349,7 +349,7 @@ export class ApplicationsService {
       );
     }
 
-    const updated = await this.publicPrisma.adoptionApplication.update({
+    const updated = await this.rlsBypassPrisma.adoptionApplication.update({
       where: { id },
       data: { status: 'RETIRADA' },
     });

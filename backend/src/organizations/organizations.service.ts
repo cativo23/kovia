@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
 import { PRISMA_RLS } from '../prisma/prisma.module';
-import { PrismaService } from '../prisma/prisma.service';
+import { PublicPrismaService } from '../prisma/public-prisma.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 
@@ -14,11 +14,11 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 export class OrganizationsService {
   constructor(
     @Inject(PRISMA_RLS) private readonly prisma: any,
-    private readonly publicPrisma: PrismaService,
+    private readonly rlsBypassPrisma: PublicPrismaService,
   ) {}
 
   async acceptInvite(token: string) {
-    const invite = await this.publicPrisma.orgInvite.findUnique({
+    const invite = await this.rlsBypassPrisma.orgInvite.findUnique({
       where: { token },
     });
 
@@ -98,7 +98,7 @@ export class OrganizationsService {
   }
 
   async findBySlug(slug: string) {
-    const org = await this.publicPrisma.organization.findUnique({
+    const org = await this.rlsBypassPrisma.organization.findUnique({
       where: { slug },
     });
 
