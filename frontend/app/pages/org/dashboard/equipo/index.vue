@@ -378,16 +378,19 @@ async function submitInvite() {
   }
 }
 
-async function handleRoleChange(member: TeamMember, newRole: string) {
-  const prev = member.role
-  // Optimistic
-  member.role = newRole as 'ORG_ADMIN' | 'ORG_STAFF'
+async function handleRoleChange(member: Row, newRole: string) {
+  // Mutate the backing members.value entry so orgAdminCount and isLastAdmin
+  // reflect the optimistic change immediately (row.original is a computed copy).
+  const backing = members.value.find(m => m.id === member.id)
+  if (!backing) return
+  const prev = backing.role
+  backing.role = newRole as 'ORG_ADMIN' | 'ORG_STAFF'
   changingRole.value = member.id
   try {
     await patch(`/team/members/${member.id}/role`, { role: newRole })
     toast.add({ title: t('team.roleUpdated'), color: 'success' })
   } catch (err: any) {
-    member.role = prev
+    backing.role = prev
     const backendMsg = err?.data?.message
     toast.add({
       title: typeof backendMsg === 'string' ? backendMsg : t('team.roleUpdateError'),
@@ -434,7 +437,10 @@ function openRemoveModal(row: Row) {
 
 const memberFullName = computed(() => {
   if (!memberToRemove.value) return ''
-  return `${memberToRemove.value.firstName ?? ''} ${memberToRemove.value.lastName ?? ''}`.trim()
+  const name = `${memberToRemove.value.firstName ?? ''} ${memberToRemove.value.lastName ?? ''}`.trim()
+  // Fall back to email (same as table display) so the modal confirm prompt is
+  // never empty when a member has no firstName/lastName.
+  return name || memberToRemove.value.email
 })
 
 const canConfirmRemove = computed(() =>
