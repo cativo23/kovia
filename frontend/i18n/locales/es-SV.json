@@ -806,6 +806,14 @@
     "otherOrg": "otra organizacion",
     "unknownSpecies": "Especie desconocida"
   },
+  "profile": {
+    "userInfoDescription": "Tu información personal de cuenta en Kovia.",
+    "name": "Nombre",
+    "email": "Correo",
+    "role": "Rol",
+    "notLoaded": "No se pudo cargar la información del usuario.",
+    "orgProfileComingSoon": "La edición del perfil de organización estará disponible próximamente."
+  },
   "notifications": {
     "bell": {
       "tooltip": "Notificaciones",
