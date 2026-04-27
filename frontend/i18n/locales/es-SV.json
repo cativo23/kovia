@@ -795,6 +795,10 @@
     "error": "No se pudo guardar la nota. Verifica tu conexion e intenta de nuevo."
   },
   "adoptantes": {
+    "pageSubtitle": "Para ver los adoptantes que han aplicado a tus animales, revisa la cola de aplicaciones.",
+    "goToApplications": "Ir a aplicaciones",
+    "detailedViewHeading": "Vista detallada por adoptante",
+    "detailedViewBody": "Desde la cola de aplicaciones puedes abrir la ficha de cada adoptante con su historial completo.",
     "historyHeading": "Historial del solicitante",
     "solicitudes": "solicitudes",
     "adoptados": "adoptados",

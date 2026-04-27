@@ -4,23 +4,23 @@
       <div>
         <h2 class="text-2xl font-bold">{{ t('org.nav.adopters') }}</h2>
         <p class="text-gray-500 mt-1">
-          Para ver los adoptantes que han aplicado a tus animales, revisa la cola de aplicaciones.
+          {{ t('adoptantes.pageSubtitle') }}
         </p>
       </div>
       <UButton
         to="/org/dashboard/aplicaciones"
         color="primary"
         icon="i-lucide-clipboard-list"
-        label="Ir a aplicaciones"
+        :label="t('adoptantes.goToApplications')"
       />
     </div>
 
     <UCard>
       <div class="py-12 text-center">
         <UIcon name="i-lucide-users" class="w-12 h-12 text-gray-300 mx-auto" />
-        <p class="text-lg font-bold mt-4">Vista detallada por adoptante</p>
+        <p class="text-lg font-bold mt-4">{{ t('adoptantes.detailedViewHeading') }}</p>
         <p class="text-sm text-gray-500 mt-2 max-w-md mx-auto">
-          Desde la cola de aplicaciones puedes abrir la ficha de cada adoptante con su historial completo.
+          {{ t('adoptantes.detailedViewBody') }}
         </p>
       </div>
     </UCard>
