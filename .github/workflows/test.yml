@@ -65,6 +65,12 @@ jobs:
       - name: Generate Prisma client
         run: npm run prisma:generate
 
+      - name: Type-check (tsc --noEmit)
+        # SWC builder skips type-checking at build time ("typeCheck": false in
+        # nest-cli.json). This step is the enforcement point — any type error
+        # that would be silently swallowed by the SWC build is caught here.
+        run: npx tsc --noEmit
+
       - name: Run schema migrations
         run: npm run prisma:migrate:deploy
 

@@ -5,6 +5,7 @@
   "compilerOptions": {
     "builder": "swc",
     "typeCheck": false,
+    "_typeCheckNote": "Type-checking is disabled in SWC build for speed. A tsc --noEmit step in CI (test.yml) enforces type correctness instead.",
     "deleteOutDir": true,
     "watchAssets": true,
     "assets": [
