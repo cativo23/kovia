@@ -27,10 +27,10 @@
 
 - [x] **POLISH-01:** D-15 resolved — either org-member fan-out on application events is implemented, OR CONTEXT/REQUIREMENTS text updated to match the webhook+email-only reality (not both silently disagreeing) (resolved 2026-04-27 via docs-only correction; webhook+email-only is intended behavior)
 - [ ] **POLISH-02:** `.planning/phases/07-bull-board-queue-observability/07-VERIFICATION.md` and `.planning/phases/10-adopter-dashboard/10-VERIFICATION.md` exist (artifact parity with 06/08/09)
-- [ ] **POLISH-03:** Phase-9 i18n rot fixed — demote tooltip copy refined (per 09-03-SUMMARY followup list)
-- [ ] **POLISH-04:** Nest SWC `watchAssets` picks up new `.hbs` templates in dev (DX)
-- [ ] **POLISH-05:** Broken sidebar links fixed or removed: `/org/dashboard/adoptantes`, `/org/dashboard/perfil`
-- [ ] **POLISH-06:** OAuth redirect preservation handles `/login?redirect=/x` — sessionStorage captures the full intended path, not just `/login`
+- [x] **POLISH-03:** Phase-9 i18n rot fixed — demote tooltip copy refined (per 09-03-SUMMARY followup list) (resolved 2026-04-27: added `lastAdminDemoteTooltip` key, role-dropdown uses "degradar" copy)
+- [x] **POLISH-04:** Nest SWC `watchAssets` picks up new `.hbs` templates in dev (DX) (resolved 2026-04-27: moved flag to top-level `compilerOptions.watchAssets`)
+- [x] **POLISH-05:** Broken sidebar links fixed or removed: `/org/dashboard/adoptantes`, `/org/dashboard/perfil` (resolved 2026-04-27: stub pages created)
+- [x] **POLISH-06:** OAuth redirect preservation handles `/login?redirect=/x` — sessionStorage captures the full intended path, not just `/login` (resolved 2026-04-27: `loginWithGoogle` uses `route.path` check + extracts `redirect` query param)
 
 ---
 
@@ -71,7 +71,7 @@
 | PATTERN-04 | Phase 12 | Complete |
 | POLISH-01  | Phase 13 | Complete |
 | POLISH-02  | Phase 12 | Complete |
-| POLISH-03  | Phase 13 | Pending |
-| POLISH-04  | Phase 13 | Pending |
-| POLISH-05  | Phase 13 | Pending |
-| POLISH-06  | Phase 13 | Pending |
+| POLISH-03  | Phase 13 | Complete |
+| POLISH-04  | Phase 13 | Complete |
+| POLISH-05  | Phase 13 | Complete |
+| POLISH-06  | Phase 13 | Complete |
