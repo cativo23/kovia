@@ -53,7 +53,7 @@
             variant="subtle"
             :label="row.original.role === 'ORG_STAFF' ? t('team.roles.staff') : row.original.role"
           />
-          <UTooltip v-else-if="isLastAdmin(row.original)" :text="t('team.lastAdminTooltip')">
+          <UTooltip v-else-if="isLastAdmin(row.original)" :text="t('team.lastAdminDemoteTooltip')">
             <USelect
               :model-value="row.original.role"
               :items="roleItems"

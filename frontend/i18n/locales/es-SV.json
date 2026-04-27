@@ -434,6 +434,7 @@
     "removeSuccess": "Miembro removido del equipo",
     "removeError": "No se pudo remover al miembro",
     "lastAdminTooltip": "No puedes remover al único administrador",
+    "lastAdminDemoteTooltip": "No puedes degradar al único administrador",
     "removeModal": {
       "heading": "Remover miembro",
       "body": "Esta acción removerá a {name} de tu organización. Su rol volverá a Adoptante y su historial se conservará.",
