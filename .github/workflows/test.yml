@@ -90,5 +90,8 @@ jobs:
             exit 1
           fi
 
+      - name: Integration-spec mandate (PATTERN-03)
+        run: npx tsx scripts/check-integration-specs.ts
+
       - name: Run tests
         run: npm test
