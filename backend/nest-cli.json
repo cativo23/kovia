@@ -6,11 +6,11 @@
     "builder": "swc",
     "typeCheck": false,
     "deleteOutDir": true,
+    "watchAssets": true,
     "assets": [
       {
         "include": "mail/templates/**/*.hbs",
-        "outDir": "dist",
-        "watchAssets": true
+        "outDir": "dist"
       }
     ]
   }
