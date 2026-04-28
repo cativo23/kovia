@@ -2,7 +2,25 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
 
-  modules: ['@nuxt/ui', '@pinia/nuxt', '@nuxtjs/i18n'],
+  modules: ['@nuxt/ui', 'motion-v/nuxt', '@pinia/nuxt', '@nuxtjs/i18n'],
+
+  // Phase 14-03 / DESIGN-02 — Inter font preload (D-05).
+  // The actual WOFF2 path served by @fontsource-variable/inter resolves under
+  // Nuxt's _fonts/ output directory; the verifier should confirm the network
+  // tab shows the preload hit and adjust href if the package version changes.
+  app: {
+    head: {
+      link: [
+        {
+          rel: 'preload',
+          as: 'font',
+          type: 'font/woff2',
+          href: '/_fonts/inter-latin-wght-normal.woff2',
+          crossorigin: 'anonymous',
+        },
+      ],
+    },
+  },
 
   // Phase 14-02 / DESIGN-01 — color-mode (auto-registered by @nuxt/ui v4).
   // D-04: localStorage key 'kovia-theme'; first-visit honors prefers-color-scheme.
@@ -57,5 +75,6 @@ export default defineNuxtConfig({
 
   css: [
     '~/assets/css/main.css',
+    '@fontsource-variable/inter',
   ],
 });

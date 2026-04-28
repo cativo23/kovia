@@ -1,27 +1,48 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-
-/**
- * RED: Wave 0 stub for DESIGN-02 display typography component.
- *
- * Plan 03 lands `<KDisplay>` — the hero typography primitive that animates
- * Inter's `wght` axis 800→900 on hover (D-07). This spec MUST fail today
- * because `~/components/typography/KDisplay.vue` does not yet exist.
- */
-
-// @ts-expect-error - KDisplay does not exist until Plan 03 (RED gate)
 import KDisplay from '~/components/typography/KDisplay.vue'
 
-describe('KDisplay (DESIGN-02) [RED — Plan 03 turns GREEN]', () => {
-  it('renders an element with class "k-display"', () => {
-    const wrapper = mount(KDisplay, { slots: { default: 'Hola' } })
-    expect(wrapper.classes()).toContain('k-display')
+/**
+ * GREEN (Plan 14-03 / DESIGN-02): assert that <KDisplay> wires the motion-v
+ * spring chain to font-variation-settings on a `k-display` h1.
+ *
+ * <motion.h1> is auto-imported by motion-v/nuxt at runtime, but the vitest
+ * happy-dom environment has no Nuxt runtime — so we stub `motion.h1` with a
+ * passthrough <h1> that forwards class/style. The assertions only verify the
+ * static binding wiring (presence of class, presence of font-variation-settings
+ * referencing the wght axis); they do NOT verify spring animation frames,
+ * which are not observable in happy-dom (D-13).
+ */
+
+const motionH1Stub = {
+  name: 'motion-h1',
+  inheritAttrs: true,
+  template: '<h1 :style="$attrs.style" :class="$attrs.class"><slot /></h1>',
+}
+
+const globalStubs = {
+  // motion-v exposes <motion.h1> via its nuxt module's component resolver.
+  // In Vue's component name registry that resolves to "motion.h1" / "motion-h1".
+  'motion.h1': motionH1Stub,
+}
+
+describe('KDisplay (DESIGN-02)', () => {
+  it('renders default slot inside an h1 with the k-display class', () => {
+    const wrapper = mount(KDisplay, {
+      slots: { default: 'Hola' },
+      global: { stubs: globalStubs },
+    })
+    expect(wrapper.text()).toContain('Hola')
+    expect(wrapper.html()).toMatch(/class="[^"]*k-display/)
   })
 
-  it('exposes a font-variation-settings binding referencing the wght axis', () => {
-    const wrapper = mount(KDisplay, { slots: { default: 'Hola' } })
-    const style = wrapper.attributes('style') ?? ''
-    expect(style).toMatch(/font-variation-settings/i)
-    expect(style).toMatch(/wght/i)
+  it("style binding includes font-variation-settings referencing the wght axis", () => {
+    const wrapper = mount(KDisplay, {
+      slots: { default: 'X' },
+      global: { stubs: globalStubs },
+    })
+    const html = wrapper.html()
+    expect(html).toMatch(/font-variation-settings/i)
+    expect(html).toMatch(/wght/)
   })
 })
