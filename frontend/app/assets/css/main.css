@@ -112,3 +112,13 @@
   --color-text-muted:   color-mix(in srgb, #FEF3E2 65%, transparent);
   --color-border:       color-mix(in srgb, #FEF3E2 15%, transparent);
 }
+
+/*
+ * Phase 14-03 / DESIGN-02 — apply Inter as the default body font via the
+ * pre-wired --font-body chain (Plan 02 registered the token; Plan 03 wires it).
+ */
+@layer base {
+  body {
+    font-family: var(--font-body);
+  }
+}
