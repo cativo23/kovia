@@ -1,0 +1,77 @@
+/**
+ * Canonical 63-icon list for Phase 14 design system.
+ *
+ * Source: `grep -rohE "i-lucide-[a-z-]+" frontend/app --include="*.vue" | sort -u`
+ * confirmed on 2026-04-27. Plans 04/05 hand-author paw-based SVGs for each name;
+ * Plan 07 removes @iconify-json/lucide and nuxt-lucide-icons once migration completes.
+ *
+ * If a new Lucide icon is introduced before Phase 14 ships, append it here AND author
+ * a matching SVG component — D-10b is a hard rule with no exceptions.
+ */
+export const ALL_ICON_NAMES = [
+  'activity',
+  'alert-circle',
+  'archive',
+  'archive-restore',
+  'arrow-left',
+  'arrow-right',
+  'baby',
+  'bell',
+  'building',
+  'building-2',
+  'calendar',
+  'cat',
+  'check',
+  'check-circle',
+  'chevron-left',
+  'chevron-right',
+  'chevron-up',
+  'circle-check-big',
+  'clipboard-list',
+  'clock',
+  'dog',
+  'expand',
+  'external-link',
+  'facebook',
+  'file-text',
+  'graduation-cap',
+  'heart',
+  'image-off',
+  'instagram',
+  'layout-dashboard',
+  'layout-grid',
+  'link',
+  'list',
+  'loader-2',
+  'log-out',
+  'mail',
+  'mail-check',
+  'mail-plus',
+  'message-circle',
+  'more-horizontal',
+  'party-popper',
+  'paw-print',
+  'pencil',
+  'phone',
+  'plus',
+  'ruler',
+  'save',
+  'search',
+  'send',
+  'shield',
+  'shield-check',
+  'sliders-horizontal',
+  'star',
+  'trash-2',
+  'upload-cloud',
+  'user',
+  'user-minus',
+  'user-plus',
+  'users',
+  'users-round',
+  'x',
+  'x-circle',
+  'zap',
+] as const;
+
+export type IconName = (typeof ALL_ICON_NAMES)[number];
