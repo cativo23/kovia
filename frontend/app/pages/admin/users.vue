@@ -9,10 +9,11 @@
     <div class="flex gap-3 mb-4">
       <UInput
         v-model="searchQuery"
-        icon="i-lucide-search"
+       
         :placeholder="$t('admin.users.searchPlaceholder')"
-        class="w-64"
-      />
+        class="w-64">
+          <template #leading><KIcon name="search" /></template>
+        </UInput>
       <USelectMenu
         v-model="roleFilter"
         :items="roleOptions"
@@ -23,7 +24,7 @@
 
     <UCard>
       <div v-if="loading" class="flex justify-center py-8">
-        <UIcon name="i-lucide-loader-2" class="w-6 h-6 animate-spin" />
+        <KIcon name="loader-2" :size="24" class="animate-spin" />
       </div>
       <UTable v-else :data="filteredUsers" :columns="columns">
         <template #role-cell="{ row }">
@@ -63,9 +64,10 @@
               size="xs"
               variant="outline"
               color="error"
-              icon="i-lucide-trash-2"
-              @click="confirmDelete(row.original)"
-            />
+             
+              @click="confirmDelete(row.original)">
+          <template #leading><KIcon name="trash-2" /></template>
+        </UButton>
           </div>
         </template>
       </UTable>

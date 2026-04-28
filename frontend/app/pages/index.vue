@@ -3,7 +3,7 @@
     <!-- Hero section -->
     <section class="py-16 text-center">
       <div class="max-w-3xl mx-auto">
-        <UIcon name="i-lucide-paw-print" class="w-16 h-16 text-primary mx-auto mb-4" />
+        <KIcon name="paw-print" :size="64" class="text-primary mx-auto mb-4" />
         <h1 class="text-4xl sm:text-5xl font-bold text-[--color-text] mb-4">
           {{ $t('landing.hero.title') }}
         </h1>
@@ -11,7 +11,9 @@
           {{ $t('landing.hero.subtitle') }}
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <UButton size="xl" to="/animales" icon="i-lucide-search" :label="$t('landing.hero.cta')" />
+          <UButton size="xl" to="/animales" :label="$t('landing.hero.cta')">
+          <template #leading><KIcon name="search" /></template>
+        </UButton>
           <UButton
             v-if="!isAuthenticated"
             size="xl"
@@ -34,7 +36,7 @@
           class="text-primary hover:underline text-sm font-medium flex items-center gap-1"
         >
           {{ $t('landing.featured.viewAll') }}
-          <UIcon name="i-lucide-arrow-right" class="w-4 h-4" />
+          <KIcon name="arrow-right" :size="16" />
         </NuxtLink>
       </div>
 
@@ -50,7 +52,7 @@
 
     <!-- Org CTA section -->
     <section class="py-12 bg-amber-50 bg-warning/20 rounded-2xl px-8 text-center mt-8">
-      <UIcon name="i-lucide-building-2" class="w-12 h-12 text-primary mx-auto mb-4" />
+      <KIcon name="building-2" :size="48" class="text-primary mx-auto mb-4" />
       <h2 class="text-2xl font-bold text-[--color-text] mb-2">
         {{ $t('landing.orgCta.title') }}
       </h2>

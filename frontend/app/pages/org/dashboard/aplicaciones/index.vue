@@ -48,11 +48,11 @@
     <!-- Table -->
     <UCard>
       <div v-if="loading" class="flex justify-center py-8">
-        <UIcon name="i-lucide-loader-2" class="w-6 h-6 animate-spin" />
+        <KIcon name="loader-2" :size="24" class="animate-spin" />
       </div>
 
       <div v-else-if="applications.length === 0" class="text-center py-12">
-        <UIcon name="i-lucide-clipboard-list" class="w-12 h-12 mx-auto mb-4 text-gray-300" />
+        <KIcon name="clipboard-list" :size="48" class="mx-auto mb-4 text-gray-300" />
         <p class="text-lg font-semibold text-[--color-text]/70 mb-2">
           {{ $t('applications.queue.empty.heading') }}
         </p>
@@ -85,7 +85,7 @@
               v-else
               class="w-10 h-10 rounded-lg bg-[--color-border]/40 flex items-center justify-center flex-shrink-0"
             >
-              <UIcon name="i-lucide-paw-print" class="w-5 h-5 text-gray-400" />
+              <KIcon name="paw-print" :size="20" class="text-gray-400" />
             </div>
             <span>{{ row.original.animal?.name ?? '-' }}</span>
           </div>

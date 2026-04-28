@@ -19,7 +19,7 @@
             class="w-full h-full object-cover transition-transform group-hover:scale-105"
           />
           <div v-else class="w-full h-full flex items-center justify-center">
-            <UIcon name="i-lucide-paw-print" class="w-16 h-16 text-amber-300" />
+            <KIcon name="paw-print" :size="64" class="text-amber-300" />
           </div>
           <!-- Species badge -->
           <div class="absolute top-2 left-2">
@@ -42,11 +42,11 @@
         <!-- Age, size, energy -->
         <div class="flex flex-wrap gap-1 text-xs text-[--color-text]/70">
           <span v-if="animal.ageMonths !== null" class="flex items-center gap-1">
-            <UIcon name="i-lucide-calendar" class="w-3 h-3" />
+            <KIcon name="calendar" :size="12" />
             {{ formatAge(animal.ageMonths) }}
           </span>
           <span v-if="animal.size" class="flex items-center gap-1">
-            <UIcon name="i-lucide-ruler" class="w-3 h-3" />
+            <KIcon name="ruler" :size="12" />
             {{ $t(`animals.form.sizeOptions.${sizeKey(animal.size)}`) }}
           </span>
         </div>
@@ -54,23 +54,23 @@
         <!-- Compatibility badges -->
         <div class="flex flex-wrap gap-1">
           <UBadge v-if="animal.goodWithKids" color="success" variant="soft" size="xs">
-            <UIcon name="i-lucide-baby" class="w-3 h-3 mr-1" />{{ $t('listings.compat.kids') }}
+            <KIcon name="baby" :size="12" class="mr-1" />{{ $t('listings.compat.kids') }}
           </UBadge>
           <UBadge v-if="animal.goodWithDogs" color="success" variant="soft" size="xs">
-            <UIcon name="i-lucide-dog" class="w-3 h-3 mr-1" />{{ $t('listings.compat.dogs') }}
+            <KIcon name="dog" :size="12" class="mr-1" />{{ $t('listings.compat.dogs') }}
           </UBadge>
           <UBadge v-if="animal.goodWithCats" color="success" variant="soft" size="xs">
-            <UIcon name="i-lucide-cat" class="w-3 h-3 mr-1" />{{ $t('listings.compat.cats') }}
+            <KIcon name="cat" :size="12" class="mr-1" />{{ $t('listings.compat.cats') }}
           </UBadge>
         </div>
 
         <!-- Health badges -->
         <div class="flex flex-wrap gap-1">
           <UBadge v-if="animal.vaccinated" color="info" variant="soft" size="xs">
-            <UIcon name="i-lucide-shield-check" class="w-3 h-3 mr-1" />{{ $t('listings.health.vaccinated') }}
+            <KIcon name="shield-check" :size="12" class="mr-1" />{{ $t('listings.health.vaccinated') }}
           </UBadge>
           <UBadge v-if="animal.sterilized" color="info" variant="soft" size="xs">
-            <UIcon name="i-lucide-check-circle" class="w-3 h-3 mr-1" />{{ $t('listings.health.sterilized') }}
+            <KIcon name="check-circle" :size="12" class="mr-1" />{{ $t('listings.health.sterilized') }}
           </UBadge>
         </div>
 
@@ -95,7 +95,7 @@
           class="w-full h-full object-cover"
         />
         <div v-else class="w-full h-full flex items-center justify-center">
-          <UIcon name="i-lucide-paw-print" class="w-8 h-8 text-amber-300" />
+          <KIcon name="paw-print" :size="32" class="text-amber-300" />
         </div>
       </div>
 

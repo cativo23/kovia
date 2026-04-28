@@ -1,9 +1,7 @@
 <template>
   <div class="flex flex-col items-center justify-center py-16 text-center">
-    <UIcon
-      name="i-lucide-paw-print"
-      class="w-20 h-20 text-amber-200 text-warning mb-6"
-    />
+    <KIcon name="paw-print" :size="80"
+      class="text-amber-200 text-warning mb-6" />
 
     <template v-if="variant === 'filtered'">
       <h3 class="text-xl font-semibold text-[--color-text]/70 mb-2">
@@ -15,10 +13,11 @@
       <UButton
         color="primary"
         variant="outline"
-        icon="i-lucide-x"
+       
         :label="$t('listings.clearAll')"
-        @click="emit('clearFilters')"
-      />
+        @click="emit('clearFilters')">
+          <template #leading><KIcon name="x" /></template>
+        </UButton>
     </template>
 
     <template v-else>

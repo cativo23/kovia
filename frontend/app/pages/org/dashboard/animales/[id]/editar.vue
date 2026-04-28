@@ -6,7 +6,7 @@
         to="/org/dashboard/animales"
         class="text-sm text-gray-500 hover:text-primary inline-flex items-center gap-1 mb-2"
       >
-        <UIcon name="i-lucide-arrow-left" class="w-4 h-4" />
+        <KIcon name="arrow-left" :size="16" />
         {{ $t('animals.title') }}
       </NuxtLink>
       <h2 class="text-2xl font-bold">{{ $t('animals.edit.title') }}</h2>
@@ -14,12 +14,12 @@
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-12">
-      <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary" />
+      <KIcon name="loader-2" :size="32" class="animate-spin text-primary" />
     </div>
 
     <!-- Not Found -->
     <UCard v-else-if="notFound" class="text-center py-8">
-      <UIcon name="i-lucide-alert-circle" class="w-12 h-12 mx-auto mb-4 text-gray-400" />
+      <KIcon name="alert-circle" :size="48" class="mx-auto mb-4 text-gray-400" />
       <p class="text-gray-500">{{ $t('common.noResults') }}</p>
     </UCard>
 

@@ -7,32 +7,34 @@
         <p class="text-gray-500 mt-1">{{ t('team.description') }}</p>
       </div>
       <UButton
-        icon="i-lucide-user-plus"
+       
         color="primary"
         :label="t('team.invite')"
-        @click="openInviteSlider"
-      />
+        @click="openInviteSlider">
+          <template #leading><KIcon name="user-plus" /></template>
+        </UButton>
     </div>
 
     <!-- Loading -->
     <UCard v-if="loading" class="py-12">
       <div class="flex justify-center">
-        <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary" />
+        <KIcon name="loader-2" :size="32" class="animate-spin text-primary" />
       </div>
     </UCard>
 
     <!-- Empty state -->
     <UCard v-else-if="rows.length === 0">
       <div class="py-12 text-center">
-        <UIcon name="i-lucide-users" class="w-12 h-12 text-gray-300 mx-auto" />
+        <KIcon name="users" :size="48" class="text-gray-300 mx-auto" />
         <p class="text-lg font-bold mt-4">{{ t('team.empty.heading') }}</p>
         <p class="text-sm text-gray-500 mt-2">{{ t('team.empty.body') }}</p>
         <UButton
-          icon="i-lucide-user-plus"
+         
           class="mt-6"
           :label="t('team.invite')"
-          @click="openInviteSlider"
-        />
+          @click="openInviteSlider">
+          <template #leading><KIcon name="user-plus" /></template>
+        </UButton>
       </div>
     </UCard>
 
@@ -84,20 +86,22 @@
             <UButton
               size="xs"
               variant="outline"
-              icon="i-lucide-send"
+             
               :loading="resending === row.original.id"
               :label="t('team.resendInvite')"
-              @click="handleResend(row.original)"
-            />
+              @click="handleResend(row.original)">
+          <template #leading><KIcon name="send" /></template>
+        </UButton>
             <UButton
               size="xs"
               color="error"
               variant="outline"
-              icon="i-lucide-x"
+             
               :loading="revoking === row.original.id"
               :label="t('team.revokeInvite')"
-              @click="handleRevoke(row.original)"
-            />
+              @click="handleRevoke(row.original)">
+          <template #leading><KIcon name="x" /></template>
+        </UButton>
           </div>
           <div v-else>
             <UTooltip v-if="isLastAdmin(row.original)" :text="t('team.lastAdminTooltip')">
@@ -105,20 +109,22 @@
                 size="xs"
                 color="error"
                 variant="outline"
-                icon="i-lucide-user-minus"
+               
                 disabled
-                :label="t('team.removeMember')"
-              />
+                :label="t('team.removeMember')">
+          <template #leading><KIcon name="user-minus" /></template>
+        </UButton>
             </UTooltip>
             <UButton
               v-else
               size="xs"
               color="error"
               variant="outline"
-              icon="i-lucide-user-minus"
+             
               :label="t('team.removeMember')"
-              @click="openRemoveModal(row.original)"
-            />
+              @click="openRemoveModal(row.original)">
+          <template #leading><KIcon name="user-minus" /></template>
+        </UButton>
           </div>
         </template>
       </UTable>
@@ -148,9 +154,10 @@
           <UAlert
             v-if="conflictError"
             color="error"
-            icon="i-lucide-alert-circle"
-            :title="t('team.inviteConflict')"
-          />
+           
+            :title="t('team.inviteConflict')">
+          <template #leading><KIcon name="alert-circle" /></template>
+        </UAlert>
         </form>
       </template>
       <template #footer>

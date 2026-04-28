@@ -20,7 +20,7 @@
           <p class="font-medium">{{ currentUser.role }}</p>
         </div>
         <div v-else class="text-center py-8">
-          <UIcon name="i-lucide-user" class="w-12 h-12 text-gray-300 mx-auto" />
+          <KIcon name="user" :size="48" class="text-gray-300 mx-auto" />
           <p class="text-sm text-gray-500 mt-4">
             {{ t('profile.notLoaded') }}
           </p>
@@ -28,7 +28,7 @@
 
         <!-- Org profile placeholder -->
         <div class="border-t pt-4 mt-4 text-center">
-          <UIcon name="i-lucide-building-2" class="w-8 h-8 text-gray-300 mx-auto" />
+          <KIcon name="building-2" :size="32" class="text-gray-300 mx-auto" />
           <p class="text-sm text-gray-500 mt-2">
             {{ t('profile.orgProfileComingSoon') }}
           </p>

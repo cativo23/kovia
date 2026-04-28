@@ -4,10 +4,11 @@
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-2xl font-bold">{{ $t('animals.title') }}</h2>
       <UButton
-        icon="i-lucide-plus"
+       
         :label="$t('animals.create')"
-        to="/org/dashboard/animales/nuevo"
-      />
+        to="/org/dashboard/animales/nuevo">
+          <template #leading><KIcon name="plus" /></template>
+        </UButton>
     </div>
 
     <!-- Filters -->
@@ -34,26 +35,28 @@
         <UInput
           v-model="searchQuery"
           :placeholder="$t('animals.search')"
-          icon="i-lucide-search"
-          @update:model-value="debouncedSearch"
-        />
+         
+          @update:model-value="debouncedSearch">
+          <template #leading><KIcon name="search" /></template>
+        </UInput>
       </div>
     </div>
 
     <!-- Table -->
     <UCard>
       <div v-if="loading" class="flex justify-center py-8">
-        <UIcon name="i-lucide-loader-2" class="w-6 h-6 animate-spin" />
+        <KIcon name="loader-2" :size="24" class="animate-spin" />
       </div>
 
       <div v-else-if="animals.length === 0" class="text-center py-12">
-        <UIcon name="i-lucide-paw-print" class="w-12 h-12 mx-auto mb-4 text-gray-300" />
+        <KIcon name="paw-print" :size="48" class="mx-auto mb-4 text-gray-300" />
         <p class="text-gray-500 mb-4">{{ $t('animals.empty') }}</p>
         <UButton
-          icon="i-lucide-plus"
+         
           :label="$t('animals.create')"
-          to="/org/dashboard/animales/nuevo"
-        />
+          to="/org/dashboard/animales/nuevo">
+          <template #leading><KIcon name="plus" /></template>
+        </UButton>
       </div>
 
       <UTable v-else :data="animals" :columns="columns">
@@ -65,7 +68,7 @@
             class="w-12 h-12 rounded-lg object-cover"
           />
           <div v-else class="w-12 h-12 rounded-lg bg-[--color-border]/40 flex items-center justify-center">
-            <UIcon name="i-lucide-paw-print" class="w-6 h-6 text-gray-400" />
+            <KIcon name="paw-print" :size="24" class="text-gray-400" />
           </div>
         </template>
 
@@ -90,9 +93,12 @@
             <UButton
               color="neutral"
               variant="ghost"
-              icon="i-lucide-more-horizontal"
-              size="sm"
-            />
+              size="sm">
+              <template #leading><KIcon name="more-horizontal" /></template>
+            </UButton>
+            <template #item-leading="{ item }">
+              <KIcon v-if="item.kicon" :name="item.kicon" :size="16" />
+            </template>
           </UDropdownMenu>
         </template>
       </UTable>
@@ -106,20 +112,22 @@
           <UButton
             variant="outline"
             size="sm"
-            icon="i-lucide-chevron-left"
+           
             :disabled="page <= 1"
-            @click="page--; loadAnimals()"
-          />
+            @click="page--; loadAnimals()">
+          <template #leading><KIcon name="chevron-left" /></template>
+        </UButton>
           <span class="flex items-center px-3 text-sm text-[--color-text]/70">
             {{ page }} / {{ totalPages }}
           </span>
           <UButton
             variant="outline"
             size="sm"
-            icon="i-lucide-chevron-right"
+           
             :disabled="page >= totalPages"
-            @click="page++; loadAnimals()"
-          />
+            @click="page++; loadAnimals()">
+          <template #leading><KIcon name="chevron-right" /></template>
+        </UButton>
         </div>
       </div>
     </UCard>
@@ -287,7 +295,7 @@ function getActionItems(animal: Animal) {
   const items: any[][] = [
     [{
       label: t('animals.actions.edit'),
-      icon: 'i-lucide-pencil',
+      kicon: 'pencil',
       to: `/org/dashboard/animales/${animal.id}/editar`,
     }],
   ]
@@ -298,21 +306,21 @@ function getActionItems(animal: Animal) {
     if (animal.status !== 'AVAILABLE') {
       statusOptions.push({
         label: t('animals.status.available'),
-        icon: 'i-lucide-check-circle',
+        kicon: 'check-circle',
         onSelect: () => changeStatus(animal, 'AVAILABLE'),
       })
     }
     if (animal.status !== 'IN_PROCESS') {
       statusOptions.push({
         label: t('animals.status.inProcess'),
-        icon: 'i-lucide-clock',
+        kicon: 'clock',
         onSelect: () => changeStatus(animal, 'IN_PROCESS'),
       })
     }
     if (animal.status !== 'ADOPTED') {
       statusOptions.push({
         label: t('animals.status.adopted'),
-        icon: 'i-lucide-heart',
+        kicon: 'heart',
         onSelect: () => changeStatus(animal, 'ADOPTED'),
       })
     }
@@ -326,13 +334,13 @@ function getActionItems(animal: Animal) {
   if (animal.status !== 'ARCHIVED') {
     archiveActions.push({
       label: t('animals.actions.archive'),
-      icon: 'i-lucide-archive',
+      kicon: 'archive',
       onSelect: () => confirmArchive(animal),
     })
   } else {
     archiveActions.push({
       label: t('animals.actions.restore'),
-      icon: 'i-lucide-archive-restore',
+      kicon: 'archive-restore',
       onSelect: () => confirmRestore(animal),
     })
   }
@@ -341,7 +349,7 @@ function getActionItems(animal: Animal) {
   // Delete
   items.push([{
     label: t('animals.actions.delete'),
-    icon: 'i-lucide-trash-2',
+    kicon: 'trash-2',
     color: 'error' as const,
     onSelect: () => confirmDelete(animal),
   }])

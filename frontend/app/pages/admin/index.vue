@@ -10,7 +10,7 @@
       <UCard v-for="stat in statsCards" :key="stat.label">
         <div class="flex items-center gap-3">
           <div class="p-2 rounded-lg bg-primary/10">
-            <UIcon :name="stat.icon" class="w-6 h-6 text-primary" />
+            <KIcon :name="stat.icon" :size="24" class="text-primary" />
           </div>
           <div>
             <p class="text-2xl font-bold">{{ stat.value }}</p>
@@ -23,16 +23,18 @@
     <!-- Quick Actions -->
     <div class="flex gap-3 mb-8">
       <UButton
-        icon="i-lucide-mail-plus"
+       
         :label="$t('admin.invites.create')"
-        to="/admin/invites"
-      />
+        to="/admin/invites">
+          <template #leading><KIcon name="mail-plus" /></template>
+        </UButton>
       <UButton
         variant="outline"
-        icon="i-lucide-users"
+       
         :label="$t('admin.users.viewAll')"
-        to="/admin/users"
-      />
+        to="/admin/users">
+          <template #leading><KIcon name="users" /></template>
+        </UButton>
     </div>
 
     <!-- Recent Activity -->
@@ -41,7 +43,7 @@
         <h3 class="font-semibold">{{ $t('admin.recentActivity') }}</h3>
       </template>
       <div v-if="auditLoading" class="flex justify-center py-8">
-        <UIcon name="i-lucide-loader-2" class="w-6 h-6 animate-spin" />
+        <KIcon name="loader-2" :size="24" class="animate-spin" />
       </div>
       <div v-else-if="auditEntries.length === 0" class="text-center py-8 text-gray-500">
         {{ $t('common.noResults') }}
@@ -81,22 +83,22 @@ const statsCards = computed(() => [
   {
     label: t('admin.stats.totalUsers'),
     value: stats.value?.totalUsers ?? 0,
-    icon: 'i-lucide-users',
+    icon: 'users',
   },
   {
     label: t('admin.stats.activeOrgs'),
     value: stats.value?.activeOrgs ?? 0,
-    icon: 'i-lucide-building-2',
+    icon: 'building-2',
   },
   {
     label: t('admin.stats.inactiveOrgs'),
     value: stats.value?.inactiveOrgs ?? 0,
-    icon: 'i-lucide-building',
+    icon: 'building',
   },
   {
     label: t('admin.stats.pendingInvites'),
     value: stats.value?.pendingInvites ?? 0,
-    icon: 'i-lucide-mail',
+    icon: 'mail',
   },
 ])
 

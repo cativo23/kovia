@@ -2,7 +2,7 @@
   <div class="max-w-3xl mx-auto">
     <!-- Success State -->
     <div v-if="submitted" class="text-center py-16">
-      <UIcon name="i-lucide-circle-check-big" class="w-16 h-16 text-success mx-auto mb-4" />
+      <KIcon name="circle-check-big" :size="64" class="text-success mx-auto mb-4" />
       <h1 class="text-2xl font-bold mb-2">{{ $t('applications.success.heading') }}</h1>
       <p class="text-base text-gray-500 mb-6">{{ $t('applications.success.body') }}</p>
       <div class="flex flex-col sm:flex-row gap-3 justify-center">
@@ -19,7 +19,7 @@
           :to="`/animales/${animalId}`"
           class="text-sm text-gray-500 hover:text-primary inline-flex items-center gap-1 mb-2"
         >
-          <UIcon name="i-lucide-arrow-left" class="w-4 h-4" />
+          <KIcon name="arrow-left" :size="16" />
           {{ $t('detail.breadcrumb') }}
         </NuxtLink>
         <h2 class="text-2xl font-bold">{{ $t('detail.apply') }}</h2>
@@ -69,7 +69,7 @@
                   : 'bg-[--color-border]/40 text-gray-500'
             ]"
           >
-            <UIcon v-if="currentStep > index" name="i-lucide-check" class="w-4 h-4" />
+            <KIcon v-if="currentStep > index" name="check" :size="16" />
             <span v-else>{{ index + 1 }}</span>
           </div>
           <span
@@ -88,7 +88,7 @@
 
       <!-- Draft Saved Indicator -->
       <div v-if="lastSavedAt" class="text-xs text-gray-400 flex items-center gap-1 mb-2">
-        <UIcon name="i-lucide-save" class="w-3 h-3" />
+        <KIcon name="save" :size="12" />
         {{ $t('applications.draft.saved') }} {{ formattedSaveTime }}
       </div>
 
@@ -122,25 +122,30 @@
           <UButton
             v-if="currentStep > 0"
             variant="outline"
-            icon="i-lucide-arrow-left"
+           
             :label="$t('applications.wizard.prev')"
-            @click="prevStep"
-          />
+            @click="prevStep">
+          <template #leading><KIcon name="arrow-left" /></template>
+        </UButton>
           <div v-else />
 
           <UButton
             v-if="currentStep < steps.length - 1"
-            trailing-icon="i-lucide-arrow-right"
             :label="$t('applications.wizard.next')"
             @click="nextStep"
-          />
+          >
+            <template #trailing>
+              <KIcon name="arrow-right" :size="16" />
+            </template>
+          </UButton>
           <UButton
             v-else
-            icon="i-lucide-send"
+           
             :label="$t('applications.wizard.submit')"
             :loading="submitting"
-            @click="submitApplication"
-          />
+            @click="submitApplication">
+          <template #leading><KIcon name="send" /></template>
+        </UButton>
         </div>
       </UCard>
     </template>

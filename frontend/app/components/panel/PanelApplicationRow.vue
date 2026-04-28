@@ -13,11 +13,11 @@
             :alt="app.animal?.name || ''"
             class="w-full h-full object-cover"
           />
-          <UIcon
+          <KIcon
             v-else
-            name="i-lucide-paw-print"
-            class="w-6 h-6 text-gray-400 m-auto mt-3"
-            aria-hidden="true"
+            name="paw-print"
+            :size="24"
+            class="text-gray-400 m-auto mt-3"
           />
         </div>
 
@@ -33,11 +33,10 @@
               size="2xs"
               :alt="app.animal.organization.name"
             />
-            <UIcon
+            <KIcon
               v-else
-              name="i-lucide-building-2"
-              class="w-3 h-3"
-              aria-hidden="true"
+              name="building-2"
+              :size="12"
             />
             <span class="truncate">{{ app.animal?.organization?.name || '—' }}</span>
           </div>

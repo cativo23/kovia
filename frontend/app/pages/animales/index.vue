@@ -18,7 +18,7 @@
 
     <!-- Loading state -->
     <div v-if="pending" class="flex justify-center py-16">
-      <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary" />
+      <KIcon name="loader-2" :size="32" class="animate-spin text-primary" />
     </div>
 
     <!-- Empty state -->

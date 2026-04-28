@@ -1,6 +1,6 @@
 <template>
   <div v-if="registered" class="text-center space-y-4">
-    <UIcon name="i-lucide-mail-check" class="w-16 h-16 text-primary mx-auto" />
+    <KIcon name="mail-check" :size="64" class="text-primary mx-auto" />
     <h2 class="text-xl font-semibold">{{ $t('auth.checkEmail') }}</h2>
     <p class="text-[--color-text]/70">{{ $t('auth.checkEmailDescription') }}</p>
     <p class="text-xs text-[--color-text-muted]">{{ $t('auth.checkEmailDevHint') }}</p>

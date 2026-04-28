@@ -14,14 +14,12 @@
             ? 'bg-amber-100 bg-warning/20'
             : 'bg-[--color-border]/40'"
         >
-          <UIcon
-            name="i-lucide-file-text"
-            class="w-6 h-6"
+          <KIcon name="file-text" :size="24"
+           
             :class="accent
               ? 'text-amber-600 text-warning'
               : 'text-[--color-text]/70'"
-            aria-hidden="true"
-          />
+            aria-hidden="true" />
         </div>
         <div class="min-w-0">
           <template v-if="count !== null">

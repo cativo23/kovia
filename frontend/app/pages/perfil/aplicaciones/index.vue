@@ -17,14 +17,14 @@
 
     <!-- Error -->
     <UCard v-else-if="error" class="text-center py-8">
-      <UIcon name="i-lucide-alert-circle" class="w-12 h-12 text-error mx-auto mb-3" />
+      <KIcon name="alert-circle" :size="48" class="text-error mx-auto mb-3" />
       <p class="text-gray-500 mb-4">{{ $t('applications.errors.loadFailed') }}</p>
       <UButton :label="$t('common.retry')" @click="loadApplications" />
     </UCard>
 
     <!-- Empty State (zero applications total across all buckets) -->
     <UCard v-else-if="applications.length === 0" class="text-center py-16">
-      <UIcon name="i-lucide-clipboard-list" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
+      <KIcon name="clipboard-list" :size="64" class="text-gray-300 mx-auto mb-4" />
       <h2 class="text-lg font-bold text-[--color-text]/70 mb-2">
         {{ $t('applications.history.emptyTitle') }}
       </h2>

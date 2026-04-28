@@ -3,7 +3,7 @@
     <UCard v-for="card in cards" :key="card.label">
       <div class="flex items-center gap-3">
         <div class="p-2 rounded-lg" :class="card.bgClass">
-          <UIcon :name="card.icon" class="w-6 h-6" :class="card.iconClass" />
+          <KIcon :name="card.icon" :size="24" :class="card.iconClass" />
         </div>
         <div>
           <template v-if="stats">
@@ -38,28 +38,28 @@ const cards = computed(() => [
   {
     label: t('animals.stats.total'),
     value: props.stats?.total ?? 0,
-    icon: 'i-lucide-paw-print',
+    icon: 'paw-print',
     bgClass: 'bg-[--color-border]/40',
     iconClass: 'text-[--color-text]/70',
   },
   {
     label: t('animals.stats.available'),
     value: props.stats?.available ?? 0,
-    icon: 'i-lucide-check-circle',
+    icon: 'check-circle',
     bgClass: 'bg-green-100 bg-success/20',
     iconClass: 'text-green-600 text-success',
   },
   {
     label: t('animals.stats.inProcess'),
     value: props.stats?.inProcess ?? 0,
-    icon: 'i-lucide-clock',
+    icon: 'clock',
     bgClass: 'bg-amber-100 bg-warning/20',
     iconClass: 'text-amber-600 text-warning',
   },
   {
     label: t('animals.stats.adopted'),
     value: props.stats?.adopted ?? 0,
-    icon: 'i-lucide-heart',
+    icon: 'heart',
     bgClass: 'bg-blue-100 bg-info/20',
     iconClass: 'text-blue-600 text-info',
   },

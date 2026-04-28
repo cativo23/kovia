@@ -1,12 +1,12 @@
 <template>
   <div class="text-center space-y-4">
     <template v-if="status === 'loading'">
-      <UIcon name="i-lucide-loader-2" class="w-12 h-12 text-primary mx-auto animate-spin" />
+      <KIcon name="loader-2" :size="48" class="text-primary mx-auto animate-spin" />
       <h2 class="text-xl font-semibold">{{ $t('auth.oauthCallback') }}</h2>
     </template>
 
     <template v-else>
-      <UIcon name="i-lucide-x-circle" class="w-16 h-16 text-error mx-auto" />
+      <KIcon name="x-circle" :size="64" class="text-error mx-auto" />
       <h2 class="text-xl font-semibold">{{ $t('auth.oauthError') }}</h2>
       <UButton variant="outline" to="/login" :label="$t('auth.goToLogin')" />
     </template>

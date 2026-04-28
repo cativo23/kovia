@@ -21,7 +21,7 @@
       @drop.prevent="handleDrop"
       @click="fileInput?.click()"
     >
-      <UIcon name="i-lucide-upload-cloud" class="w-10 h-10 mx-auto mb-3 text-gray-400" />
+      <KIcon name="upload-cloud" :size="40" class="mx-auto mb-3 text-gray-400" />
       <p class="text-[--color-text]/70">{{ $t('animals.photos.dragDrop') }}</p>
       <p class="text-sm text-gray-400 mt-1">{{ $t('animals.photos.maxSize') }}</p>
       <input
@@ -59,12 +59,12 @@
           />
           <!-- Upload progress -->
           <div v-else-if="photo.uploading" class="w-full h-full flex flex-col items-center justify-center">
-            <UIcon name="i-lucide-loader-2" class="w-6 h-6 animate-spin text-primary mb-2" />
+            <KIcon name="loader-2" :size="24" class="animate-spin text-primary mb-2" />
             <span class="text-xs text-gray-500">{{ $t('animals.photos.uploading') }}</span>
           </div>
           <!-- Upload error -->
           <div v-else-if="photo.error" class="w-full h-full flex flex-col items-center justify-center p-2">
-            <UIcon name="i-lucide-alert-circle" class="w-6 h-6 text-red-500 mb-2" />
+            <KIcon name="alert-circle" :size="24" class="text-red-500 mb-2" />
             <span class="text-xs text-red-500 text-center">{{ $t('animals.photos.error') }}</span>
             <UButton
               size="xs"
@@ -85,7 +85,7 @@
             :title="$t('animals.photos.setCover')"
             @click.stop="setCover(photo)"
           >
-            <UIcon :name="photo.isCover ? 'i-lucide-star' : 'i-lucide-star'" class="w-5 h-5" :class="photo.isCover ? 'fill-yellow-400' : ''" />
+            <KIcon :name="photo.isCover ? 'star' : 'star'" :size="20" :class="photo.isCover ? 'fill-yellow-400' : ''" />
           </button>
 
           <!-- Remove -->
@@ -94,7 +94,7 @@
             :title="$t('animals.photos.remove')"
             @click.stop="removePhoto(photo, index)"
           >
-            <UIcon name="i-lucide-x" class="w-5 h-5" />
+            <KIcon name="x" :size="20" />
           </button>
         </div>
 

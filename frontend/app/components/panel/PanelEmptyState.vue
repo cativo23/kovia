@@ -2,11 +2,9 @@
   <UCard class="text-center">
     <div class="py-12 px-6 flex flex-col items-center gap-6">
       <div class="w-16 h-16 rounded-full bg-amber-100 bg-warning/20 flex items-center justify-center">
-        <UIcon
-          name="i-lucide-paw-print"
-          class="w-8 h-8 text-amber-600 text-warning"
-          aria-hidden="true"
-        />
+        <KIcon name="paw-print" :size="32"
+          class="text-amber-600 text-warning"
+          aria-hidden="true" />
       </div>
       <div class="space-y-2">
         <h2 class="text-[28px] font-semibold leading-tight">

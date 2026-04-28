@@ -10,14 +10,15 @@
       <UButton
         to="/org/dashboard/aplicaciones"
         color="primary"
-        icon="i-lucide-clipboard-list"
-        :label="t('adoptantes.goToApplications')"
-      />
+       
+        :label="t('adoptantes.goToApplications')">
+          <template #leading><KIcon name="clipboard-list" /></template>
+        </UButton>
     </div>
 
     <UCard>
       <div class="py-12 text-center">
-        <UIcon name="i-lucide-users" class="w-12 h-12 text-gray-300 mx-auto" />
+        <KIcon name="users" :size="48" class="text-gray-300 mx-auto" />
         <p class="text-lg font-bold mt-4">{{ t('adoptantes.detailedViewHeading') }}</p>
         <p class="text-sm text-gray-500 mt-2 max-w-md mx-auto">
           {{ t('adoptantes.detailedViewBody') }}

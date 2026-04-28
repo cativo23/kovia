@@ -2,12 +2,14 @@
   <div>
     <!-- Not found -->
     <UCard v-if="!animal" class="text-center py-12">
-      <UIcon name="i-lucide-paw-print" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
+      <KIcon name="paw-print" :size="64" class="text-gray-300 mx-auto mb-4" />
       <h2 class="text-xl font-bold text-[--color-text]/70 mb-2">
         {{ $t('detail.notFound') }}
       </h2>
       <p class="text-gray-500 mb-6">{{ $t('detail.notFoundMessage') }}</p>
-      <UButton to="/animales" variant="outline" icon="i-lucide-arrow-left" :label="$t('detail.breadcrumb')" />
+      <UButton to="/animales" variant="outline" :label="$t('detail.breadcrumb')">
+          <template #leading><KIcon name="arrow-left" /></template>
+        </UButton>
     </UCard>
 
     <!-- Animal detail -->
@@ -17,7 +19,7 @@
         <NuxtLink to="/animales" class="hover:text-primary transition-colors">
           {{ $t('detail.breadcrumb') }}
         </NuxtLink>
-        <UIcon name="i-lucide-chevron-right" class="w-4 h-4" />
+        <KIcon name="chevron-right" :size="16" />
         <span class="text-[--color-text] font-medium">{{ animal.name }}</span>
       </nav>
 
@@ -52,19 +54,19 @@
           <!-- Basic info -->
           <div class="grid grid-cols-2 gap-3 text-sm">
             <div v-if="animal.ageMonths !== null" class="flex items-center gap-2">
-              <UIcon name="i-lucide-calendar" class="w-4 h-4 text-gray-400" />
+              <KIcon name="calendar" :size="16" class="text-gray-400" />
               <span>{{ formatAge(animal.ageMonths) }}</span>
             </div>
             <div v-if="animal.size" class="flex items-center gap-2">
-              <UIcon name="i-lucide-ruler" class="w-4 h-4 text-gray-400" />
+              <KIcon name="ruler" :size="16" class="text-gray-400" />
               <span>{{ $t(`animals.form.sizeOptions.${sizeKey(animal.size)}`) }}</span>
             </div>
             <div v-if="animal.gender" class="flex items-center gap-2">
-              <UIcon name="i-lucide-user" class="w-4 h-4 text-gray-400" />
+              <KIcon name="user" :size="16" class="text-gray-400" />
               <span>{{ $t(`animals.form.genderOptions.${animal.gender.toLowerCase()}`) }}</span>
             </div>
             <div v-if="animal.energyLevel" class="flex items-center gap-2">
-              <UIcon name="i-lucide-zap" class="w-4 h-4 text-gray-400" />
+              <KIcon name="zap" :size="16" class="text-gray-400" />
               <span>{{ $t(`animals.form.energyOptions.${animal.energyLevel.toLowerCase()}`) }}</span>
             </div>
           </div>
@@ -83,19 +85,19 @@
             </h3>
             <div class="flex flex-wrap gap-2">
               <UBadge v-if="animal.goodWithKids" color="success" variant="soft">
-                <UIcon name="i-lucide-baby" class="w-3 h-3 mr-1" />
+                <KIcon name="baby" :size="12" class="mr-1" />
                 {{ $t('listings.compat.kids') }}
               </UBadge>
               <UBadge v-if="animal.goodWithDogs" color="success" variant="soft">
-                <UIcon name="i-lucide-dog" class="w-3 h-3 mr-1" />
+                <KIcon name="dog" :size="12" class="mr-1" />
                 {{ $t('listings.compat.dogs') }}
               </UBadge>
               <UBadge v-if="animal.goodWithCats" color="success" variant="soft">
-                <UIcon name="i-lucide-cat" class="w-3 h-3 mr-1" />
+                <KIcon name="cat" :size="12" class="mr-1" />
                 {{ $t('listings.compat.cats') }}
               </UBadge>
               <UBadge v-if="animal.goodWithOtherPets" color="success" variant="soft">
-                <UIcon name="i-lucide-paw-print" class="w-3 h-3 mr-1" />
+                <KIcon name="paw-print" :size="12" class="mr-1" />
                 {{ $t('listings.compat.pets') }}
               </UBadge>
               <span
@@ -114,15 +116,15 @@
             </h3>
             <div class="flex flex-wrap gap-2">
               <UBadge v-if="animal.vaccinated" color="info" variant="soft">
-                <UIcon name="i-lucide-shield-check" class="w-3 h-3 mr-1" />
+                <KIcon name="shield-check" :size="12" class="mr-1" />
                 {{ $t('listings.health.vaccinated') }}
               </UBadge>
               <UBadge v-if="animal.sterilized" color="info" variant="soft">
-                <UIcon name="i-lucide-check-circle" class="w-3 h-3 mr-1" />
+                <KIcon name="check-circle" :size="12" class="mr-1" />
                 {{ $t('listings.health.sterilized') }}
               </UBadge>
               <UBadge v-if="animal.trained" color="info" variant="soft">
-                <UIcon name="i-lucide-graduation-cap" class="w-3 h-3 mr-1" />
+                <KIcon name="graduation-cap" :size="12" class="mr-1" />
                 {{ $t('listings.health.trained') }}
               </UBadge>
             </div>
@@ -154,12 +156,12 @@
                   :alt="animal.organization.name"
                   class="w-full h-full object-cover"
                 />
-                <UIcon v-else name="i-lucide-building-2" class="w-6 h-6 text-primary" />
+                <UIcon v-else name="building-2" class="w-6 h-6 text-primary" />
               </div>
               <span class="font-medium text-[--color-text] group-hover:text-primary transition-colors">
                 {{ animal.organization.name }}
               </span>
-              <UIcon name="i-lucide-arrow-right" class="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors ml-auto" />
+              <KIcon name="arrow-right" :size="16" class="text-gray-400 group-hover:text-primary transition-colors ml-auto" />
             </NuxtLink>
           </div>
 
@@ -170,9 +172,10 @@
               block
               size="xl"
               disabled
-              icon="i-lucide-heart"
-              :label="$t('applications.applyButton')"
-            />
+             
+              :label="$t('applications.applyButton')">
+          <template #leading><KIcon name="heart" /></template>
+        </UButton>
           </UTooltip>
 
           <!-- State 2: Unauthenticated -->
@@ -180,10 +183,11 @@
             v-else-if="!authStore.isAuthenticated"
             block
             size="xl"
-            icon="i-lucide-heart"
+           
             :label="$t('applications.applyButton')"
-            @click="showAuthModal = true"
-          />
+            @click="showAuthModal = true">
+          <template #leading><KIcon name="heart" /></template>
+        </UButton>
 
           <!-- State 3: Authenticated, application exists -->
           <UButton
@@ -191,20 +195,22 @@
             block
             size="xl"
             variant="outline"
-            icon="i-lucide-clipboard-list"
+           
             :label="$t('applications.viewApplication')"
-            :to="`/perfil/aplicaciones/${existingApplication.applicationId}`"
-          />
+            :to="`/perfil/aplicaciones/${existingApplication.applicationId}`">
+          <template #leading><KIcon name="clipboard-list" /></template>
+        </UButton>
 
           <!-- State 4: Authenticated, no existing application -->
           <UButton
             v-else
             block
             size="xl"
-            icon="i-lucide-heart"
+           
             :label="$t('applications.applyButton')"
-            :to="`/animales/${animal.id}/aplicar`"
-          />
+            :to="`/animales/${animal.id}/aplicar`">
+          <template #leading><KIcon name="heart" /></template>
+        </UButton>
         </div>
       </div>
     </div>

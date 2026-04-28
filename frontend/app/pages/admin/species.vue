@@ -6,15 +6,16 @@
         <p class="text-gray-500 mt-1">{{ $t('admin.species.description') }}</p>
       </div>
       <UButton
-        icon="i-lucide-plus"
+       
         :label="$t('admin.species.create')"
-        @click="openCreateModal"
-      />
+        @click="openCreateModal">
+          <template #leading><KIcon name="plus" /></template>
+        </UButton>
     </div>
 
     <UCard>
       <div v-if="loading" class="flex justify-center py-8">
-        <UIcon name="i-lucide-loader-2" class="w-6 h-6 animate-spin" />
+        <KIcon name="loader-2" :size="24" class="animate-spin" />
       </div>
       <div v-else-if="speciesList.length === 0" class="text-center py-8 text-gray-500">
         {{ $t('common.noResults') }}
@@ -34,19 +35,21 @@
               size="xs"
               variant="ghost"
               color="primary"
-              icon="i-lucide-pencil"
+             
               :label="$t('admin.species.edit')"
-              @click="openEditModal(row.original)"
-            />
+              @click="openEditModal(row.original)">
+          <template #leading><KIcon name="pencil" /></template>
+        </UButton>
             <UButton
               size="xs"
               variant="ghost"
               color="error"
-              icon="i-lucide-trash-2"
+             
               :label="$t('admin.species.delete')"
               :disabled="(row.original._count?.animals ?? 0) > 0"
-              @click="confirmDelete(row.original)"
-            />
+              @click="confirmDelete(row.original)">
+          <template #leading><KIcon name="trash-2" /></template>
+        </UButton>
           </div>
         </template>
       </UTable>

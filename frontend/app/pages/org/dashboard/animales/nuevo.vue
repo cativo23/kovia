@@ -6,7 +6,7 @@
         to="/org/dashboard/animales"
         class="text-sm text-gray-500 hover:text-primary inline-flex items-center gap-1 mb-2"
       >
-        <UIcon name="i-lucide-arrow-left" class="w-4 h-4" />
+        <KIcon name="arrow-left" :size="16" />
         {{ $t('animals.title') }}
       </NuxtLink>
       <h2 class="text-2xl font-bold">{{ $t('animals.create') }}</h2>
@@ -30,7 +30,7 @@
                 : 'bg-[--color-border]/40 text-gray-500'
           ]"
         >
-          <UIcon v-if="currentStep > index" name="i-lucide-check" class="w-4 h-4" />
+          <KIcon v-if="currentStep > index" name="check" :size="16" />
           <span v-else>{{ index + 1 }}</span>
         </div>
         <span
@@ -82,25 +82,30 @@
         <UButton
           v-if="currentStep > 0"
           variant="outline"
-          icon="i-lucide-arrow-left"
+         
           :label="$t('animals.wizard.prev')"
-          @click="prevStep"
-        />
+          @click="prevStep">
+          <template #leading><KIcon name="arrow-left" /></template>
+        </UButton>
         <div v-else />
 
         <UButton
           v-if="currentStep < steps.length - 1"
-          trailing-icon="i-lucide-arrow-right"
           :label="$t('animals.wizard.next')"
           @click="nextStep"
-        />
+        >
+          <template #trailing>
+            <KIcon name="arrow-right" :size="16" />
+          </template>
+        </UButton>
         <UButton
           v-else
-          icon="i-lucide-check"
+         
           :label="$t('animals.wizard.create')"
           :loading="submitting"
-          @click="createAnimal"
-        />
+          @click="createAnimal">
+          <template #leading><KIcon name="check" /></template>
+        </UButton>
       </div>
     </UCard>
   </div>

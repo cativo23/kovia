@@ -12,7 +12,7 @@
         class="w-full h-full object-cover"
       />
       <div v-else class="w-full h-full flex items-center justify-center">
-        <UIcon name="i-lucide-paw-print" class="w-20 h-20 text-amber-300" />
+        <KIcon name="paw-print" :size="80" class="text-amber-300" />
       </div>
 
       <!-- Caption overlay -->
@@ -28,7 +28,7 @@
         v-if="activePhoto"
         class="absolute top-2 right-2 bg-black/30 rounded-lg p-1.5 text-white opacity-0 hover:opacity-100 transition-opacity"
       >
-        <UIcon name="i-lucide-expand" class="w-4 h-4" />
+        <KIcon name="expand" :size="16" />
       </div>
     </div>
 
@@ -60,7 +60,7 @@
           class="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
           @click="lightboxOpen = false"
         >
-          <UIcon name="i-lucide-x" class="w-8 h-8" />
+          <KIcon name="x" :size="32" />
         </button>
 
         <button
@@ -68,7 +68,7 @@
           class="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors"
           @click="prevPhoto"
         >
-          <UIcon name="i-lucide-chevron-left" class="w-10 h-10" />
+          <KIcon name="chevron-left" :size="40" />
         </button>
 
         <img
@@ -83,7 +83,7 @@
           class="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors"
           @click="nextPhoto"
         >
-          <UIcon name="i-lucide-chevron-right" class="w-10 h-10" />
+          <KIcon name="chevron-right" :size="40" />
         </button>
 
         <div

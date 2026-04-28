@@ -13,18 +13,20 @@
           :variant="localViewMode === 'grid' ? 'solid' : 'ghost'"
           color="neutral"
           size="sm"
-          icon="i-lucide-layout-grid"
+         
           :title="$t('listings.viewGrid')"
-          @click="setMode('grid')"
-        />
+          @click="setMode('grid')">
+          <template #leading><KIcon name="layout-grid" /></template>
+        </UButton>
         <UButton
           :variant="localViewMode === 'list' ? 'solid' : 'ghost'"
           color="neutral"
           size="sm"
-          icon="i-lucide-list"
+         
           :title="$t('listings.viewList')"
-          @click="setMode('list')"
-        />
+          @click="setMode('list')">
+          <template #leading><KIcon name="list" /></template>
+        </UButton>
       </div>
     </div>
 
