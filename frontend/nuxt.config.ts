@@ -4,6 +4,22 @@ export default defineNuxtConfig({
 
   modules: ['@nuxt/ui', '@pinia/nuxt', '@nuxtjs/i18n'],
 
+  // Phase 14-02 / DESIGN-01 — color-mode (auto-registered by @nuxt/ui v4).
+  // D-04: localStorage key 'kovia-theme'; first-visit honors prefers-color-scheme.
+  // classSuffix: '' so the class is `.dark` (not `.dark-mode`).
+  colorMode: {
+    preference: 'system',
+    fallback: 'light',
+    classSuffix: '',
+    storageKey: 'kovia-theme',
+  },
+
+  // Phase 14-02 — pre-wires Plan 06 (route view-transitions). Lands here as the
+  // only nuxt.config touch in the design-system foundation.
+  experimental: {
+    viewTransition: true,
+  },
+
   icon: {
     serverBundle: 'local',
   },

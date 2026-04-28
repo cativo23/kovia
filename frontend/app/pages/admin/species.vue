@@ -21,7 +21,7 @@
       </div>
       <UTable v-else :data="speciesList" :columns="columns">
         <template #slug-cell="{ row }">
-          <code class="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+          <code class="text-xs bg-[--color-border]/40 px-2 py-1 rounded">
             {{ row.original.slug }}
           </code>
         </template>
@@ -70,7 +70,7 @@
             />
           </div>
           <div v-if="formName" class="text-sm text-gray-500">
-            Slug: <code class="bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">{{ slugPreview }}</code>
+            Slug: <code class="bg-[--color-border]/40 px-2 py-0.5 rounded">{{ slugPreview }}</code>
           </div>
         </div>
       </template>

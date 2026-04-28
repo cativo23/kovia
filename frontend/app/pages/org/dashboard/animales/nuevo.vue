@@ -27,7 +27,7 @@
               ? 'bg-primary text-white'
               : currentStep === index
                 ? 'bg-primary text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
+                : 'bg-[--color-border]/40 text-gray-500'
           ]"
         >
           <UIcon v-if="currentStep > index" name="i-lucide-check" class="w-4 h-4" />
@@ -42,7 +42,7 @@
         <div
           v-if="index < steps.length - 1"
           class="flex-1 h-0.5 mx-2"
-          :class="currentStep > index ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'"
+          :class="currentStep > index ? 'bg-primary' : 'bg-[--color-border]/40'"
         />
       </div>
     </div>
@@ -78,7 +78,7 @@
       </div>
 
       <!-- Navigation -->
-      <div class="flex justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-800">
+      <div class="flex justify-between mt-6 pt-4 border-t border-[--color-border]">
         <UButton
           v-if="currentStep > 0"
           variant="outline"

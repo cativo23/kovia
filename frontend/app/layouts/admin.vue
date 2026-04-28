@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen flex">
-    <aside class="w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col">
-      <div class="p-4 border-b border-gray-200 dark:border-gray-800">
+  <div class="min-h-screen flex bg-[--color-bg] text-[--color-text]">
+    <aside class="w-64 border-r border-[--color-border] bg-[--color-bg-secondary] flex flex-col">
+      <div class="p-4 border-b border-[--color-border]">
         <NuxtLink to="/admin" class="text-xl font-bold text-primary">
           Kovia
         </NuxtLink>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p class="text-xs text-[--color-text-muted] mt-1">
           {{ $t('admin.dashboard') }}
         </p>
       </div>
@@ -19,7 +19,7 @@
           :class="[
             isActive(item.to)
               ? 'bg-primary/10 text-primary font-medium'
-              : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+              : 'text-[--color-text]/70 hover:bg-[--color-border]/40'
           ]"
         >
           <UIcon :name="item.icon" class="w-5 h-5" />
@@ -34,14 +34,14 @@
           :href="`${config.public.backendUrl}/admin/queues?token=${authStore.accessToken ?? ''}`"
           target="_blank"
           rel="noopener noreferrer"
-          class="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+          class="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors text-[--color-text]/70 hover:bg-[--color-border]/40"
         >
           <UIcon name="i-lucide-activity" class="w-5 h-5" />
           {{ t('admin.queues.title') }}
         </a>
       </nav>
 
-      <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+      <div class="p-4 border-t border-[--color-border]">
         <UButton
           block
           variant="ghost"
@@ -54,11 +54,12 @@
     </aside>
 
     <div class="flex-1 flex flex-col">
-      <header class="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-center px-6">
+      <header class="h-16 border-b border-[--color-border] bg-[--color-bg-secondary] flex items-center px-6">
         <h1 class="text-lg font-semibold">
           {{ $t('admin.dashboard') }}
         </h1>
         <div class="ml-auto flex items-center gap-3">
+          <ThemeToggle />
           <UDropdownMenu :items="userMenuItems">
             <UButton
               color="neutral"
@@ -70,7 +71,7 @@
         </div>
       </header>
 
-      <main class="flex-1 p-6 bg-gray-50 dark:bg-gray-950">
+      <main class="flex-1 p-6 bg-[--color-bg]">
         <slot />
       </main>
     </div>

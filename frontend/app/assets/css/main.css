@@ -1,2 +1,114 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+/*
+ * Phase 14-02 / DESIGN-01 — brand token registry.
+ *
+ * Declaration order is locked (Pitfall 6 in 14-RESEARCH.md):
+ *   1. @import "tailwindcss"
+ *   2. @import "@nuxt/ui"
+ *   3. @custom-variant dark (must precede @theme so Tailwind v4 sees the variant)
+ *   4. @theme static { ... }
+ *   5. .dark { ... }   ← bare CSS, NOT inside @theme
+ *
+ * Brand anchors (D-01, locked):
+ *   cream            #FEF3E2
+ *   terracota-500    #D97706   (anchor for full 50-950 palette)
+ *   verde-forestal-500 #16A34A (anchor for full 50-950 palette)
+ *   coral-electrico  #FF6B47
+ *   marron-profundo  #1A0F06
+ *   ambar-500        #F59E0B   (anchor for full 50-950 palette)
+ *   rojo-500         #EF4444   (anchor for full 50-950 palette)
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme static {
+  /* ----- terracota (anchor: #D97706) -------------------------------- */
+  --color-terracota-50:  #fff8eb;
+  --color-terracota-100: #ffeac6;
+  --color-terracota-200: #fed188;
+  --color-terracota-300: #fdb24a;
+  --color-terracota-400: #fb931f;
+  --color-terracota-500: #D97706;
+  --color-terracota-600: #b65d04;
+  --color-terracota-700: #934507;
+  --color-terracota-800: #78360c;
+  --color-terracota-900: #652d0d;
+  --color-terracota-950: #3a1602;
+
+  /* ----- verde-forestal (anchor: #16A34A) --------------------------- */
+  --color-verde-forestal-50:  #f0fdf4;
+  --color-verde-forestal-100: #dcfce7;
+  --color-verde-forestal-200: #bbf7d0;
+  --color-verde-forestal-300: #86efac;
+  --color-verde-forestal-400: #4ade80;
+  --color-verde-forestal-500: #16A34A;
+  --color-verde-forestal-600: #15803d;
+  --color-verde-forestal-700: #166534;
+  --color-verde-forestal-800: #14532d;
+  --color-verde-forestal-900: #14532d;
+  --color-verde-forestal-950: #052e16;
+
+  /* ----- ambar (anchor: #F59E0B) ------------------------------------ */
+  --color-ambar-50:  #fffbeb;
+  --color-ambar-100: #fef3c7;
+  --color-ambar-200: #fde68a;
+  --color-ambar-300: #fcd34d;
+  --color-ambar-400: #fbbf24;
+  --color-ambar-500: #F59E0B;
+  --color-ambar-600: #d97706;
+  --color-ambar-700: #b45309;
+  --color-ambar-800: #92400e;
+  --color-ambar-900: #78350f;
+  --color-ambar-950: #451a03;
+
+  /* ----- rojo (anchor: #EF4444) ------------------------------------- */
+  --color-rojo-50:  #fef2f2;
+  --color-rojo-100: #fee2e2;
+  --color-rojo-200: #fecaca;
+  --color-rojo-300: #fca5a5;
+  --color-rojo-400: #f87171;
+  --color-rojo-500: #EF4444;
+  --color-rojo-600: #dc2626;
+  --color-rojo-700: #b91c1c;
+  --color-rojo-800: #991b1b;
+  --color-rojo-900: #7f1d1d;
+  --color-rojo-950: #450a0a;
+
+  /* ----- raw single-value brand tokens ------------------------------ */
+  --color-cream:           #FEF3E2;
+  --color-coral-electrico: #FF6B47;
+  --color-marron-profundo: #1A0F06;
+
+  /* ----- semantic aliases (light defaults; .dark overrides below) --- */
+  --color-bg:              var(--color-cream);
+  --color-bg-secondary:    color-mix(in srgb, var(--color-marron-profundo) 5%, var(--color-cream));
+  --color-text:            var(--color-marron-profundo);
+  --color-text-muted:      color-mix(in srgb, var(--color-marron-profundo) 65%, transparent);
+  --color-accent:          var(--color-terracota-500);
+  --color-border:          color-mix(in srgb, var(--color-marron-profundo) 15%, transparent);
+
+  /* ----- font family chain (Söhne pre-wired per D-06; Plan 03 swaps) - */
+  --font-display: 'Söhne', 'Inter', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+
+  /* ----- radius tokens --------------------------------------------- */
+  --radius-icon:    14px;
+  --radius-chip:    18px;
+  --radius-card:    24px;
+  --radius-card-lg: 32px;
+  --radius-pill:    9999px;
+}
+
+/*
+ * Dark-mode overrides — bare CSS rules OUTSIDE @theme (Pitfall 6).
+ * marrón-profundo becomes the dominant surface; cream becomes ink.
+ */
+.dark {
+  --color-bg:           #1A0F06;
+  --color-bg-secondary: color-mix(in srgb, #FEF3E2 8%, #1A0F06);
+  --color-text:         #FEF3E2;
+  --color-text-muted:   color-mix(in srgb, #FEF3E2 65%, transparent);
+  --color-border:       color-mix(in srgb, #FEF3E2 15%, transparent);
+}

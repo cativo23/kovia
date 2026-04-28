@@ -23,7 +23,7 @@
       <li
         v-for="n in notifications"
         :key="n.id"
-        class="px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+        class="px-3 py-2 hover:bg-[--color-border]/40 cursor-pointer"
         :class="{ 'font-medium': !n.isRead }"
         @click="handleClick(n)"
       >
@@ -32,7 +32,7 @@
           <div v-else class="mt-1.5 w-2 h-2 shrink-0" />
           <div class="flex-1 min-w-0">
             <p class="text-sm truncate">{{ n.title }}</p>
-            <p v-if="n.body" class="text-xs text-gray-500 dark:text-gray-400 truncate">
+            <p v-if="n.body" class="text-xs text-[--color-text]/70 truncate">
               {{ n.body }}
             </p>
             <p class="text-xs text-gray-400 mt-0.5">{{ formatRelativeTime(n.createdAt) }}</p>

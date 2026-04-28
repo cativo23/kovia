@@ -12,7 +12,7 @@
   >
     <template #footer>
       <div class="space-y-3">
-        <div v-if="showVerificationError" class="rounded-md bg-warning-50 dark:bg-warning-950 p-3 text-sm text-warning-700 dark:text-warning-300">
+        <div v-if="showVerificationError" class="rounded-md bg-warning-50 bg-warning/20 p-3 text-sm text-warning-700 text-warning">
           <p>{{ $t('auth.emailNotVerified') }}</p>
           <button
             class="mt-2 text-primary font-medium hover:underline disabled:opacity-50"

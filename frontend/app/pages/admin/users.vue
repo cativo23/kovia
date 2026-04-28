@@ -82,7 +82,7 @@
         <h3 class="font-semibold text-error">{{ $t('admin.users.deleteTitle') }}</h3>
       </template>
       <template #body>
-        <p class="text-gray-600 dark:text-gray-300">
+        <p class="text-[--color-text]/70">
           {{ $t('admin.users.deleteWarning', { email: pendingDeleteUser?.email }) }}
         </p>
         <p class="mt-2 text-sm text-error font-medium">

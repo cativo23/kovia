@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen flex flex-col">
+  <div class="min-h-screen flex flex-col bg-[--color-bg] text-[--color-text]">
     <!-- Navbar -->
-    <header class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-50">
+    <header class="border-b border-[--color-border] bg-[--color-bg-secondary] sticky top-0 z-50">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <!-- Brand + Nav -->
@@ -14,14 +14,14 @@
             <nav class="hidden sm:flex items-center gap-4">
               <NuxtLink
                 to="/"
-                class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+                class="text-sm text-[--color-text]/70 hover:text-primary transition-colors"
                 :class="{ 'text-primary font-medium': route.path === '/' }"
               >
                 {{ $t('nav.home') }}
               </NuxtLink>
               <NuxtLink
                 to="/animales"
-                class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+                class="text-sm text-[--color-text]/70 hover:text-primary transition-colors"
                 :class="{ 'text-primary font-medium': route.path.startsWith('/animales') }"
               >
                 {{ $t('nav.animals') }}
@@ -29,7 +29,7 @@
               <NuxtLink
                 v-if="userRole === 'ADOPTER'"
                 to="/panel"
-                class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+                class="text-sm text-[--color-text]/70 hover:text-primary transition-colors"
                 :class="{ 'text-primary font-medium': route.path.startsWith('/panel') }"
               >
                 {{ $t('nav.myPanel') }}
@@ -37,7 +37,7 @@
               <NuxtLink
                 v-if="isOrgAdmin"
                 :to="`/org/dashboard`"
-                class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+                class="text-sm text-[--color-text]/70 hover:text-primary transition-colors"
               >
                 {{ $t('nav.myOrg') }}
               </NuxtLink>
@@ -46,6 +46,9 @@
 
           <!-- Auth section -->
           <div class="flex items-center gap-3">
+            <!-- Theme toggle (every layout per DESIGN-01) -->
+            <ThemeToggle />
+
             <!-- Notification bell (adopter only) -->
             <NotificationBell v-if="isAuthenticated && userRole === 'ADOPTER'" />
 
@@ -84,17 +87,17 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 py-8">
+    <footer class="border-t border-[--color-border] bg-[--color-bg-secondary] py-8">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div class="flex items-center gap-2">
             <UIcon name="i-lucide-paw-print" class="w-5 h-5 text-primary" />
             <span class="font-bold text-primary">Kovia</span>
           </div>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
+          <p class="text-sm text-[--color-text-muted]">
             {{ $t('common.footer.madeWith') }}
           </p>
-          <p class="text-xs text-gray-400 dark:text-gray-600">
+          <p class="text-xs text-[--color-text-muted]">
             &copy; {{ new Date().getFullYear() }} Kovia
           </p>
         </div>

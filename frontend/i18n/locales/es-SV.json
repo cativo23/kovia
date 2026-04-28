@@ -24,6 +24,10 @@
     "footer": {
       "tagline": "Adopcion inteligente de mascotas",
       "madeWith": "Hecho con amor para los animales"
+    },
+    "theme": {
+      "light": "Modo claro",
+      "dark": "Modo oscuro"
     }
   },
   "auth": {
