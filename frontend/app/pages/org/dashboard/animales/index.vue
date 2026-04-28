@@ -13,15 +13,15 @@
     <!-- Filters -->
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <!-- Status filter tabs -->
-      <div class="flex gap-1 bg-gray-100 bg-[--color-border]/40 rounded-lg p-1">
+      <div class="flex gap-1 bg-[--color-border]/40 rounded-lg p-1">
         <button
           v-for="tab in statusTabs"
           :key="tab.value"
           class="px-3 py-1.5 text-sm rounded-md transition-colors"
           :class="[
             activeStatus === tab.value
-              ? 'bg-white bg-[--color-bg-secondary] text-primary font-medium shadow-sm'
-              : 'text-gray-600 text-[--color-text]/70 hover:text-gray-900'
+              ? 'bg-[--color-bg-secondary] text-primary font-medium shadow-sm'
+              : 'text-[--color-text]/70 hover:text-gray-900'
           ]"
           @click="setStatusFilter(tab.value)"
         >
@@ -64,7 +64,7 @@
             :alt="row.original.name"
             class="w-12 h-12 rounded-lg object-cover"
           />
-          <div v-else class="w-12 h-12 rounded-lg bg-gray-100 bg-[--color-border]/40 flex items-center justify-center">
+          <div v-else class="w-12 h-12 rounded-lg bg-[--color-border]/40 flex items-center justify-center">
             <UIcon name="i-lucide-paw-print" class="w-6 h-6 text-gray-400" />
           </div>
         </template>
@@ -98,7 +98,7 @@
       </UTable>
 
       <!-- Pagination -->
-      <div v-if="totalPages > 1" class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 border-[--color-border]">
+      <div v-if="totalPages > 1" class="flex items-center justify-between mt-4 pt-4 border-t border-[--color-border]">
         <p class="text-sm text-gray-500">
           {{ total }} {{ $t('animals.title').toLowerCase() }}
         </p>
@@ -110,7 +110,7 @@
             :disabled="page <= 1"
             @click="page--; loadAnimals()"
           />
-          <span class="flex items-center px-3 text-sm text-gray-600 text-[--color-text]/70">
+          <span class="flex items-center px-3 text-sm text-[--color-text]/70">
             {{ page }} / {{ totalPages }}
           </span>
           <UButton

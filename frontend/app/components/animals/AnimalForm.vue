@@ -149,7 +149,7 @@
     </div>
 
     <!-- Actions (only shown in edit mode or when all sections visible) -->
-    <div v-if="showActions" class="flex gap-3 mt-6 pt-4 border-t border-gray-200 border-[--color-border]">
+    <div v-if="showActions" class="flex gap-3 mt-6 pt-4 border-t border-[--color-border]">
       <UButton
         type="submit"
         :label="mode === 'create' ? $t('animals.wizard.create') : $t('animals.edit.save')"

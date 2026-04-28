@@ -129,7 +129,7 @@
               <button
                 v-for="(photo, idx) in application.photos"
                 :key="photo.id"
-                class="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 bg-[--color-border]/40 cursor-pointer"
+                class="relative aspect-[4/3] overflow-hidden rounded-lg bg-[--color-border]/40 cursor-pointer"
                 @click="openLightbox(idx)"
               >
                 <img

@@ -53,7 +53,7 @@
 
       <div v-else-if="applications.length === 0" class="text-center py-12">
         <UIcon name="i-lucide-clipboard-list" class="w-12 h-12 mx-auto mb-4 text-gray-300" />
-        <p class="text-lg font-semibold text-gray-700 text-[--color-text]/70 mb-2">
+        <p class="text-lg font-semibold text-[--color-text]/70 mb-2">
           {{ $t('applications.queue.empty.heading') }}
         </p>
         <p class="text-sm text-gray-500">
@@ -83,7 +83,7 @@
             />
             <div
               v-else
-              class="w-10 h-10 rounded-lg bg-gray-100 bg-[--color-border]/40 flex items-center justify-center flex-shrink-0"
+              class="w-10 h-10 rounded-lg bg-[--color-border]/40 flex items-center justify-center flex-shrink-0"
             >
               <UIcon name="i-lucide-paw-print" class="w-5 h-5 text-gray-400" />
             </div>
@@ -125,7 +125,7 @@
       <!-- Pagination -->
       <div
         v-if="totalPages > 1"
-        class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 border-[--color-border]"
+        class="flex items-center justify-between mt-4 pt-4 border-t border-[--color-border]"
       >
         <p class="text-sm text-gray-500">
           {{ total }} {{ $t('applications.queue.heading').toLowerCase() }}

@@ -6,7 +6,7 @@
     <UCard class="hover:shadow-md transition-shadow">
       <div class="flex items-center gap-4">
         <!-- Animal thumbnail -->
-        <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 bg-[--color-border]/40 flex-shrink-0">
+        <div class="w-12 h-12 rounded-lg overflow-hidden bg-[--color-border]/40 flex-shrink-0">
           <img
             v-if="app.animal?.coverPhoto?.url"
             :src="app.animal.coverPhoto.url"
@@ -23,10 +23,10 @@
 
         <!-- Info column -->
         <div class="flex-1 min-w-0">
-          <p class="font-medium text-gray-900 text-[--color-text] truncate">
+          <p class="font-medium text-[--color-text] truncate">
             {{ app.animal?.name || '—' }}
           </p>
-          <div class="flex items-center gap-2 text-xs text-gray-500 text-[--color-text]/70 mt-0.5">
+          <div class="flex items-center gap-2 text-xs text-[--color-text]/70 mt-0.5">
             <UAvatar
               v-if="app.animal?.organization?.logoUrl"
               :src="app.animal.organization.logoUrl"

@@ -2,10 +2,10 @@
   <div>
     <!-- Page title -->
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900 text-[--color-text]">
+      <h1 class="text-3xl font-bold text-[--color-text]">
         {{ $t('listings.title') }}
       </h1>
-      <p class="mt-1 text-gray-500 text-[--color-text]/70">
+      <p class="mt-1 text-[--color-text]/70">
         {{ $t('listings.subtitle') }}
       </p>
     </div>

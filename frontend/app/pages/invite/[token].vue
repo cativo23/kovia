@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen flex-col items-center justify-center bg-gray-50 bg-[--color-bg-secondary] px-4">
+  <div class="flex min-h-screen flex-col items-center justify-center bg-[--color-bg-secondary] px-4">
     <div class="mb-8">
       <NuxtLink to="/" class="text-3xl font-bold text-primary">
         Kovia

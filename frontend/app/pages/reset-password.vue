@@ -3,7 +3,7 @@
   <div v-if="status === 'expired'" class="text-center space-y-4">
     <UIcon name="i-lucide-clock" class="w-16 h-16 text-amber-500 mx-auto" />
     <h2 class="text-xl font-semibold">{{ $t('auth.linkExpired') }}</h2>
-    <p class="text-gray-600 text-[--color-text]/70">{{ $t('auth.linkExpiredDescription') }}</p>
+    <p class="text-[--color-text]/70">{{ $t('auth.linkExpiredDescription') }}</p>
     <UButton
       :label="$t('auth.resendLink')"
       to="/forgot-password"

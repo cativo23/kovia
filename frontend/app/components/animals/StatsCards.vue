@@ -11,8 +11,8 @@
             <p class="text-sm text-gray-500">{{ card.label }}</p>
           </template>
           <template v-else>
-            <div class="h-7 w-12 bg-gray-200 bg-[--color-border]/40 rounded animate-pulse mb-1" />
-            <div class="h-4 w-20 bg-gray-200 bg-[--color-border]/40 rounded animate-pulse" />
+            <div class="h-7 w-12 bg-[--color-border]/40 rounded animate-pulse mb-1" />
+            <div class="h-4 w-20 bg-[--color-border]/40 rounded animate-pulse" />
           </template>
         </div>
       </div>
@@ -39,8 +39,8 @@ const cards = computed(() => [
     label: t('animals.stats.total'),
     value: props.stats?.total ?? 0,
     icon: 'i-lucide-paw-print',
-    bgClass: 'bg-gray-100 bg-[--color-border]/40',
-    iconClass: 'text-gray-600 text-[--color-text]/70',
+    bgClass: 'bg-[--color-border]/40',
+    iconClass: 'text-[--color-text]/70',
   },
   {
     label: t('animals.stats.available'),

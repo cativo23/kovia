@@ -14,7 +14,7 @@
       :class="[
         isDragging
           ? 'border-primary bg-primary/5'
-          : 'border-gray-300 border-[--color-border] hover:border-primary/50'
+          : 'border-[--color-border] hover:border-primary/50'
       ]"
       @dragover.prevent="isDragging = true"
       @dragleave.prevent="isDragging = false"
@@ -22,7 +22,7 @@
       @click="fileInput?.click()"
     >
       <UIcon name="i-lucide-upload-cloud" class="w-10 h-10 mx-auto mb-3 text-gray-400" />
-      <p class="text-gray-600 text-[--color-text]/70">{{ $t('animals.photos.dragDrop') }}</p>
+      <p class="text-[--color-text]/70">{{ $t('animals.photos.dragDrop') }}</p>
       <p class="text-sm text-gray-400 mt-1">{{ $t('animals.photos.maxSize') }}</p>
       <input
         ref="fileInput"
@@ -43,14 +43,14 @@
       <div
         v-for="(photo, index) in allPhotos"
         :key="photo.id || photo.tempId"
-        class="relative group rounded-lg overflow-hidden border border-gray-200 border-[--color-border]"
+        class="relative group rounded-lg overflow-hidden border border-[--color-border]"
         draggable="true"
         @dragstart="handlePhotoDragStart(index)"
         @dragover.prevent
         @drop.prevent="handlePhotoDrop(index)"
       >
         <!-- Photo -->
-        <div class="aspect-square bg-gray-100 bg-[--color-border]/40">
+        <div class="aspect-square bg-[--color-border]/40">
           <img
             v-if="photo.url"
             :src="photo.url"
