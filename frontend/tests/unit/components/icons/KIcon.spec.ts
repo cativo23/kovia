@@ -4,22 +4,13 @@ import KIcon from '~/components/icons/KIcon.vue'
 import { ALL_ICON_NAMES } from '../../../fixtures/icon-names'
 
 /**
- * GREEN gate for Plan 14-04. Plan 05 will extend coverage to all 63
- * canonical icon names. For now we assert the 34 names authored in
- * this plan render as <svg>, plus utility behaviors.
+ * Plan 14-05 GREEN gate: every canonical icon (all 63) must resolve through
+ * KIcon to a real <svg> with no fallback marker. This is the spec that
+ * gates the codebase-wide Lucide → KIcon migration.
  */
-const PLAN_04_NAMES = [
-  'arrow-left', 'arrow-right', 'chevron-left', 'chevron-right', 'chevron-up',
-  'layout-dashboard', 'layout-grid', 'list', 'more-horizontal',
-  'alert-circle', 'check', 'check-circle', 'circle-check-big', 'clock',
-  'loader-2', 'party-popper', 'shield', 'shield-check', 'x', 'x-circle',
-  'bell', 'facebook', 'instagram', 'log-out', 'user',
-  'user-minus', 'user-plus', 'users', 'users-round',
-  'baby', 'cat', 'dog', 'paw-print', 'ruler',
-]
 
 describe('KIcon', () => {
-  it.each(PLAN_04_NAMES)('renders icon "%s" as <svg>', (name) => {
+  it.each(ALL_ICON_NAMES)('renders canonical icon "%s" as <svg> (no fallback)', (name) => {
     const wrapper = mount(KIcon, { props: { name } })
     expect(wrapper.find('svg').exists()).toBe(true)
     expect(wrapper.find('[data-kicon-missing]').exists()).toBe(false)
@@ -37,7 +28,6 @@ describe('KIcon', () => {
     expect(svg.attributes('height')).toBe('32')
   })
 
-  // Plan 05 will assert ALL_ICON_NAMES.length === 63 and that every name resolves.
   it('canonical fixture has 63 names total (sanity)', () => {
     expect(ALL_ICON_NAMES.length).toBe(63)
   })

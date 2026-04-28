@@ -7,7 +7,7 @@
           <!-- Brand + Nav -->
           <div class="flex items-center gap-6">
             <NuxtLink to="/" class="flex items-center gap-2 group">
-              <UIcon name="i-lucide-paw-print" class="w-7 h-7 text-primary group-hover:scale-110 transition-transform" />
+              <KIcon name="paw-print" :size="28" class="text-primary group-hover:scale-110 transition-transform" />
               <span class="text-xl font-bold text-primary">Kovia</span>
             </NuxtLink>
 
@@ -58,8 +58,14 @@
                   color="neutral"
                   variant="ghost"
                   :label="user?.firstName || ''"
-                  icon="i-lucide-user"
-                />
+                >
+                  <template #leading>
+                    <KIcon name="user" :size="16" />
+                  </template>
+                </UButton>
+                <template #item-leading="{ item }">
+                  <KIcon v-if="item.kicon" :name="item.kicon" :size="16" />
+                </template>
               </UDropdownMenu>
             </template>
             <template v-else>
@@ -91,7 +97,7 @@
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div class="flex items-center gap-2">
-            <UIcon name="i-lucide-paw-print" class="w-5 h-5 text-primary" />
+            <KIcon name="paw-print" :size="20" class="text-primary" />
             <span class="font-bold text-primary">Kovia</span>
           </div>
           <p class="text-sm text-[--color-text-muted]">
@@ -121,24 +127,24 @@ const userRole = computed(() => authStore.userRole)
 const userMenuItems = computed(() => [
   [{
     label: t('nav.profile'),
-    icon: 'i-lucide-user',
+    kicon: 'user',
     to: '/',
   }],
   [{
     label: t('nav.admin'),
-    icon: 'i-lucide-shield',
+    kicon: 'shield',
     to: '/admin',
     hidden: !authStore.isAdmin,
   }].filter(item => !item.hidden),
   [{
     label: t('nav.myOrg'),
-    icon: 'i-lucide-building-2',
+    kicon: 'building-2',
     to: '/org/dashboard',
     hidden: !authStore.isOrgAdmin,
   }].filter(item => !item.hidden),
   [{
     label: t('nav.logout'),
-    icon: 'i-lucide-log-out',
+    kicon: 'log-out',
     onSelect: () => authStore.logout(),
   }],
 ])

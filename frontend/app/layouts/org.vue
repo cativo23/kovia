@@ -22,7 +22,7 @@
               : 'text-[--color-text]/70 hover:bg-[--color-border]/40'
           ]"
         >
-          <UIcon :name="item.icon" class="w-5 h-5" />
+          <KIcon :name="item.icon" :size="20" />
           {{ item.label }}
         </NuxtLink>
       </nav>
@@ -32,10 +32,13 @@
           block
           variant="ghost"
           color="neutral"
-          icon="i-lucide-arrow-left"
           :label="$t('org.nav.backToSite')"
           to="/"
-        />
+        >
+          <template #leading>
+            <KIcon name="arrow-left" :size="16" />
+          </template>
+        </UButton>
       </div>
     </aside>
 
@@ -51,8 +54,14 @@
               color="neutral"
               variant="ghost"
               :label="user?.firstName || ''"
-              icon="i-lucide-user"
-            />
+            >
+              <template #leading>
+                <KIcon name="user" :size="16" />
+              </template>
+            </UButton>
+            <template #item-leading="{ item }">
+              <KIcon v-if="item.kicon" :name="item.kicon" :size="16" />
+            </template>
           </UDropdownMenu>
         </div>
       </header>
@@ -74,23 +83,23 @@ const authStore = useAuthStore()
 const user = computed(() => authStore.user)
 
 const navItems = computed(() => [
-  { to: '/org/dashboard', label: t('org.nav.dashboard'), icon: 'i-lucide-layout-dashboard' },
-  { to: '/org/dashboard/animales', label: t('org.nav.animals'), icon: 'i-lucide-paw-print' },
-  { to: '/org/dashboard/aplicaciones', label: t('org.nav.applications'), icon: 'i-lucide-clipboard-list' },
-  { to: '/org/dashboard/adoptantes', label: t('org.nav.adopters'), icon: 'i-lucide-users' },
-  ...(authStore.isOrgAdmin ? [{ to: '/org/dashboard/equipo', label: t('org.nav.team'), icon: 'i-lucide-users-round' }] : []),
-  { to: '/org/dashboard/perfil', label: t('org.nav.profile'), icon: 'i-lucide-building-2' },
+  { to: '/org/dashboard', label: t('org.nav.dashboard'), icon: 'layout-dashboard' },
+  { to: '/org/dashboard/animales', label: t('org.nav.animals'), icon: 'paw-print' },
+  { to: '/org/dashboard/aplicaciones', label: t('org.nav.applications'), icon: 'clipboard-list' },
+  { to: '/org/dashboard/adoptantes', label: t('org.nav.adopters'), icon: 'users' },
+  ...(authStore.isOrgAdmin ? [{ to: '/org/dashboard/equipo', label: t('org.nav.team'), icon: 'users-round' }] : []),
+  { to: '/org/dashboard/perfil', label: t('org.nav.profile'), icon: 'building-2' },
 ])
 
 const userMenuItems = computed(() => [
   [{
     label: t('nav.profile'),
-    icon: 'i-lucide-user',
+    kicon: 'user',
     to: '/',
   }],
   [{
     label: t('nav.logout'),
-    icon: 'i-lucide-log-out',
+    kicon: 'log-out',
     onSelect: () => authStore.logout(),
   }],
 ])
