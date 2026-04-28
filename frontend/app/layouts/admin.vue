@@ -22,7 +22,7 @@
               : 'text-[--color-text]/70 hover:bg-[--color-border]/40'
           ]"
         >
-          <UIcon :name="item.icon" class="w-5 h-5" />
+          <KIcon :name="item.icon" :size="20" />
           {{ item.label }}
         </NuxtLink>
 
@@ -36,7 +36,7 @@
           rel="noopener noreferrer"
           class="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors text-[--color-text]/70 hover:bg-[--color-border]/40"
         >
-          <UIcon name="i-lucide-activity" class="w-5 h-5" />
+          <KIcon name="activity" :size="20" />
           {{ t('admin.queues.title') }}
         </a>
       </nav>
@@ -46,10 +46,13 @@
           block
           variant="ghost"
           color="neutral"
-          icon="i-lucide-arrow-left"
           :label="$t('common.back')"
           to="/"
-        />
+        >
+          <template #leading>
+            <KIcon name="arrow-left" :size="16" />
+          </template>
+        </UButton>
       </div>
     </aside>
 
@@ -65,8 +68,14 @@
               color="neutral"
               variant="ghost"
               :label="user?.firstName || ''"
-              icon="i-lucide-user"
-            />
+            >
+              <template #leading>
+                <KIcon name="user" :size="16" />
+              </template>
+            </UButton>
+            <template #item-leading="{ item }">
+              <KIcon v-if="item.kicon" :name="item.kicon" :size="16" />
+            </template>
           </UDropdownMenu>
         </div>
       </header>
@@ -89,22 +98,22 @@ const config = useRuntimeConfig()
 const user = computed(() => authStore.user)
 
 const navItems = computed(() => [
-  { to: '/admin', label: t('admin.dashboard'), icon: 'i-lucide-layout-dashboard' },
-  { to: '/admin/orgs', label: t('admin.orgs.title'), icon: 'i-lucide-building-2' },
-  { to: '/admin/users', label: t('admin.users.title'), icon: 'i-lucide-users' },
-  { to: '/admin/invites', label: t('admin.invites.title'), icon: 'i-lucide-mail' },
-  { to: '/admin/species', label: t('admin.species.title'), icon: 'i-lucide-paw-print' },
+  { to: '/admin', label: t('admin.dashboard'), icon: 'layout-dashboard' },
+  { to: '/admin/orgs', label: t('admin.orgs.title'), icon: 'building-2' },
+  { to: '/admin/users', label: t('admin.users.title'), icon: 'users' },
+  { to: '/admin/invites', label: t('admin.invites.title'), icon: 'mail' },
+  { to: '/admin/species', label: t('admin.species.title'), icon: 'paw-print' },
 ])
 
 const userMenuItems = computed(() => [
   [{
     label: t('nav.profile'),
-    icon: 'i-lucide-user',
+    kicon: 'user',
     to: '/',
   }],
   [{
     label: t('nav.logout'),
-    icon: 'i-lucide-log-out',
+    kicon: 'log-out',
     onSelect: () => authStore.logout(),
   }],
 ])

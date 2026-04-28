@@ -6,7 +6,8 @@
     </div>
 
     <div class="mb-8">
-      <NuxtLink to="/" class="text-3xl font-bold text-primary">
+      <NuxtLink to="/" class="flex items-center gap-2 text-3xl font-bold text-primary">
+        <KIcon name="paw-print" :size="32" class="text-primary" />
         Kovia
       </NuxtLink>
     </div>

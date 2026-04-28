@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center gap-2">
-    <UIcon name="i-lucide-paw-print" class="w-7 h-7 text-primary" />
+    <KIcon name="paw-print" :size="28" class="text-primary" />
     <div>
       <span class="text-xl font-bold text-primary leading-none">Kovia</span>
       <p v-if="showTagline" class="text-xs text-[--color-text]/70 leading-none mt-0.5">
