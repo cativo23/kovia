@@ -3,7 +3,7 @@
     <!-- Not found -->
     <UCard v-if="!animal" class="text-center py-12">
       <UIcon name="i-lucide-paw-print" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
-      <h2 class="text-xl font-bold text-gray-700 dark:text-gray-300 mb-2">
+      <h2 class="text-xl font-bold text-gray-700 text-[--color-text]/70 mb-2">
         {{ $t('detail.notFound') }}
       </h2>
       <p class="text-gray-500 mb-6">{{ $t('detail.notFoundMessage') }}</p>
@@ -18,7 +18,7 @@
           {{ $t('detail.breadcrumb') }}
         </NuxtLink>
         <UIcon name="i-lucide-chevron-right" class="w-4 h-4" />
-        <span class="text-gray-900 dark:text-white font-medium">{{ animal.name }}</span>
+        <span class="text-gray-900 text-[--color-text] font-medium">{{ animal.name }}</span>
       </nav>
 
       <!-- Two-column layout -->
@@ -36,7 +36,7 @@
           <!-- Name and species -->
           <div>
             <div class="flex items-start justify-between gap-3">
-              <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 class="text-3xl font-bold text-gray-900 text-[--color-text]">
                 {{ animal.name }}
               </h1>
               <UBadge color="success" variant="solid" size="md" class="mt-1 flex-shrink-0">
@@ -71,14 +71,14 @@
 
           <!-- Description -->
           <div v-if="animal.description">
-            <p class="text-gray-600 dark:text-gray-300 leading-relaxed">{{ animal.description }}</p>
+            <p class="text-gray-600 text-[--color-text]/70 leading-relaxed">{{ animal.description }}</p>
           </div>
 
           <USeparator />
 
           <!-- Compatibility -->
           <div>
-            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">
+            <h3 class="font-semibold text-gray-900 text-[--color-text] mb-3">
               {{ $t('detail.compatibility') }}
             </h3>
             <div class="flex flex-wrap gap-2">
@@ -109,7 +109,7 @@
 
           <!-- Health -->
           <div>
-            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">
+            <h3 class="font-semibold text-gray-900 text-[--color-text] mb-3">
               {{ $t('detail.health') }}
             </h3>
             <div class="flex flex-wrap gap-2">
@@ -130,7 +130,7 @@
 
           <!-- Special needs -->
           <div v-if="animal.specialNeeds">
-            <h3 class="font-semibold text-gray-900 dark:text-white mb-2">
+            <h3 class="font-semibold text-gray-900 text-[--color-text] mb-2">
               {{ $t('detail.specialNeeds') }}
             </h3>
             <UAlert color="warning" variant="soft" :description="animal.specialNeeds" />
@@ -140,7 +140,7 @@
 
           <!-- Organization -->
           <div>
-            <h3 class="font-semibold text-gray-900 dark:text-white mb-3">
+            <h3 class="font-semibold text-gray-900 text-[--color-text] mb-3">
               {{ $t('detail.organization') }}
             </h3>
             <NuxtLink
@@ -156,7 +156,7 @@
                 />
                 <UIcon v-else name="i-lucide-building-2" class="w-6 h-6 text-primary" />
               </div>
-              <span class="font-medium text-gray-900 dark:text-white group-hover:text-primary transition-colors">
+              <span class="font-medium text-gray-900 text-[--color-text] group-hover:text-primary transition-colors">
                 {{ animal.organization.name }}
               </span>
               <UIcon name="i-lucide-arrow-right" class="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors ml-auto" />

@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-4">
     <!-- Read-only user info -->
-    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-1">
-      <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+    <div class="bg-gray-50 bg-[--color-border]/40 rounded-lg p-4 space-y-1">
+      <p class="text-sm font-medium text-gray-700 text-[--color-text]/70">
         {{ authStore.user?.firstName }} {{ authStore.user?.lastName }}
       </p>
       <p class="text-sm text-gray-500">{{ authStore.user?.email }}</p>

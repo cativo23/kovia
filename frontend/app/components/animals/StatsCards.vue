@@ -11,8 +11,8 @@
             <p class="text-sm text-gray-500">{{ card.label }}</p>
           </template>
           <template v-else>
-            <div class="h-7 w-12 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1" />
-            <div class="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div class="h-7 w-12 bg-gray-200 bg-[--color-border]/40 rounded animate-pulse mb-1" />
+            <div class="h-4 w-20 bg-gray-200 bg-[--color-border]/40 rounded animate-pulse" />
           </template>
         </div>
       </div>
@@ -39,29 +39,29 @@ const cards = computed(() => [
     label: t('animals.stats.total'),
     value: props.stats?.total ?? 0,
     icon: 'i-lucide-paw-print',
-    bgClass: 'bg-gray-100 dark:bg-gray-800',
-    iconClass: 'text-gray-600 dark:text-gray-300',
+    bgClass: 'bg-gray-100 bg-[--color-border]/40',
+    iconClass: 'text-gray-600 text-[--color-text]/70',
   },
   {
     label: t('animals.stats.available'),
     value: props.stats?.available ?? 0,
     icon: 'i-lucide-check-circle',
-    bgClass: 'bg-green-100 dark:bg-green-900/30',
-    iconClass: 'text-green-600 dark:text-green-400',
+    bgClass: 'bg-green-100 bg-success/20',
+    iconClass: 'text-green-600 text-success',
   },
   {
     label: t('animals.stats.inProcess'),
     value: props.stats?.inProcess ?? 0,
     icon: 'i-lucide-clock',
-    bgClass: 'bg-amber-100 dark:bg-amber-900/30',
-    iconClass: 'text-amber-600 dark:text-amber-400',
+    bgClass: 'bg-amber-100 bg-warning/20',
+    iconClass: 'text-amber-600 text-warning',
   },
   {
     label: t('animals.stats.adopted'),
     value: props.stats?.adopted ?? 0,
     icon: 'i-lucide-heart',
-    bgClass: 'bg-blue-100 dark:bg-blue-900/30',
-    iconClass: 'text-blue-600 dark:text-blue-400',
+    bgClass: 'bg-blue-100 bg-info/20',
+    iconClass: 'text-blue-600 text-info',
   },
 ])
 </script>

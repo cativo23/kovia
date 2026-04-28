@@ -46,7 +46,7 @@
       <div v-else-if="auditEntries.length === 0" class="text-center py-8 text-gray-500">
         {{ $t('common.noResults') }}
       </div>
-      <div v-else class="divide-y divide-gray-200 dark:divide-gray-800">
+      <div v-else class="divide-y divide-gray-200 divide-[--color-border]">
         <div v-for="entry in auditEntries" :key="entry.id" class="py-3 flex items-center justify-between">
           <div>
             <span class="font-medium">{{ formatAction(entry.action) }}</span>

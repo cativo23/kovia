@@ -4,10 +4,10 @@
     <section class="py-16 text-center">
       <div class="max-w-3xl mx-auto">
         <UIcon name="i-lucide-paw-print" class="w-16 h-16 text-primary mx-auto mb-4" />
-        <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+        <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 text-[--color-text] mb-4">
           {{ $t('landing.hero.title') }}
         </h1>
-        <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
+        <p class="text-lg text-gray-600 text-[--color-text]/70 mb-8">
           {{ $t('landing.hero.subtitle') }}
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
@@ -26,7 +26,7 @@
     <!-- Featured animals section -->
     <section v-if="featuredAnimals.length" class="py-12">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+        <h2 class="text-2xl font-bold text-gray-900 text-[--color-text]">
           {{ $t('landing.featured.title') }}
         </h2>
         <NuxtLink
@@ -49,12 +49,12 @@
     </section>
 
     <!-- Org CTA section -->
-    <section class="py-12 bg-amber-50 dark:bg-amber-900/10 rounded-2xl px-8 text-center mt-8">
+    <section class="py-12 bg-amber-50 bg-warning/20 rounded-2xl px-8 text-center mt-8">
       <UIcon name="i-lucide-building-2" class="w-12 h-12 text-primary mx-auto mb-4" />
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+      <h2 class="text-2xl font-bold text-gray-900 text-[--color-text] mb-2">
         {{ $t('landing.orgCta.title') }}
       </h2>
-      <p class="text-gray-600 dark:text-gray-400 mb-6">
+      <p class="text-gray-600 text-[--color-text]/70 mb-6">
         {{ $t('landing.orgCta.description') }}
       </p>
 

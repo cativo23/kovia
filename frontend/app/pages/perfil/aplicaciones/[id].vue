@@ -2,8 +2,8 @@
   <div class="max-w-3xl mx-auto">
     <!-- Loading -->
     <div v-if="loading" class="animate-pulse space-y-4">
-      <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
-      <div class="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
+      <div class="h-8 bg-gray-200 bg-[--color-border]/40 rounded w-1/3" />
+      <div class="h-32 bg-gray-200 bg-[--color-border]/40 rounded" />
     </div>
 
     <!-- Error -->
@@ -127,7 +127,7 @@
           <div
             v-for="(photo, index) in application.photos"
             :key="photo.id"
-            class="aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 cursor-pointer"
+            class="aspect-square rounded-lg overflow-hidden bg-gray-100 bg-[--color-border]/40 cursor-pointer"
             @click="openLightbox(index)"
           >
             <img

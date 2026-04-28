@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+      <h1 class="text-3xl font-bold text-gray-900 text-[--color-text]">
         {{ $t('notifications.page.title') }}
       </h1>
     </div>

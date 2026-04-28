@@ -33,14 +33,14 @@
       <div class="space-y-2">
         <!-- Name and breed -->
         <div>
-          <h3 class="font-bold text-base text-gray-900 dark:text-white group-hover:text-primary transition-colors">
+          <h3 class="font-bold text-base text-gray-900 text-[--color-text] group-hover:text-primary transition-colors">
             {{ animal.name }}
           </h3>
           <p v-if="animal.breed" class="text-sm text-gray-500">{{ animal.breed }}</p>
         </div>
 
         <!-- Age, size, energy -->
-        <div class="flex flex-wrap gap-1 text-xs text-gray-600 dark:text-gray-400">
+        <div class="flex flex-wrap gap-1 text-xs text-gray-600 text-[--color-text]/70">
           <span v-if="animal.ageMonths !== null" class="flex items-center gap-1">
             <UIcon name="i-lucide-calendar" class="w-3 h-3" />
             {{ formatAge(animal.ageMonths) }}
@@ -75,7 +75,7 @@
         </div>
 
         <!-- Org name -->
-        <p v-if="animal.organization" class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+        <p v-if="animal.organization" class="text-xs text-gray-400 text-[--color-text-muted] mt-1">
           {{ animal.organization.name }}
         </p>
       </div>
@@ -84,7 +84,7 @@
     <!-- List Mode -->
     <div
       v-else
-      class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+      class="flex items-center gap-4 p-3 rounded-lg border border-gray-200 border-[--color-border] hover:bg-gray-50 hover:bg-[--color-border]/40 transition-colors"
     >
       <!-- Thumbnail -->
       <div class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-amber-50">
@@ -102,7 +102,7 @@
       <!-- Info -->
       <div class="flex-1 min-w-0">
         <div class="flex items-start justify-between gap-2">
-          <h3 class="font-bold text-sm text-gray-900 dark:text-white group-hover:text-primary transition-colors truncate">
+          <h3 class="font-bold text-sm text-gray-900 text-[--color-text] group-hover:text-primary transition-colors truncate">
             {{ animal.name }}
           </h3>
           <UBadge v-if="animal.species" color="primary" variant="soft" size="sm" class="flex-shrink-0">
@@ -110,7 +110,7 @@
           </UBadge>
         </div>
         <p v-if="animal.breed" class="text-xs text-gray-500 mt-0.5">{{ animal.breed }}</p>
-        <div class="flex flex-wrap gap-2 mt-1 text-xs text-gray-600 dark:text-gray-400">
+        <div class="flex flex-wrap gap-2 mt-1 text-xs text-gray-600 text-[--color-text]/70">
           <span v-if="animal.ageMonths !== null">{{ formatAge(animal.ageMonths) }}</span>
           <span v-if="animal.size">{{ $t(`animals.form.sizeOptions.${sizeKey(animal.size)}`) }}</span>
           <span v-if="animal.organization" class="text-gray-400">{{ animal.organization.name }}</span>

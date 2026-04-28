@@ -11,15 +11,15 @@
         <div
           class="p-2 rounded-lg shrink-0"
           :class="accent
-            ? 'bg-amber-100 dark:bg-amber-900/30'
-            : 'bg-gray-100 dark:bg-gray-800'"
+            ? 'bg-amber-100 bg-warning/20'
+            : 'bg-gray-100 bg-[--color-border]/40'"
         >
           <UIcon
             name="i-lucide-file-text"
             class="w-6 h-6"
             :class="accent
-              ? 'text-amber-600 dark:text-amber-400'
-              : 'text-gray-600 dark:text-gray-300'"
+              ? 'text-amber-600 text-warning'
+              : 'text-gray-600 text-[--color-text]/70'"
             aria-hidden="true"
           />
         </div>
@@ -31,13 +31,13 @@
             >
               {{ count }}
             </p>
-            <p class="text-sm font-semibold text-gray-500 dark:text-gray-400 leading-snug">
+            <p class="text-sm font-semibold text-gray-500 text-[--color-text]/70 leading-snug">
               {{ label }}
             </p>
           </template>
           <template v-else>
-            <div class="h-6 w-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1" />
-            <div class="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div class="h-6 w-10 bg-gray-200 bg-[--color-border]/40 rounded animate-pulse mb-1" />
+            <div class="h-4 w-20 bg-gray-200 bg-[--color-border]/40 rounded animate-pulse" />
           </template>
         </div>
       </div>
