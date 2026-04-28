@@ -30,6 +30,57 @@
       "dark": "Modo oscuro"
     }
   },
+  "designSystem": {
+    "title": "Sistema de diseño Kovia",
+    "subtitle": "Referencia visual de tokens, tipografía, íconos, mascota y movimiento.",
+    "nav": {
+      "tokens": "Tokens",
+      "typography": "Tipografía",
+      "icons": "Íconos",
+      "mascot": "Mascota",
+      "motion": "Movimiento"
+    },
+    "tokens": {
+      "rawColors": "Colores base",
+      "semanticColors": "Colores semánticos",
+      "radius": "Radios",
+      "spacing": "Espaciado"
+    },
+    "typography": {
+      "displayHover": "Pasá el mouse para sentir el peso",
+      "heading": "Título de tarjeta",
+      "label": "Etiqueta",
+      "body": "Texto base de párrafo: el cuerpo de la lectura ocurre aquí, con altura de línea cómoda y peso 400."
+    },
+    "icons": {
+      "heading": "63 íconos KIcon",
+      "subtitle": "Importados desde la fuente única de verdad ALL_ICON_NAMES."
+    },
+    "mascot": {
+      "variant": {
+        "hero": "Hero",
+        "emptyState": "Estado vacío",
+        "loading": "Cargando",
+        "status": "Estado"
+      },
+      "status": {
+        "pending": "Pendiente",
+        "approved": "Aprobado",
+        "rejected": "Rechazado"
+      }
+    },
+    "motion": {
+      "springCard": "Pasá el mouse para sentir el resorte",
+      "springCardBody": "Lift sutil con resorte iOS-widget (rigidez 300, amortiguación 20).",
+      "pawLoader": "Carga con caminata de huellas",
+      "marquee": "Marquee de huellas (CSS keyframes puros).",
+      "fadeUp": "Aparición progresiva al entrar en vista."
+    },
+    "emptyState": {
+      "heading": "Aquí no hay nada todavía",
+      "body": "Los animales están esperando. Explorá el catálogo."
+    }
+  },
   "auth": {
     "login": "Iniciar sesion",
     "loginTitle": "Inicia sesion en tu cuenta",

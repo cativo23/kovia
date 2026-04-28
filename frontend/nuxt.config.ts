@@ -62,6 +62,11 @@ export default defineNuxtConfig({
       backendUrl: process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3000',
       // Shadow mode: when false, ScorePanel renders nothing (scores computed but hidden until calibration)
       scoringDisplayEnabled: process.env.NUXT_PUBLIC_SCORING_DISPLAY_ENABLED === 'true',
+      // Phase 14-07 / D-15 — gates the /design-system/* demo route tree.
+      // Default false (env var unset) → middleware redirects to /. Set
+      // NUXT_PUBLIC_DESIGN_SYSTEM_ENABLED=true in dev to access the demo.
+      // CI deployment configs MUST NOT set this true (RESEARCH Security Domain, T-14-09).
+      designSystemEnabled: process.env.NUXT_PUBLIC_DESIGN_SYSTEM_ENABLED === 'true',
     },
   },
 

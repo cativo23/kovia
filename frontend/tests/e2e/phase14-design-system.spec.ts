@@ -1,28 +1,28 @@
 import { test, expect } from '@playwright/test'
 
 /**
- * RED: Wave 0 E2E stubs for Phase 14 design system foundation.
+ * GREEN: Phase 14 design-system smoke (Plan 14-07).
  *
- * Tag `@phase14` lets later waves filter execution via
- * `npx playwright test --grep @phase14`. All four tests MUST fail today —
- * the routes, theme toggle, KIcon component, and KSpringCard demo land in
- * Plans 02–07.
- *
- * Coverage map:
+ * Tag `@phase14` allows targeted runs via `playwright test --grep @phase14`.
+ * The suite gates the four phase exit criteria:
  *   - DESIGN-01 dark-mode toggle + localStorage persistence (Plan 02)
  *   - DESIGN-02 Inter body font on every page (Plan 03; rendered on `/`)
- *   - DESIGN-03 hand-authored 63-icon set (Plans 04/05; demo route Plan 07)
- *   - DESIGN-05 motion primitive without console errors (Plans 06/07)
+ *   - DESIGN-03 hand-authored 63-icon set surfaced on the demo route (Plans 04/05/07)
+ *   - DESIGN-05 motion primitives without console errors (Plans 06/07)
+ *
+ * The demo-route tests require NUXT_PUBLIC_DESIGN_SYSTEM_ENABLED=true on the
+ * webServer, otherwise the design-system middleware redirects to /.
  */
 test.describe('Phase 14 design system @phase14', () => {
   test('toggles dark mode and persists to localStorage @phase14', async ({ page }) => {
     await page.goto('/')
-    const toggle = page.getByRole('button', { name: /theme|tema/i })
+    const toggle = page.getByRole('button', { name: /modo (claro|oscuro)|theme|tema/i })
     await toggle.click()
+    await expect(page.locator('html')).toHaveClass(/\bdark\b/)
     const themeValue = await page.evaluate(() => localStorage.getItem('kovia-theme'))
     expect(themeValue).toBe('dark')
-    const htmlClass = await page.evaluate(() => document.documentElement.className)
-    expect(htmlClass).toContain('dark')
+    await toggle.click()
+    await expect(page.locator('html')).not.toHaveClass(/\bdark\b/)
   })
 
   test('renders Inter as the body font on / @phase14', async ({ page }) => {
@@ -35,11 +35,13 @@ test.describe('Phase 14 design system @phase14', () => {
 
   test('renders 63 icon SVGs on the icon demo route @phase14', async ({ page }) => {
     await page.goto('/design-system/icons')
-    const svgCount = await page.locator('[data-k-icon] svg').count()
-    expect(svgCount).toBe(63)
+    const grid = page.locator('[data-testid="icon-grid"]')
+    await expect(grid).toBeVisible()
+    const svgs = grid.locator('svg')
+    await expect(svgs).toHaveCount(63)
   })
 
-  test('loads /design-system/motion without console errors @phase14', async ({ page }) => {
+  test('loads /design-system/motion with KSpringCard + KPawLoader and no console errors @phase14', async ({ page }) => {
     const errors: string[] = []
     page.on('console', (msg) => {
       if (msg.type() === 'error') errors.push(msg.text())
@@ -47,6 +49,8 @@ test.describe('Phase 14 design system @phase14', () => {
     page.on('pageerror', (err) => errors.push(err.message))
     await page.goto('/design-system/motion')
     await page.waitForLoadState('networkidle')
+    await expect(page.locator('.k-card').first()).toBeVisible()
+    await expect(page.locator('.k-paw-loader').first()).toBeVisible()
     expect(errors).toEqual([])
   })
 })
