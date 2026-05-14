@@ -81,6 +81,13 @@ async function main() {
     },
   });
 
+  // Phase 15 D-14: mark DameTuPataSV verified at seed time (idempotent — re-runs overwrite verifiedAt
+  // with a new timestamp, but the column stays non-null which is the launch-checklist requirement).
+  await prisma.organization.update({
+    where: { slug: ORG_SLUG },
+    data: { verifiedAt: new Date() },
+  });
+
   // 4. Default species (upsert by slug)
   const speciesDefs = [
     { slug: 'perros', name: 'Perros' },
@@ -147,6 +154,56 @@ async function main() {
         ...rest,
         organizationId: org.id,
         speciesId: speciesByKey[speciesSlug].id,
+      },
+    });
+  }
+
+  // 6. Phase 15 D-13: seed 3 AdoptionStory rows for DameTuPataSV (manually curated es-SV testimonials).
+  //    photoUrl paths resolve under frontend/public/seed/stories/ at runtime (actual JPGs land in the
+  //    launch-checklist task). animalId is left null because the seeded animals here don't have
+  //    dossiers (D-07 fail-closed). publishedAt offsets create a deterministic sort order.
+  const now = Date.now();
+  const day = 24 * 60 * 60 * 1000;
+  const stories = [
+    {
+      adopterFirstName: 'Ana',
+      city: 'San Salvador',
+      testimonial:
+        'Adoptar a nuestra perrita fue la mejor decisión. El proceso con DameTuPataSV fue claro y honesto; nos contaron todo lo que necesitábamos saber antes de comprometernos. Hoy es parte de la familia.',
+      photoUrl: '/seed/stories/story-1.jpg',
+      publishedAt: new Date(now - 7 * day),
+    },
+    {
+      adopterFirstName: 'Carlos',
+      city: 'Santa Tecla',
+      testimonial:
+        'Tenía dudas porque nunca había tenido un gato adulto, pero el dossier me ayudó a entender qué esperar. Después de tres meses ya tenemos rutina y mucho cariño. Gracias por el acompañamiento.',
+      photoUrl: '/seed/stories/story-2.jpg',
+      publishedAt: new Date(now - 14 * day),
+    },
+    {
+      adopterFirstName: 'Sofía',
+      city: 'La Libertad',
+      testimonial:
+        'Buscábamos un compañero senior y encontramos exactamente eso. La transparencia sobre su condición médica y costos mensuales nos permitió prepararnos. Es tranquilo, agradecido, y duerme mucho cerca de la ventana.',
+      photoUrl: '/seed/stories/story-3.jpg',
+      publishedAt: new Date(now - 30 * day),
+    },
+  ];
+
+  for (const s of stories) {
+    const exists = await prisma.adoptionStory.findFirst({
+      where: {
+        organizationId: org.id,
+        adopterFirstName: s.adopterFirstName,
+        city: s.city,
+      },
+    });
+    if (exists) continue;
+    await prisma.adoptionStory.create({
+      data: {
+        ...s,
+        organizationId: org.id,
       },
     });
   }
