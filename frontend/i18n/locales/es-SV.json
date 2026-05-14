@@ -286,6 +286,22 @@
     "filter": {
       "all": "Todos"
     },
+    "guidance": {
+      "verde": {
+        "label": "Buena pareja"
+      },
+      "ambar": {
+        "label": "Considerá: {factor}",
+        "factor": {
+          "senior": "edad senior",
+          "reactivo": "manejo cuidadoso"
+        }
+      },
+      "rojo": {
+        "label": "Necesidades especiales · revisá dossier",
+        "medicalCopy": "Animal con condición médica activa. Conocé los detalles y costos antes de aplicar"
+      }
+    },
     "table": {
       "name": "Nombre",
       "species": "Especie",
