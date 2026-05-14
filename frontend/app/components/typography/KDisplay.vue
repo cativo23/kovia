@@ -1,12 +1,18 @@
 <script setup lang="ts">
 /**
- * KDisplay (DESIGN-02) — hero typography primitive.
+ * KDisplay (DESIGN-02) — hero typography primitive (Phase 14, 15-08 fix).
  *
  * Animates Inter's `wght` variable axis 800 → 900 on hover via a motion-v
- * spring (D-07, D-13). The `<motion.h1>` factory is auto-imported by the
- * `motion-v/nuxt` module (registered in nuxt.config.ts), so we deliberately
- * import ONLY the three named hooks we need — keeping bundle weight inside
- * the D-16 budget.
+ * spring (D-07, D-13). Uses `<Motion as="h1">` — the Nuxt module
+ * (`motion-v/nuxt`) auto-imports CAPITAL-CASE components only (`Motion`,
+ * `M`, `AnimatePresence`, etc.). The lowercase `<motion.h1>` dot-notation
+ * is a SCRIPT-LEVEL proxy export, NOT a template-resolvable component —
+ * using it produces a Vue runtime warning and renders the heading as
+ * `<!---->`. Latent Phase 14 bug fixed in 15-08 (see 15-08-SUMMARY
+ * §Regression Diagnosis).
+ *
+ * Hooks imports stay narrow (only the three we need) to honor the D-16
+ * bundle budget.
  *
  * Spring config (UI-SPEC Motion Contract): stiffness 200, damping 30, mass 1
  * → ≈250 ms perceived duration.
@@ -22,14 +28,15 @@ function onLeave() { wght.set(800) }
 </script>
 
 <template>
-  <motion.h1
+  <Motion
+    as="h1"
     class="k-display"
     :style="{ fontVariationSettings: fontVariation }"
     @mouseenter="onEnter"
     @mouseleave="onLeave"
   >
     <slot />
-  </motion.h1>
+  </Motion>
 </template>
 
 <style scoped>
