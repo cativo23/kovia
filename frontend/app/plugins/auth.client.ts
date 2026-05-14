@@ -29,14 +29,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.hook('app:mounted', async () => {
     const authStore = useAuthStore()
     if (!authStore.isInitialized) {
-      try {
-        await authStore.initialize()
-      }
-      catch {
-        // Swallow silently — same behavior as stores/auth.ts initialize() which
-        // catches errors internally. Public routes must not crash if auth fails
-        // (e.g., expired refresh token, network timeout on cold load).
-      }
+      await authStore.initialize()
     }
   })
 })
