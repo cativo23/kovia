@@ -5,7 +5,7 @@
       <h1 class="text-[28px] font-semibold leading-tight">
         {{ $t('dashboard.panel.greeting', { nombre: authStore.user?.firstName || '' }) }}
       </h1>
-      <p class="text-base text-[--color-text]/70 mt-1">
+      <p class="text-base text-[var(--color-text)]/70 mt-1">
         {{ $t('dashboard.panel.title') }}
       </p>
     </div>
@@ -66,10 +66,10 @@
         <div v-if="loading" class="space-y-3">
           <UCard v-for="i in 3" :key="i" class="animate-pulse">
             <div class="flex items-center gap-4">
-              <div class="w-12 h-12 bg-[--color-border]/40 rounded-lg flex-shrink-0" />
+              <div class="w-12 h-12 bg-[var(--color-border)]/40 rounded-lg flex-shrink-0" />
               <div class="flex-1 space-y-2">
-                <div class="h-4 bg-[--color-border]/40 rounded w-1/3" />
-                <div class="h-3 bg-[--color-border]/40 rounded w-1/4" />
+                <div class="h-4 bg-[var(--color-border)]/40 rounded w-1/3" />
+                <div class="h-3 bg-[var(--color-border)]/40 rounded w-1/4" />
               </div>
             </div>
           </UCard>
@@ -101,7 +101,7 @@
         <USkeleton v-for="i in 3" :key="i" class="h-12 w-full" />
       </div>
       <UCard v-else-if="recentNotifications.length > 0">
-        <ul class="divide-y divide-[--color-border]">
+        <ul class="divide-y divide-[var(--color-border)]">
           <PanelNotificationItem
             v-for="n in recentNotifications"
             :key="n.id"

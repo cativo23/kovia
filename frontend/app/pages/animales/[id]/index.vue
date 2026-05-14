@@ -3,7 +3,7 @@
     <!-- Not found (also covers 404 from D-07 fail-closed: dossierComplete=false) -->
     <UCard v-if="!animal" class="text-center py-12">
       <KIcon name="paw-print" :size="64" class="text-gray-300 mx-auto mb-4" />
-      <h2 class="text-xl font-bold text-[--color-text]/70 mb-2">
+      <h2 class="text-xl font-bold text-[var(--color-text)]/70 mb-2">
         {{ $t('detail.notFound') }}
       </h2>
       <p class="text-gray-500 mb-6">{{ $t('detail.notFoundMessage') }}</p>
@@ -20,7 +20,7 @@
           {{ $t('detail.breadcrumb') }}
         </NuxtLink>
         <KIcon name="chevron-right" :size="16" />
-        <span class="text-[--color-text] font-medium">{{ animal.name }}</span>
+        <span class="text-[var(--color-text)] font-medium">{{ animal.name }}</span>
       </nav>
 
       <!-- 1. PhotoGallery -->
@@ -32,7 +32,7 @@
            public detail DTO carries no `status` field, so a non-AVAILABLE row
            returns 404 and renders the not-found UCard at the top.) -->
       <header class="space-y-2">
-        <h1 class="text-4xl font-bold font-display text-[--color-text]">
+        <h1 class="text-4xl font-bold font-display text-[var(--color-text)]">
           {{ animal.name }}
         </h1>
         <div class="flex flex-wrap gap-2">
@@ -86,7 +86,7 @@
 
       <!-- 11. Organization -->
       <div class="border-t pt-6">
-        <h3 class="font-semibold text-[--color-text] mb-3">
+        <h3 class="font-semibold text-[var(--color-text)] mb-3">
           {{ $t('detail.organization') }}
         </h3>
         <NuxtLink
@@ -102,7 +102,7 @@
             />
             <UIcon v-else name="building-2" class="w-6 h-6 text-primary" />
           </div>
-          <span class="font-medium text-[--color-text] group-hover:text-primary transition-colors">
+          <span class="font-medium text-[var(--color-text)] group-hover:text-primary transition-colors">
             {{ animal.organization.name }}
           </span>
           <KIcon name="arrow-right" :size="16" class="text-gray-400 group-hover:text-primary transition-colors ml-auto" />

@@ -2,8 +2,8 @@
   <div v-if="registered" class="text-center space-y-4">
     <KIcon name="mail-check" :size="64" class="text-primary mx-auto" />
     <h2 class="text-xl font-semibold">{{ $t('auth.checkEmail') }}</h2>
-    <p class="text-[--color-text]/70">{{ $t('auth.checkEmailDescription') }}</p>
-    <p class="text-xs text-[--color-text-muted]">{{ $t('auth.checkEmailDevHint') }}</p>
+    <p class="text-[var(--color-text)]/70">{{ $t('auth.checkEmailDescription') }}</p>
+    <p class="text-xs text-[var(--color-text-muted)]">{{ $t('auth.checkEmailDevHint') }}</p>
     <UButton variant="outline" :to="route.query.redirect ? `/login?redirect=${route.query.redirect}` : '/login'" :label="$t('auth.goToLogin')" />
   </div>
 

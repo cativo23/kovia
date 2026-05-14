@@ -16,32 +16,32 @@
       {{ $t('verificacion.title') }}
     </h1>
 
-    <p class="text-base text-[--color-text]/80 leading-relaxed">
+    <p class="text-base text-[var(--color-text)]/80 leading-relaxed">
       {{ $t('verificacion.body.intro') }}
     </p>
 
     <section class="space-y-3">
       <h2 class="text-xl font-semibold">{{ $t('verificacion.body.section1Heading') }}</h2>
-      <p class="text-base text-[--color-text]/80 leading-relaxed">
+      <p class="text-base text-[var(--color-text)]/80 leading-relaxed">
         {{ $t('verificacion.body.section1Body') }}
       </p>
     </section>
 
     <section class="space-y-3">
       <h2 class="text-xl font-semibold">{{ $t('verificacion.body.section2Heading') }}</h2>
-      <p class="text-base text-[--color-text]/80 leading-relaxed">
+      <p class="text-base text-[var(--color-text)]/80 leading-relaxed">
         {{ $t('verificacion.body.section2Body') }}
       </p>
     </section>
 
     <section class="space-y-3">
       <h2 class="text-xl font-semibold">{{ $t('verificacion.body.section3Heading') }}</h2>
-      <p class="text-base text-[--color-text]/80 leading-relaxed">
+      <p class="text-base text-[var(--color-text)]/80 leading-relaxed">
         {{ $t('verificacion.body.section3Body') }}
       </p>
     </section>
 
-    <p class="text-base text-[--color-text]/80 leading-relaxed">
+    <p class="text-base text-[var(--color-text)]/80 leading-relaxed">
       {{ $t('verificacion.body.outro') }}
     </p>
   </article>

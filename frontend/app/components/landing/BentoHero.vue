@@ -38,7 +38,7 @@
         {{ availableCountCopy }}
       </p>
 
-      <p class="bento-hero__subhead mt-3 text-base text-[--color-text]/80 max-w-xl">
+      <p class="bento-hero__subhead mt-3 text-base text-[var(--color-text)]/80 max-w-xl">
         {{ $t('landing.hero.day1.subhead') }}
       </p>
 

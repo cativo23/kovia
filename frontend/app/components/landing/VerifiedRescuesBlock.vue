@@ -15,7 +15,7 @@
     class="bento-verified [grid-area:verified] rounded-[var(--radius-card,24px)] p-6"
   >
     <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-      <KIcon name="shield-check" :size="20" class="text-[--color-verde-forestal-500,#16a34a]" aria-hidden="true" />
+      <KIcon name="shield-check" :size="20" class="text-[var(--color-verde-forestal-500,#16a34a)]" aria-hidden="true" />
       {{ $t('landing.verifiedRescues.heading') }}
     </h2>
 
@@ -25,18 +25,18 @@
         :key="rescue.id"
         class="flex items-center gap-3"
       >
-        <div class="bento-verified__logo flex-shrink-0 w-10 h-10 rounded-[var(--radius-icon,14px)] overflow-hidden bg-[--color-bg-secondary,#faf3e8] flex items-center justify-center">
+        <div class="bento-verified__logo flex-shrink-0 w-10 h-10 rounded-[var(--radius-icon,14px)] overflow-hidden bg-[var(--color-bg-secondary,#faf3e8)] flex items-center justify-center">
           <img
             v-if="rescue.logoUrl"
             :src="rescue.logoUrl"
             :alt="rescue.name"
             class="w-full h-full object-cover"
           />
-          <KIcon v-else name="building-2" :size="20" class="text-[--color-text]/40" aria-hidden="true" />
+          <KIcon v-else name="building-2" :size="20" class="text-[var(--color-text)]/40" aria-hidden="true" />
         </div>
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-sm truncate">{{ rescue.name }}</p>
-          <p v-if="rescue.foundedYear" class="text-xs text-[--color-text]/60">
+          <p v-if="rescue.foundedYear" class="text-xs text-[var(--color-text)]/60">
             {{ $t('landing.verifiedRescues.foundedYear', { year: rescue.foundedYear }) }}
           </p>
         </div>
@@ -45,7 +45,7 @@
 
     <NuxtLink
       to="/verificacion"
-      class="bento-verified__methodology underline text-sm text-[--color-text]/70 hover:text-[--color-text] mt-4 inline-flex items-center gap-1"
+      class="bento-verified__methodology underline text-sm text-[var(--color-text)]/70 hover:text-[var(--color-text)] mt-4 inline-flex items-center gap-1"
     >
       {{ $t('landing.stats.methodologyLink') }}
       <KIcon name="external-link" :size="14" aria-hidden="true" />

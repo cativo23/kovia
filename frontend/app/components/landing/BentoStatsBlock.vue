@@ -17,7 +17,7 @@
       <!-- Primary stat: availableCount with coral pop on the number (Color §reserved-for #2). -->
       <div class="bento-stats__primary">
         <span class="bento-stats__number">{{ availableCount }}</span>
-        <p class="bento-stats__caption mt-1 text-sm text-[--color-text]/80">
+        <p class="bento-stats__caption mt-1 text-sm text-[var(--color-text)]/80">
           {{ availableCountCopy }}
         </p>
       </div>
@@ -29,7 +29,7 @@
         </p>
         <NuxtLink
           to="/verificacion"
-          class="bento-stats__methodology underline text-sm text-[--color-text]/70 hover:text-[--color-text] mt-1 inline-block"
+          class="bento-stats__methodology underline text-sm text-[var(--color-text)]/70 hover:text-[var(--color-text)] mt-1 inline-block"
         >
           {{ $t('landing.stats.methodologyLink') }}
         </NuxtLink>
@@ -39,7 +39,7 @@
       <div v-if="layoutVariant === 'year2'" class="bento-stats__tertiary mt-2">
         <p class="text-base font-semibold">
           {{ totalAdoptions }}
-          <span class="text-sm font-normal text-[--color-text]/70">adopciones</span>
+          <span class="text-sm font-normal text-[var(--color-text)]/70">adopciones</span>
         </p>
       </div>
     </div>

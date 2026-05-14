@@ -37,13 +37,13 @@
   <div>
     <!-- Loading state -->
     <div v-if="pending" class="text-center py-24">
-      <p class="text-base text-[--color-text]/70">{{ $t('common.loading') }}</p>
+      <p class="text-base text-[var(--color-text)]/70">{{ $t('common.loading') }}</p>
     </div>
 
     <!-- Error state -->
     <div v-else-if="landingError" class="text-center py-24 max-w-md mx-auto px-4">
       <h2 class="text-2xl font-semibold mb-3">{{ $t('landing.error.heading') }}</h2>
-      <p class="text-base text-[--color-text]/80 mb-6">{{ $t('landing.error.body') }}</p>
+      <p class="text-base text-[var(--color-text)]/80 mb-6">{{ $t('landing.error.body') }}</p>
       <UButton
         color="primary"
         size="lg"
@@ -59,7 +59,7 @@
     >
       <!-- HERO cell -->
       <Motion
-        class="[grid-area:hero]"
+        class="sm:col-span-2 lg:row-span-2"
         :initial="{ opacity: 0, y: 16 }"
         :while-in-view="{ opacity: 1, y: 0 }"
         :viewport="{ once: true }"
@@ -70,7 +70,7 @@
 
       <!-- STATS cell -->
       <Motion
-        class="[grid-area:stats]"
+        class="sm:col-start-1 sm:row-start-2 lg:col-start-3 lg:col-span-2 lg:row-start-1 lg:row-span-2"
         :initial="{ opacity: 0, y: 16 }"
         :while-in-view="{ opacity: 1, y: 0 }"
         :viewport="{ once: true }"
@@ -87,7 +87,7 @@
       <!-- FEATURED cell (hidden when null) -->
       <Motion
         v-if="landing.featuredAnimal"
-        class="[grid-area:featured]"
+        class="sm:col-span-2 sm:row-start-3 lg:col-start-1 lg:row-start-3 lg:row-span-2"
         :initial="{ opacity: 0, y: 16 }"
         :while-in-view="{ opacity: 1, y: 0 }"
         :viewport="{ once: true }"
@@ -101,7 +101,7 @@
       <!-- VERIFIED cell (hidden when empty) -->
       <Motion
         v-if="landing.verifiedRefugios.length > 0"
-        class="[grid-area:verified]"
+        class="sm:col-start-2 sm:row-start-2 lg:col-start-3 lg:row-start-3 lg:row-span-2"
         :initial="{ opacity: 0, y: 16 }"
         :while-in-view="{ opacity: 1, y: 0 }"
         :viewport="{ once: true }"
@@ -111,19 +111,19 @@
       </Motion>
 
       <!-- STORY cells — StoriesStrip parent fragment-renders 3 direct
-           grid children (each its own grid-area + stagger). Day-1 zero-state
-           hides the strip entirely; the parent v-if also prevents the
-           lazy-imported chunk from ever being fetched on launch (15-08
-           bundle-budget mitigation). -->
+           grid children (each placed via explicit col/row utilities + stagger).
+           Day-1 zero-state hides the strip entirely; the parent v-if also
+           prevents the lazy-imported chunk from ever being fetched on launch
+           (15-08 bundle-budget mitigation). -->
       <StoriesStrip
         v-if="landing.stories.length > 0"
         :stories="landing.stories"
       />
 
-      <!-- MARQUEE cell (full width below grid; hidden when empty per D-15) -->
+      <!-- MARQUEE cell (full width at bottom; hidden when empty per D-15) -->
       <Motion
         v-if="landing.marqueeAdopters.length > 0"
-        class="[grid-area:marquee]"
+        class="sm:col-span-2 sm:row-start-6 lg:col-span-4 lg:row-start-6"
         :initial="{ opacity: 0, y: 16 }"
         :while-in-view="{ opacity: 1, y: 0 }"
         :viewport="{ once: true }"
@@ -232,17 +232,18 @@ const layoutVariant = computed<'day1' | 'year2'>(
      at the larger tiers below. */
 }
 
+/*
+ * Items use explicit Tailwind line-based placement (`col-start/span`,
+ * `row-start/span`) — see the cell markup above. `grid-template-areas` was
+ * removed because the named-area shorthand (`grid-area: hero`) was being
+ * re-interpreted as a line-name placement (`hero / hero / hero / hero`),
+ * collapsing hero/featured cells to zero-width during initial paint in the
+ * dev SSR pipeline.
+ */
 @media (min-width: 640px) {
   .bento-grid {
     gap: 16px;
     grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      'hero hero'
-      'stats verified'
-      'featured featured'
-      'story1 story2'
-      'story3 story3'
-      'marquee marquee';
   }
 }
 
@@ -250,12 +251,6 @@ const layoutVariant = computed<'day1' | 'year2'>(
   .bento-grid {
     gap: 24px;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-areas:
-      'hero hero stats stats'
-      'hero hero stats stats'
-      'featured featured verified story1'
-      'featured featured verified story2'
-      'marquee marquee marquee marquee';
   }
 }
 </style>

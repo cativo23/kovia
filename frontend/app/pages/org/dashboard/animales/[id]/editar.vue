@@ -36,7 +36,7 @@
           :submitting="submitting"
         />
 
-        <div class="flex gap-3 mt-6 pt-4 border-t border-[--color-border]">
+        <div class="flex gap-3 mt-6 pt-4 border-t border-[var(--color-border)]">
           <UButton
             :label="$t('animals.edit.save')"
             :loading="submitting"
@@ -62,7 +62,7 @@
         />
 
         <!-- Save new photos -->
-        <div v-if="hasNewPhotos" class="flex gap-3 mt-4 pt-4 border-t border-[--color-border]">
+        <div v-if="hasNewPhotos" class="flex gap-3 mt-4 pt-4 border-t border-[var(--color-border)]">
           <UButton
             :label="$t('animals.edit.save')"
             :loading="savingPhotos"

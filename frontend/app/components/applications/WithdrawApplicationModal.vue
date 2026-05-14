@@ -5,7 +5,7 @@
         <h2 class="text-lg font-bold mb-2">
           {{ $t('applications.withdraw.confirmTitle') }}
         </h2>
-        <p class="text-sm text-[--color-text]/70 mb-6">
+        <p class="text-sm text-[var(--color-text)]/70 mb-6">
           {{ $t('applications.withdraw.confirmBody', { animalName }) }}
         </p>
         <div class="flex gap-3 justify-end">

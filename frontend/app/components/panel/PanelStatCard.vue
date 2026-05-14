@@ -12,13 +12,13 @@
           class="p-2 rounded-lg shrink-0"
           :class="accent
             ? 'bg-amber-100 bg-warning/20'
-            : 'bg-[--color-border]/40'"
+            : 'bg-[var(--color-border)]/40'"
         >
           <KIcon name="file-text" :size="24"
            
             :class="accent
               ? 'text-amber-600 text-warning'
-              : 'text-[--color-text]/70'"
+              : 'text-[var(--color-text)]/70'"
             aria-hidden="true" />
         </div>
         <div class="min-w-0">
@@ -29,13 +29,13 @@
             >
               {{ count }}
             </p>
-            <p class="text-sm font-semibold text-[--color-text]/70 leading-snug">
+            <p class="text-sm font-semibold text-[var(--color-text)]/70 leading-snug">
               {{ label }}
             </p>
           </template>
           <template v-else>
-            <div class="h-6 w-10 bg-[--color-border]/40 rounded animate-pulse mb-1" />
-            <div class="h-4 w-20 bg-[--color-border]/40 rounded animate-pulse" />
+            <div class="h-6 w-10 bg-[var(--color-border)]/40 rounded animate-pulse mb-1" />
+            <div class="h-4 w-20 bg-[var(--color-border)]/40 rounded animate-pulse" />
           </template>
         </div>
       </div>

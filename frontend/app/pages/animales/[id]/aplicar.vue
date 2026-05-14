@@ -66,7 +66,7 @@
                 ? 'bg-primary text-white'
                 : currentStep === index
                   ? 'bg-primary text-white'
-                  : 'bg-[--color-border]/40 text-gray-500'
+                  : 'bg-[var(--color-border)]/40 text-gray-500'
             ]"
           >
             <KIcon v-if="currentStep > index" name="check" :size="16" />
@@ -81,7 +81,7 @@
           <div
             v-if="index < steps.length - 1"
             class="flex-1 h-0.5 mx-2"
-            :class="currentStep > index ? 'bg-primary' : 'bg-[--color-border]/40'"
+            :class="currentStep > index ? 'bg-primary' : 'bg-[var(--color-border)]/40'"
           />
         </div>
       </div>
@@ -118,7 +118,7 @@
         </div>
 
         <!-- Navigation -->
-        <div class="flex justify-between mt-6 pt-4 border-t border-[--color-border]">
+        <div class="flex justify-between mt-6 pt-4 border-t border-[var(--color-border)]">
           <UButton
             v-if="currentStep > 0"
             variant="outline"

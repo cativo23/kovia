@@ -51,7 +51,7 @@
           />
         </UFormField>
 
-        <div class="border-t border-[--color-border] pt-6">
+        <div class="border-t border-[var(--color-border)] pt-6">
           <h3 class="font-semibold mb-4">{{ $t('org.setup.socialTitle') }}</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <UFormField :label="$t('org.instagram')">

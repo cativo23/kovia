@@ -28,7 +28,7 @@
         </div>
         <div>
           <h1 class="text-3xl font-bold">{{ org.name }}</h1>
-          <p v-if="org.description" class="text-[--color-text]/70 mt-2">
+          <p v-if="org.description" class="text-[var(--color-text)]/70 mt-2">
             {{ org.description }}
           </p>
         </div>

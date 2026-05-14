@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen flex bg-[--color-bg] text-[--color-text]">
-    <aside class="w-64 border-r border-[--color-border] bg-[--color-bg-secondary] flex flex-col">
-      <div class="p-4 border-b border-[--color-border]">
+  <div class="min-h-screen flex bg-[var(--color-bg)] text-[var(--color-text)]">
+    <aside class="w-64 border-r border-[var(--color-border)] bg-[var(--color-bg-secondary)] flex flex-col">
+      <div class="p-4 border-b border-[var(--color-border)]">
         <NuxtLink to="/org/dashboard" class="text-xl font-bold text-primary">
           Kovia
         </NuxtLink>
-        <p class="text-xs text-[--color-text-muted] mt-1">
+        <p class="text-xs text-[var(--color-text-muted)] mt-1">
           {{ $t('org.dashboard') }}
         </p>
       </div>
@@ -19,7 +19,7 @@
           :class="[
             isActive(item.to)
               ? 'bg-primary/10 text-primary font-medium'
-              : 'text-[--color-text]/70 hover:bg-[--color-border]/40'
+              : 'text-[var(--color-text)]/70 hover:bg-[var(--color-border)]/40'
           ]"
         >
           <KIcon :name="item.icon" :size="20" />
@@ -27,7 +27,7 @@
         </NuxtLink>
       </nav>
 
-      <div class="p-4 border-t border-[--color-border]">
+      <div class="p-4 border-t border-[var(--color-border)]">
         <UButton
           block
           variant="ghost"
@@ -43,7 +43,7 @@
     </aside>
 
     <div class="flex-1 flex flex-col">
-      <header class="h-16 border-b border-[--color-border] bg-[--color-bg-secondary] flex items-center px-6">
+      <header class="h-16 border-b border-[var(--color-border)] bg-[var(--color-bg-secondary)] flex items-center px-6">
         <h1 class="text-lg font-semibold">
           {{ $t('org.dashboard') }}
         </h1>
@@ -66,7 +66,7 @@
         </div>
       </header>
 
-      <main class="flex-1 p-6 bg-[--color-bg]">
+      <main class="flex-1 p-6 bg-[var(--color-bg)]">
         <slot />
       </main>
     </div>

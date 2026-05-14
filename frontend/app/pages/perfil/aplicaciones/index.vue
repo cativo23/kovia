@@ -6,10 +6,10 @@
     <div v-if="loading" class="space-y-4">
       <UCard v-for="i in 3" :key="i" class="animate-pulse">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-[--color-border]/40 rounded-lg flex-shrink-0" />
+          <div class="w-12 h-12 bg-[var(--color-border)]/40 rounded-lg flex-shrink-0" />
           <div class="flex-1 space-y-2">
-            <div class="h-4 bg-[--color-border]/40 rounded w-1/3" />
-            <div class="h-3 bg-[--color-border]/40 rounded w-1/4" />
+            <div class="h-4 bg-[var(--color-border)]/40 rounded w-1/3" />
+            <div class="h-3 bg-[var(--color-border)]/40 rounded w-1/4" />
           </div>
         </div>
       </UCard>
@@ -25,7 +25,7 @@
     <!-- Empty State (zero applications total across all buckets) -->
     <UCard v-else-if="applications.length === 0" class="text-center py-16">
       <KIcon name="clipboard-list" :size="64" class="text-gray-300 mx-auto mb-4" />
-      <h2 class="text-lg font-bold text-[--color-text]/70 mb-2">
+      <h2 class="text-lg font-bold text-[var(--color-text)]/70 mb-2">
         {{ $t('applications.history.emptyTitle') }}
       </h2>
       <p class="text-gray-500 mb-6">{{ $t('applications.history.emptyBody') }}</p>

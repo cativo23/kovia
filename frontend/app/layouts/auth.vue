@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen flex-col items-center justify-center bg-[--color-bg-secondary] text-[--color-text] px-4 relative">
+  <div class="flex min-h-screen flex-col items-center justify-center bg-[var(--color-bg-secondary)] text-[var(--color-text)] px-4 relative">
     <!-- Theme toggle (top-right of the auth shell — auth users still must be able to toggle) -->
     <div class="absolute top-4 right-4">
       <ThemeToggle />
@@ -16,7 +16,7 @@
       <slot />
     </div>
 
-    <footer class="mt-12 text-sm text-[--color-text-muted]">
+    <footer class="mt-12 text-sm text-[var(--color-text-muted)]">
       &copy; {{ new Date().getFullYear() }} Kovia
     </footer>
   </div>

@@ -67,10 +67,14 @@ const props = defineProps<{
 // JIT compiler emits its arbitrary-value CSS rule at build time. Dynamic
 // construction (`[grid-area:story${i+1}]`) would be silently dropped — see
 // 15-07 SUMMARY deviation §3.
+// Explicit Tailwind line-based grid placement — named-area shorthand was
+// silently re-interpreted as line-name placement in the dev SSR, collapsing
+// hero/featured cells. Classes spelled verbatim so Tailwind v4's JIT detects
+// them at build.
 const STORY_AREA_CLASSES = [
-  '[grid-area:story1]',
-  '[grid-area:story2]',
-  '[grid-area:story3]',
+  'sm:col-start-1 sm:row-start-4 lg:col-start-4 lg:row-start-3',
+  'sm:col-start-2 sm:row-start-4 lg:col-start-4 lg:row-start-4',
+  'sm:col-span-2 sm:row-start-5 lg:col-span-4 lg:row-start-5',
 ] as const
 
 // Cap at 3 — bento has exactly 3 story-N areas declared per UI-SPEC.

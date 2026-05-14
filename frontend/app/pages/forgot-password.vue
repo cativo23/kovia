@@ -2,7 +2,7 @@
   <div v-if="sent" class="text-center space-y-4">
     <KIcon name="mail-check" :size="64" class="text-primary mx-auto" />
     <h2 class="text-xl font-semibold">{{ $t('auth.forgotPasswordTitle') }}</h2>
-    <p class="text-[--color-text]/70">{{ $t('auth.forgotPasswordSent') }}</p>
+    <p class="text-[var(--color-text)]/70">{{ $t('auth.forgotPasswordSent') }}</p>
     <UButton variant="outline" to="/login" :label="$t('auth.goToLogin')" />
   </div>
 

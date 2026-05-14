@@ -4,10 +4,10 @@
       class="text-amber-200 text-warning mb-6" />
 
     <template v-if="variant === 'filtered'">
-      <h3 class="text-xl font-semibold text-[--color-text]/70 mb-2">
+      <h3 class="text-xl font-semibold text-[var(--color-text)]/70 mb-2">
         {{ $t('listings.noResults') }}
       </h3>
-      <p class="text-[--color-text]/70 mb-6 max-w-sm">
+      <p class="text-[var(--color-text)]/70 mb-6 max-w-sm">
         {{ $t('listings.noResultsMessage') }}
       </p>
       <UButton
@@ -21,10 +21,10 @@
     </template>
 
     <template v-else>
-      <h3 class="text-xl font-semibold text-[--color-text]/70 mb-2">
+      <h3 class="text-xl font-semibold text-[var(--color-text)]/70 mb-2">
         {{ $t('listings.emptyTitle') }}
       </h3>
-      <p class="text-[--color-text]/70 max-w-sm">
+      <p class="text-[var(--color-text)]/70 max-w-sm">
         {{ $t('listings.emptyMessage') }}
       </p>
     </template>

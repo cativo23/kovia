@@ -28,9 +28,9 @@
       <span
         v-for="(adopter, i) in doubledAdopters"
         :key="i"
-        class="adopter-marquee__item inline-flex items-center text-sm text-[--color-text]/70"
+        class="adopter-marquee__item inline-flex items-center text-sm text-[var(--color-text)]/70"
       >
-        <KIcon name="heart" :size="14" class="mr-2 text-[--color-coral-electrico,#ff6b47]" aria-hidden="true" />
+        <KIcon name="heart" :size="14" class="mr-2 text-[var(--color-coral-electrico,#ff6b47)]" aria-hidden="true" />
         {{ $t('landing.marquee.item', {
           firstName: adopter.firstName,
           animalName: adopter.animalName,

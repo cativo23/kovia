@@ -2,7 +2,7 @@
   <div>
     <!-- Header row: result count + view toggle -->
     <div class="flex items-center justify-between mb-4">
-      <p class="text-sm text-[--color-text]/70">
+      <p class="text-sm text-[var(--color-text)]/70">
         <span v-if="total !== undefined">
           {{ total }} {{ total === 1 ? $t('listings.resultSingle') : $t('listings.results') }}
         </span>

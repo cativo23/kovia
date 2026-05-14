@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center bg-[--color-bg-secondary] px-4">
+  <div class="min-h-screen flex flex-col items-center justify-center bg-[var(--color-bg-secondary)] px-4">
     <div class="mb-8">
       <NuxtLink to="/" class="text-3xl font-bold text-primary">
         Kovia
@@ -47,7 +47,7 @@
           <UInput
             :model-value="invite.email"
             disabled
-            class="bg-[--color-bg-secondary]"
+            class="bg-[var(--color-bg-secondary)]"
           />
         </UFormField>
 

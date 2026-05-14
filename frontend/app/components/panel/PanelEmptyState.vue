@@ -10,7 +10,7 @@
         <h2 class="text-[28px] font-semibold leading-tight">
           {{ $t('dashboard.panel.empty.heading') }}
         </h2>
-        <p class="text-base text-[--color-text]/70 leading-relaxed max-w-md">
+        <p class="text-base text-[var(--color-text)]/70 leading-relaxed max-w-md">
           {{ $t('dashboard.panel.empty.body') }}
         </p>
       </div>

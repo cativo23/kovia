@@ -27,12 +27,12 @@
     </div>
     <div
       v-else
-      class="story-card__photo-fallback h-32 w-full flex items-center justify-center bg-[--color-bg-secondary,#faf3e8] rounded-[var(--radius-card,24px)]"
+      class="story-card__photo-fallback h-32 w-full flex items-center justify-center bg-[var(--color-bg-secondary,#faf3e8)] rounded-[var(--radius-card,24px)]"
     >
-      <KIcon name="paw-print" :size="48" class="text-[--color-text]/40" aria-hidden="true" />
+      <KIcon name="paw-print" :size="48" class="text-[var(--color-text)]/40" aria-hidden="true" />
     </div>
 
-    <p class="story-card__testimonial line-clamp-3 mt-3 text-sm text-[--color-text]/90">
+    <p class="story-card__testimonial line-clamp-3 mt-3 text-sm text-[var(--color-text)]/90">
       {{ story.testimonial }}
     </p>
 
