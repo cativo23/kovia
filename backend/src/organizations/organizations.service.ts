@@ -73,6 +73,14 @@ export class OrganizationsService {
       },
     });
 
+    // Stamp the admin's orgId so subsequent JWTs carry the org context.
+    // Without this the tenant middleware has no organizationId and all
+    // org-scoped endpoints (POST /animals, etc.) return 500.
+    await this.rlsBypassPrisma.user.update({
+      where: { id: userId },
+      data: { orgId: org.id },
+    });
+
     return org;
   }
 
