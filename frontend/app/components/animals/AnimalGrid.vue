@@ -56,38 +56,14 @@
 </template>
 
 <script setup lang="ts">
-interface AnimalPhoto {
-  id: string
-  url: string
-  caption: string | null
-  position: number
-}
+import type { AnimalPublic } from '~/types/public-animal'
 
-interface AnimalPublic {
-  id: string
-  name: string
-  description: string | null
-  breed: string | null
-  gender: 'MALE' | 'FEMALE' | 'UNKNOWN'
-  ageMonths: number | null
-  size: 'SMALL' | 'MEDIUM' | 'LARGE' | 'EXTRA_LARGE' | null
-  energyLevel: 'LOW' | 'MEDIUM' | 'HIGH' | null
-  goodWithKids: boolean
-  goodWithDogs: boolean
-  goodWithCats: boolean
-  goodWithOtherPets: boolean
-  specialNeeds: string | null
-  vaccinated: boolean
-  sterilized: boolean
-  trained: boolean
-  status: string
-  coverPhotoId: string | null
-  createdAt: string
-  species: { id: string; name: string; slug: string }
-  organization: { name: string; slug: string; logoUrl: string | null }
-  photos: AnimalPhoto[]
-}
-
+/**
+ * Phase 15-05 — Grid forwards the public DTO shape into AnimalCard.
+ * The shared `AnimalPublic` type is the source of truth for the public
+ * listing (D-04). AnimalCard tolerates legacy admin-side fields as
+ * Partial<…> in its own scope, so this Grid stays narrow.
+ */
 const props = defineProps<{
   animals: AnimalPublic[]
   viewMode?: 'grid' | 'list'

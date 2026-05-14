@@ -39,6 +39,14 @@
           <p v-if="animal.breed" class="text-sm text-gray-500">{{ animal.breed }}</p>
         </div>
 
+        <!-- Categorical guidance pill (D-19, server-resolved) -->
+        <GuidancePill
+          v-if="animal.guidance"
+          :guidance="animal.guidance"
+          variant="card"
+          size="sm"
+        />
+
         <!-- Age, size, energy -->
         <div class="flex flex-wrap gap-1 text-xs text-[--color-text]/70">
           <span v-if="animal.ageMonths !== null" class="flex items-center gap-1">
@@ -109,6 +117,13 @@
             {{ animal.species.name }}
           </UBadge>
         </div>
+        <GuidancePill
+          v-if="animal.guidance"
+          :guidance="animal.guidance"
+          variant="card"
+          size="sm"
+          class="mt-1"
+        />
         <p v-if="animal.breed" class="text-xs text-gray-500 mt-0.5">{{ animal.breed }}</p>
         <div class="flex flex-wrap gap-2 mt-1 text-xs text-[--color-text]/70">
           <span v-if="animal.ageMonths !== null">{{ formatAge(animal.ageMonths) }}</span>
@@ -121,22 +136,29 @@
 </template>
 
 <script setup lang="ts">
-interface AnimalPhoto {
-  id: string
-  url: string
-  caption: string | null
-  position: number
-}
+import GuidancePill from '~/components/animals/GuidancePill.vue'
+import type { AnimalPublic } from '~/types/public-animal'
 
-interface AnimalPublic {
-  id: string
-  name: string
+/**
+ * Phase 15-05 — Card now consumes the public DTO shape (D-04 / D-16).
+ *
+ * `animal` is typed as `AnimalPublic` (shared types file), which is the
+ * structurally-narrow LISTING shape returned by GET /public/animals.
+ * It carries `guidance` server-resolved (D-04).
+ *
+ * Some legacy admin-side fields (description, goodWithKids/Dogs/Cats,
+ * vaccinated, sterilized, coverPhotoId, …) are NOT on the public DTO.
+ * Templates below use them defensively via `v-if`, so when the card is
+ * rendered from public data the legacy badges simply hide. This keeps
+ * the card reusable on both public and (future) refugio-admin surfaces
+ * without forking the component.
+ *
+ * The intersection type below documents that contract: `AnimalPublic` is
+ * the source-of-truth shape; legacy fields are typed Partial so reading
+ * them is safe but they have no required source on the public surface.
+ */
+type LegacyAnimalFields = Partial<{
   description: string | null
-  breed: string | null
-  gender: 'MALE' | 'FEMALE' | 'UNKNOWN'
-  ageMonths: number | null
-  size: 'SMALL' | 'MEDIUM' | 'LARGE' | 'EXTRA_LARGE' | null
-  energyLevel: 'LOW' | 'MEDIUM' | 'HIGH' | null
   goodWithKids: boolean
   goodWithDogs: boolean
   goodWithCats: boolean
@@ -147,14 +169,12 @@ interface AnimalPublic {
   trained: boolean
   status: string
   coverPhotoId: string | null
-  createdAt: string
-  species: { id: string; name: string; slug: string }
-  organization: { name: string; slug: string; logoUrl: string | null }
-  photos: AnimalPhoto[]
-}
+}>
+
+type Animal = AnimalPublic & LegacyAnimalFields
 
 const props = defineProps<{
-  animal: AnimalPublic
+  animal: Animal
   mode: 'grid' | 'list'
 }>()
 
