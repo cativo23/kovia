@@ -17,6 +17,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { UploadModule } from './upload/upload.module';
 import { SpeciesModule } from './species/species.module';
 import { AnimalsModule } from './animals/animals.module';
+import { PublicAnimalsModule } from './public-animals/public-animals.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { ApplicationNotesModule } from './application-notes/application-notes.module';
@@ -53,6 +54,7 @@ import { TeamModule } from './team/team.module';
     UploadModule,
     SpeciesModule,
     AnimalsModule,
+    PublicAnimalsModule,
     ApplicationsModule,
     ScoringModule,
     ApplicationNotesModule,
