@@ -568,7 +568,36 @@
     "hero": {
       "title": "Encuentra a tu companero perfecto",
       "subtitle": "Miles de animales esperan un hogar amoroso. Adopta, no compres.",
-      "cta": "Ver animales en adopcion"
+      "cta": "Ver animales",
+      "day1": {
+        "headlineBefore": "Encontrá un ",
+        "headlineCoral": "hogar",
+        "headlineAfter": " honesto para tu próximo compañero",
+        "subhead": "Cada perfil incluye historial médico, costos mensuales y guía honesta. Sin filtros engañosos.",
+        "availableCount": "{n} animal espera un hogar hoy | {n} animales esperan un hogar hoy",
+        "mascotAria": "Mascota Kovia saludando"
+      }
+    },
+    "stats": {
+      "verifiedRescues": "{n} refugio verificado | {n} refugios verificados",
+      "methodologyLink": "Cómo verificamos a los refugios"
+    },
+    "stories": {
+      "heading": "Historias recientes",
+      "attribution": "{firstName}, {city}",
+      "empty": "Pronto compartiremos las primeras historias."
+    },
+    "marquee": {
+      "item": "{firstName} adoptó a {animalName} en {city}",
+      "ariaLabel": "Adopciones recientes en Kovia"
+    },
+    "verifiedRescues": {
+      "heading": "Refugios verificados",
+      "foundedYear": "Fundado en {year}"
+    },
+    "error": {
+      "heading": "No pudimos cargar la página",
+      "body": "Revisá tu conexión e intentá de nuevo."
     },
     "featured": {
       "title": "Animales disponibles",
@@ -577,6 +606,19 @@
     "orgCta": {
       "title": "Sos una organizacion?",
       "description": "Registrate en Kovia y publica tus animales en adopcion de forma gratuita"
+    }
+  },
+  "verificacion": {
+    "title": "Cómo verificamos a los refugios",
+    "body": {
+      "intro": "En Kovia, verificar a un refugio significa garantizar que la organización opera con transparencia, cumple con estándares de bienestar animal y mantiene prácticas éticas en cada adopción. Nuestra metodología se publica abiertamente y se actualiza cuando cambian los estándares locales.",
+      "section1Heading": "Constancia legal",
+      "section1Body": "Verificamos que la organización esté legalmente constituida en El Salvador y que su misión declarada incluya el bienestar de animales en adopción. Solicitamos documentación oficial y la revisamos antes de otorgar la marca de verificación.",
+      "section2Heading": "Protocolos sanitarios y de bienestar",
+      "section2Body": "Realizamos una inspección documental de los protocolos sanitarios y de bienestar animal del refugio: planes de vacunación, esterilización, alimentación, espacios y manejo de casos médicos. Buscamos consistencia entre lo que el refugio declara y lo que documenta.",
+      "section3Heading": "Referencias de la comunidad",
+      "section3Body": "Pedimos referencias a organizaciones locales de rescate y a personas que hayan adoptado previamente con el refugio. Una organización verificada por Kovia es reconocida por su comunidad como un actor confiable.",
+      "outro": "La verificación se renueva cada 12 meses. Si detectamos un cambio en las prácticas del refugio o recibimos reportes consistentes, podemos suspender la verificación hasta resolver la situación. Nuestra metodología completa está disponible públicamente y se actualiza cuando cambian los estándares de bienestar animal en El Salvador."
     }
   },
   "listings": {
