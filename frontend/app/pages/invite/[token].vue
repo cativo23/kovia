@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen flex-col items-center justify-center bg-[--color-bg-secondary] px-4">
+  <div class="flex min-h-screen flex-col items-center justify-center bg-[var(--color-bg-secondary)] px-4">
     <div class="mb-8">
       <NuxtLink to="/" class="text-3xl font-bold text-primary">
         Kovia
@@ -106,7 +106,8 @@ async function validateInvite() {
       sessionStorage.setItem('inviteEmail', result.email)
     }
   } catch (error: any) {
-    if (error?.data?.message?.includes('expirado') || error?.data?.message?.includes('expired')) {
+    const errorCode = error?.data?.error || ''
+    if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVITE_EXPIRED' || error?.data?.message?.includes('expirado') || error?.data?.message?.includes('expired')) {
       expired.value = true
     } else {
       invalid.value = true

@@ -4,21 +4,21 @@
     <template v-if="status === 'loading'">
       <KIcon name="loader-2" :size="48" class="text-primary mx-auto animate-spin" />
       <h2 class="text-xl font-semibold">{{ $t('auth.verifyEmailTitle') }}</h2>
-      <p class="text-[--color-text]/70">{{ $t('common.loading') }}</p>
+      <p class="text-[var(--color-text)]/70">{{ $t('common.loading') }}</p>
     </template>
 
     <!-- Success state -->
     <template v-else-if="status === 'success'">
       <KIcon name="check-circle" :size="64" class="text-green-500 mx-auto" />
       <h2 class="text-xl font-semibold">{{ $t('auth.verifyEmailSuccess') }}</h2>
-      <p class="text-[--color-text]/70">{{ $t('auth.verifyEmailRedirect') }}</p>
+      <p class="text-[var(--color-text)]/70">{{ $t('auth.verifyEmailRedirect') }}</p>
     </template>
 
     <!-- Expired link state -->
     <template v-else-if="status === 'expired'">
       <KIcon name="clock" :size="64" class="text-amber-500 mx-auto" />
       <h2 class="text-xl font-semibold">{{ $t('auth.linkExpired') }}</h2>
-      <p class="text-[--color-text]/70">{{ $t('auth.linkExpiredDescription') }}</p>
+      <p class="text-[var(--color-text)]/70">{{ $t('auth.linkExpiredDescription') }}</p>
       <UButton
         :label="$t('auth.resendLink')"
         :loading="resending"
@@ -30,7 +30,7 @@
     <template v-else>
       <KIcon name="x-circle" :size="64" class="text-red-500 mx-auto" />
       <h2 class="text-xl font-semibold">{{ $t('auth.verifyError') }}</h2>
-      <p class="text-[--color-text]/70">{{ errorMessage }}</p>
+      <p class="text-[var(--color-text)]/70">{{ errorMessage }}</p>
       <UButton variant="outline" to="/login" :label="$t('auth.goToLogin')" />
     </template>
   </div>
@@ -81,9 +81,9 @@ onMounted(async () => {
         } catch {
           // If claim fails, still redirect to setup — it will show error
         }
-        navigateTo('/org/setup')
+        await navigateTo('/org/setup')
       } else {
-        navigateTo('/')
+        await navigateTo('/')
       }
     }, 2000)
   }
