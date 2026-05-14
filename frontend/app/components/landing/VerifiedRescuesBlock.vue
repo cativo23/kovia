@@ -10,7 +10,10 @@
   case). For Day-1 zero state the parent hides this block.
 -->
 <template>
-  <KSpringCard class="bento-verified [grid-area:verified] rounded-[var(--radius-card,24px)] p-6">
+  <KSpringCard
+    data-testid="bento-verified"
+    class="bento-verified [grid-area:verified] rounded-[var(--radius-card,24px)] p-6"
+  >
     <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
       <KIcon name="shield-check" :size="20" class="text-[--color-verde-forestal-500,#16a34a]" aria-hidden="true" />
       {{ $t('landing.verifiedRescues.heading') }}

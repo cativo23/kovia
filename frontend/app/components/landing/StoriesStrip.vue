@@ -16,6 +16,7 @@
     <motion.div
       v-for="(story, i) in displayedStories"
       :key="story.id"
+      data-testid="bento-stories"
       :style="{ gridArea: `story${i + 1}` }"
       :initial="{ opacity: 0, y: 16 }"
       :while-in-view="{ opacity: 1, y: 0 }"

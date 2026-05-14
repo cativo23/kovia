@@ -5,6 +5,7 @@
     <UCheckbox
       :model-value="modelValue"
       :label="$t('dossier.apply.ackLabel')"
+      data-testid="dossier-ack-checkbox"
       aria-describedby="dossier-ack-helper"
       @update:model-value="onCheckboxUpdate"
     />
