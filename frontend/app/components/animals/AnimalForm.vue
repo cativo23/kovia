@@ -65,6 +65,101 @@
       </div>
     </div>
 
+    <!-- Dossier publico (Phase 15 plan 02 — D-05) -->
+    <div v-show="visibleSections.includes('dossier')" class="space-y-4">
+      <h3 v-if="showSectionHeaders" class="text-lg font-semibold mb-4">
+        {{ $t('animals.wizard.stepDossier') }}
+      </h3>
+      <p class="text-sm text-gray-500 mb-2">
+        {{ $t('animals.form.dossier.helpText') }}
+      </p>
+
+      <!-- Adoption category (required) -->
+      <div>
+        <label class="block text-sm font-medium mb-1">
+          {{ $t('animals.form.dossier.categoryLabel') }} <span class="text-red-500">*</span>
+        </label>
+        <USelectMenu
+          v-model="form.adoptionCategory"
+          :items="adoptionCategoryOptions"
+          :placeholder="$t('animals.form.dossier.categoryLabel')"
+          value-key="value"
+        />
+      </div>
+
+      <!-- Behavioral evaluation (required) -->
+      <div>
+        <label class="block text-sm font-medium mb-1">
+          {{ $t('animals.form.dossier.behavioralEvaluationLabel') }} <span class="text-red-500">*</span>
+        </label>
+        <UTextarea
+          v-model="form.behavioralEvaluation"
+          :placeholder="$t('animals.form.dossier.behavioralEvaluationPlaceholder')"
+          :rows="4"
+        />
+      </div>
+
+      <!-- Medical history (required) -->
+      <div>
+        <label class="block text-sm font-medium mb-1">
+          {{ $t('animals.form.dossier.medicalHistoryLabel') }} <span class="text-red-500">*</span>
+        </label>
+        <UTextarea
+          v-model="form.medicalHistory"
+          :placeholder="$t('animals.form.dossier.medicalHistoryPlaceholder')"
+          :rows="4"
+        />
+      </div>
+
+      <!-- Monthly cost range (min required, max optional) -->
+      <div>
+        <label class="block text-sm font-medium mb-1">
+          {{ $t('animals.form.dossier.costRangeLabel') }} <span class="text-red-500">*</span>
+        </label>
+        <div class="flex items-center gap-3">
+          <UInput
+            v-model.number="form.monthlyCostUsdMin"
+            type="number"
+            :min="0"
+            :max="10000"
+            :placeholder="$t('animals.form.dossier.costMinPlaceholder')"
+            class="w-32"
+          />
+          <span class="text-sm text-gray-500">—</span>
+          <UInput
+            v-model.number="form.monthlyCostUsdMax"
+            type="number"
+            :min="0"
+            :max="10000"
+            :placeholder="$t('animals.form.dossier.costMaxPlaceholder')"
+            class="w-32"
+          />
+        </div>
+      </div>
+
+      <!-- Known triggers (optional, multi-line/comma split) -->
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ $t('animals.form.dossier.triggersLabel') }}</label>
+        <UTextarea
+          v-model="triggersRaw"
+          :placeholder="$t('animals.form.dossier.triggersPlaceholder')"
+          :rows="2"
+        />
+      </div>
+
+      <!-- Shelter entry date (required) -->
+      <div>
+        <label class="block text-sm font-medium mb-1">
+          {{ $t('animals.form.dossier.shelterEntryDateLabel') }} <span class="text-red-500">*</span>
+        </label>
+        <UInput
+          v-model="form.shelterEntryDate"
+          type="date"
+          class="w-48"
+        />
+      </div>
+    </div>
+
     <!-- Caracteristicas -->
     <div v-show="visibleSections.includes('characteristics')" class="space-y-4">
       <h3 v-if="showSectionHeaders" class="text-lg font-semibold mb-4">
@@ -182,6 +277,16 @@ interface AnimalFormData {
   vaccinated: boolean
   sterilized: boolean
   trained: boolean
+  // Phase 15 dossier fields (per D-05 / 15-02 plan).
+  // dossierComplete + dossierVersion are deliberately NOT here — they are
+  // server-computed (D-08, D-09) and stripped at the API boundary.
+  adoptionCategory: string
+  behavioralEvaluation: string
+  medicalHistory: string
+  monthlyCostUsdMin: number | null
+  monthlyCostUsdMax: number | null
+  knownTriggers: string[]
+  shelterEntryDate: string  // ISO date (yyyy-mm-dd) per <input type=date>
 }
 
 interface Species {
@@ -199,7 +304,7 @@ const props = withDefaults(defineProps<{
   submitting?: boolean
 }>(), {
   mode: 'create',
-  visibleSections: () => ['basic', 'characteristics'],
+  visibleSections: () => ['basic', 'dossier', 'characteristics'],
   showSectionHeaders: true,
   showActions: true,
   submitting: false,
@@ -237,7 +342,18 @@ const form = reactive<AnimalFormData>({
   vaccinated: false,
   sterilized: false,
   trained: false,
+  // Phase 15 dossier defaults
+  adoptionCategory: '',
+  behavioralEvaluation: '',
+  medicalHistory: '',
+  monthlyCostUsdMin: null,
+  monthlyCostUsdMax: null,
+  knownTriggers: [],
+  shelterEntryDate: '',
 })
+
+// Raw text-area input for triggers — split into form.knownTriggers on change.
+const triggersRaw = ref('')
 
 // Initialize from props
 if (props.initialData) {
@@ -246,12 +362,25 @@ if (props.initialData) {
     ageYears.value = Math.floor(props.initialData.ageMonths / 12)
     ageMonths.value = props.initialData.ageMonths % 12
   }
+  // Seed the raw textarea from existing knownTriggers (one per line for editing).
+  if (Array.isArray(props.initialData.knownTriggers)) {
+    triggersRaw.value = props.initialData.knownTriggers.join('\n')
+  }
 }
 
 // Sync age fields to form.ageMonths
 watch([ageYears, ageMonths], ([y, m]) => {
   const totalMonths = (y || 0) * 12 + (m || 0)
   form.ageMonths = totalMonths > 0 ? totalMonths : null
+})
+
+// Split the raw triggers input (lines OR commas) into form.knownTriggers
+// at edit time so the submit payload is clean.
+watch(triggersRaw, (raw) => {
+  form.knownTriggers = (raw || '')
+    .split(/[\n,]+/)
+    .map(s => s.trim())
+    .filter(s => s.length > 0)
 })
 
 const speciesOptions = computed(() =>
@@ -275,6 +404,16 @@ const energyOptions = computed(() => [
   { label: t('animals.form.energyOptions.low'), value: 'LOW' },
   { label: t('animals.form.energyOptions.medium'), value: 'MEDIUM' },
   { label: t('animals.form.energyOptions.high'), value: 'HIGH' },
+])
+
+// 5 locked AdoptionCategory enum values (D-01). Order mirrors the public
+// guidance-pill mapping (verde → ámbar → rojo).
+const adoptionCategoryOptions = computed(() => [
+  { label: t('animals.form.dossier.categoryOptions.SALUDABLE_ADULTO'), value: 'SALUDABLE_ADULTO' },
+  { label: t('animals.form.dossier.categoryOptions.SENIOR'), value: 'SENIOR' },
+  { label: t('animals.form.dossier.categoryOptions.REACTIVO'), value: 'REACTIVO' },
+  { label: t('animals.form.dossier.categoryOptions.MEDICO_CRONICO'), value: 'MEDICO_CRONICO' },
+  { label: t('animals.form.dossier.categoryOptions.ESPECIAL'), value: 'ESPECIAL' },
 ])
 
 function validate(sections?: string[]): boolean {

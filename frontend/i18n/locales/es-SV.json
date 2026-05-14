@@ -326,6 +326,7 @@
       "step1": "Informacion basica",
       "step2": "Caracteristicas",
       "step3": "Fotos",
+      "stepDossier": "Dossier publico",
       "next": "Siguiente",
       "prev": "Anterior",
       "create": "Crear animal"
@@ -375,6 +376,27 @@
         "low": "Bajo",
         "medium": "Medio",
         "high": "Alto"
+      },
+      "dossier": {
+        "helpText": "Cuando los 5 campos obligatorios esten completos, este animal aparece en el sitio publico.",
+        "categoryLabel": "Categoria de adopcion",
+        "categoryOptions": {
+          "SALUDABLE_ADULTO": "Saludable adulto",
+          "SENIOR": "Senior",
+          "MEDICO_CRONICO": "Medico cronico",
+          "REACTIVO": "Reactivo",
+          "ESPECIAL": "Especial"
+        },
+        "behavioralEvaluationLabel": "Evaluacion conductual",
+        "behavioralEvaluationPlaceholder": "Describi el comportamiento del animal: socializacion, reactividad, energia...",
+        "medicalHistoryLabel": "Historial medico",
+        "medicalHistoryPlaceholder": "Condiciones medicas activas, tratamientos en curso, vacunas, esterilizacion...",
+        "costRangeLabel": "Costo mensual estimado (USD)",
+        "costMinPlaceholder": "Minimo",
+        "costMaxPlaceholder": "Maximo (opcional)",
+        "triggersLabel": "Disparadores conocidos",
+        "triggersPlaceholder": "Uno por linea o separados por coma",
+        "shelterEntryDateLabel": "Fecha de ingreso al refugio"
       }
     },
     "photos": {
