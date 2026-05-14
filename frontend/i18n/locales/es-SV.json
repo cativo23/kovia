@@ -966,5 +966,38 @@
     "page": {
       "title": "Notificaciones"
     }
+  },
+  "dossier": {
+    "behavioral": {
+      "heading": "Evaluación conductual"
+    },
+    "medical": {
+      "heading": "Historial médico"
+    },
+    "cost": {
+      "heading": "Costo mensual estimado",
+      "range": "USD {min} – {max} al mes",
+      "single": "USD {min} al mes"
+    },
+    "triggers": {
+      "heading": "Disparadores conocidos",
+      "empty": "No se han identificado disparadores en este animal."
+    },
+    "regla333": {
+      "heading": "Regla 3-3-3 de adaptación",
+      "body": "Toma 3 días para que tu nuevo compañero se sienta seguro, 3 semanas para aprender la rutina del hogar, y 3 meses para sentir que verdaderamente es su lugar. Sé paciente con cada etapa."
+    },
+    "timeAtShelter": {
+      "heading": "Tiempo en refugio",
+      "days": "{n} día | {n} días"
+    },
+    "apply": {
+      "cta": "Aplicar para adoptar",
+      "ackLabel": "Reconozco haber leído este dossier",
+      "ackHelper": "Marcá la casilla para activar el botón.",
+      "ackReady": "Listo. Hacé clic en Aplicar para continuar.",
+      "loginRequired": "Necesitás una cuenta para aplicar. Te llevamos al inicio de sesión.",
+      "ackError": "No pudimos registrar tu confirmación. Intentá de nuevo."
+    }
   }
 }
