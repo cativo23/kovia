@@ -30,6 +30,10 @@ services:
       - ./backend:/app
       - /app/node_modules
       - /app/src/generated/prisma   # preserve image-baked Prisma client across bind mount
+      # Phase 15-05: locked-copy-consistency boundary spec (T-15-05) reads the
+      # frontend i18n file from the api container at /frontend/i18n. Mounted
+      # read-only because the api never edits frontend assets.
+      - ./frontend/i18n:/frontend/i18n:ro
     depends_on:
       postgres:
         condition: service_healthy

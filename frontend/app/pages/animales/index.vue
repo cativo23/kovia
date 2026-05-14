@@ -95,7 +95,12 @@ const queryParams = computed(() => ({
   search: filters.value.search || undefined,
 }))
 
-const { data, pending, refresh } = await useFetch<{ data: any[]; total: number; page: number; limit: number; totalPages: number }>('/animals', {
+// Phase 15-05: the public listing now consumes the dedicated public API
+// boundary at GET /public/animals (D-04 / D-16). The response shape includes
+// `guidance` on every item server-resolved (D-04) and structurally lacks
+// `score`/`risks`/`flags` (T-15-01). Query params reuse AnimalQueryDto so
+// existing filter/pagination behavior is unchanged.
+const { data, pending, refresh } = await useFetch<{ data: any[]; total: number; page: number; limit: number; totalPages: number }>('/public/animals', {
   baseURL: config.public.apiUrl as string,
   query: queryParams,
 })

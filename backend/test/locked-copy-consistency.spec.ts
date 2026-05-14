@@ -9,17 +9,16 @@ import { LOCKED_MEDICAL_COPY } from '../src/public-animals/guidance';
  * Asserts the backend `LOCKED_MEDICAL_COPY` constant is byte-equal to the
  * `animals.guidance.rojo.medicalCopy` value in `frontend/i18n/locales/es-SV.json`.
  *
- * STATUS: Shipped with `.skip` so the suite stays green during 15-04 work.
+ * STATUS: ACTIVE — Phase 15-05 Task 3 removed `.skip` after committing the
+ * matching i18n key. Drift on either side now fails CI immediately.
  *
- * GREEN GATE: Plan 15-05 Task 3 has an explicit acceptance criterion to
- * remove the `.skip` modifier here after committing the matching i18n key.
- * Until then this spec is dormant.
- *
- * TODO(15-05): remove `.skip` after the i18n key lands in es-SV.json —
- * this spec is the GREEN gate for T-15-05.
+ * Path resolution: under vitest in the api container, `__dirname` is
+ * `/app/test`. The frontend i18n directory is bind-mounted read-only at
+ * `/frontend/i18n` by docker-compose.yml's `api` service, so this relative
+ * path resolves identically on host and in container.
  */
 describe('locked-copy consistency (PUBLIC-06)', () => {
-  it.skip('backend LOCKED_MEDICAL_COPY byte-equals frontend i18n animals.guidance.rojo.medicalCopy', () => {
+  it('backend LOCKED_MEDICAL_COPY byte-equals frontend i18n animals.guidance.rojo.medicalCopy', () => {
     const i18nPath = resolve(
       __dirname,
       '../../frontend/i18n/locales/es-SV.json',
