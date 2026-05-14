@@ -1,16 +1,29 @@
 <!--
-  Landing page — Phase 15-07 bento composition (PUBLIC-01).
+  Landing page — Phase 15-07 bento composition (PUBLIC-01); 15-08 fix.
 
   Architecture:
     - SINGLE round trip via useFetch('/public/landing-stats') per D-12 —
       the response fans out to the 5 bento cells. No per-component fetches.
     - Bento grid built with CSS Grid `grid-template-areas` across 3 tiers:
-      desktop ≥1024px (4-col), tablet 640-1023px (2-col), mobile <640px
+      desktop ≥1024px (4-col), tablet 640-1023px (2-col), mobile under 640px
       (single column stack) per D-18 and UI-SPEC §Bento Grid Layout.
-    - Each cell wraps the KSpringCard child in a <motion.div> for
-      whileInView scroll-entry with an 80ms stagger per UI-SPEC §Motion
-      line 377. motion-v primitives only — no `import * from 'motion-v'`
-      (Performance budget §).
+    - Each cell is a Motion wrapper (capital M — auto-imported by the
+      `motion-v/nuxt` module) with `whileInView` for scroll-entry and an
+      80 ms stagger per UI-SPEC §Motion line 377. Grid placement is via
+      Tailwind arbitrary class `[grid-area:NAME]` (deterministic CSS
+      rule, JIT-static), NOT via inline `:style="{ gridArea: ... }"` —
+      Motion's runtime style application via JS would otherwise set
+      `el.style.gridArea` only AFTER mount, causing the cells to collapse
+      to a 1-line placement during initial paint / SSR. The Tailwind
+      class is parsed by the browser's CSS engine on the first frame
+      and reliably resolves to the NAMED area declared in `.bento-grid`.
+    - 15-08 fix history: previously these wrappers used `motion.div`
+      (lowercase dot-notation). The Nuxt module only auto-imports
+      CAPITAL-CASE components (Motion, M, AnimatePresence, etc.); the
+      lowercase `motion.div` is a script-level Proxy export, not a
+      template-resolvable component. Each cell rendered as an empty
+      comment and the bento collapsed to a comment-only DOM. See
+      15-08-SUMMARY §Regression Diagnosis for the full trace.
     - layoutVariant ('day1' | 'year2') is evaluated server-side; the
       frontend renders verbatim from the payload (D-12 boundary).
     - AdopterMarquee hides itself when adopters.length === 0 (D-15);
@@ -45,19 +58,19 @@
       class="bento-grid mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12"
     >
       <!-- HERO cell -->
-      <motion.div
-        :style="{ gridArea: 'hero' }"
+      <Motion
+        class="[grid-area:hero]"
         :initial="{ opacity: 0, y: 16 }"
         :while-in-view="{ opacity: 1, y: 0 }"
         :viewport="{ once: true }"
         :transition="{ type: 'spring', stiffness: 100, damping: 18 }"
       >
         <BentoHero :available-count="landing.availableCount" />
-      </motion.div>
+      </Motion>
 
       <!-- STATS cell -->
-      <motion.div
-        :style="{ gridArea: 'stats' }"
+      <Motion
+        class="[grid-area:stats]"
         :initial="{ opacity: 0, y: 16 }"
         :while-in-view="{ opacity: 1, y: 0 }"
         :viewport="{ once: true }"
@@ -69,12 +82,12 @@
           :total-adoptions="landing.totalAdoptions"
           :layout-variant="layoutVariant"
         />
-      </motion.div>
+      </Motion>
 
       <!-- FEATURED cell (hidden when null) -->
-      <motion.div
+      <Motion
         v-if="landing.featuredAnimal"
-        :style="{ gridArea: 'featured' }"
+        class="[grid-area:featured]"
         :initial="{ opacity: 0, y: 16 }"
         :while-in-view="{ opacity: 1, y: 0 }"
         :viewport="{ once: true }"
@@ -83,19 +96,19 @@
         <KSpringCard class="rounded-[var(--radius-card-lg,32px)] overflow-hidden p-0">
           <AnimalCard :animal="landing.featuredAnimal" mode="grid" />
         </KSpringCard>
-      </motion.div>
+      </Motion>
 
       <!-- VERIFIED cell (hidden when empty) -->
-      <motion.div
+      <Motion
         v-if="landing.verifiedRefugios.length > 0"
-        :style="{ gridArea: 'verified' }"
+        class="[grid-area:verified]"
         :initial="{ opacity: 0, y: 16 }"
         :while-in-view="{ opacity: 1, y: 0 }"
         :viewport="{ once: true }"
         :transition="{ type: 'spring', stiffness: 100, damping: 18, delay: 0.24 }"
       >
         <VerifiedRescuesBlock :rescues="landing.verifiedRefugios" />
-      </motion.div>
+      </Motion>
 
       <!-- STORY cells — StoriesStrip parent fragment-renders 3 direct
            grid children (each its own grid-area + stagger). Day-1 zero-state
@@ -108,16 +121,16 @@
       />
 
       <!-- MARQUEE cell (full width below grid; hidden when empty per D-15) -->
-      <motion.div
+      <Motion
         v-if="landing.marqueeAdopters.length > 0"
-        :style="{ gridArea: 'marquee' }"
+        class="[grid-area:marquee]"
         :initial="{ opacity: 0, y: 16 }"
         :while-in-view="{ opacity: 1, y: 0 }"
         :viewport="{ once: true }"
         :transition="{ type: 'spring', stiffness: 100, damping: 18, delay: 0.56 }"
       >
         <AdopterMarquee :adopters="landing.marqueeAdopters" />
-      </motion.div>
+      </Motion>
     </div>
   </div>
 </template>
@@ -139,7 +152,7 @@ import type { AnimalPublic } from '~/types/public-animal'
 // payload actually carries marqueeAdopters rows.
 //
 // StoriesStrip stays as a static import because its template root is a
-// Vue fragment (`<template v-if=...>` with `<motion.div v-for>` children).
+// Vue fragment (`<template v-if=...>` with `<Motion v-for>` children).
 // defineAsyncComponent + fragment-root SFCs render a warning + no-op in
 // the SSR pipeline, which broke the bento layout in 15-08 testing.
 const AdopterMarquee = defineAsyncComponent(

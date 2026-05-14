@@ -1,18 +1,26 @@
 <!--
-  KSpringCard — DESIGN-05 motion primitive (Plan 14-06).
+  KSpringCard — DESIGN-05 motion primitive (Plan 14-06; 15-08 fix).
 
-  Wraps the default slot in motion-v's <motion.div>, applying a spring
-  hover-lift (D-13). The `motion.div` component is auto-imported by the
-  motion-v/nuxt module — there is intentionally NO `<script setup>`
-  block and NO explicit import from 'motion-v' in this file. This keeps
-  the bundle lean (D-16): we ride the framework's tree-shaken auto-import
-  instead of pulling the full motion-v entry.
+  Wraps the default slot in motion-v's Motion component (default tag "div"),
+  applying a spring hover-lift (D-13). The Nuxt module (motion-v/nuxt) only
+  auto-imports CAPITAL-CASE component names: Motion, M, AnimatePresence,
+  LayoutGroup, MotionConfig, ReorderGroup, ReorderItem. The lowercase
+  motion.div dot-notation factory is a SCRIPT-LEVEL Proxy exported from
+  motion-v, not a template-resolvable component — the prior comment in
+  this file that claimed motion.div was auto-imported was incorrect
+  (Phase 14 latent bug fixed in 15-08; see 15-08-SUMMARY §Regression
+  Diagnosis). Using motion.div in a template emits the Vue runtime warning
+  "Failed to resolve component: motion.div" and renders the cell as an
+  empty comment node.
+
+  No script setup block is needed: Motion is registered as a global Nuxt
+  component via motion-v/nuxt, same as UButton, UCheckbox, etc.
 
   Hover spring: stiffness 300 / damping 20 — iOS-widget feel.
   Reduced-motion: motion-v honors prefers-reduced-motion automatically.
 -->
 <template>
-  <motion.div
+  <Motion
     class="k-card"
     :while-hover="{
       y: -4,
@@ -22,7 +30,7 @@
     :transition="{ type: 'spring', stiffness: 300, damping: 20 }"
   >
     <slot />
-  </motion.div>
+  </Motion>
 </template>
 
 <style scoped>
