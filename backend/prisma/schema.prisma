@@ -65,28 +65,37 @@ enum NotificationType {
   DEVUELTA
 }
 
+enum AdoptionCategory {
+  SALUDABLE_ADULTO
+  SENIOR
+  MEDICO_CRONICO
+  REACTIVO
+  ESPECIAL
+}
+
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
+  id            String   @id @default(uuid())
+  email         String   @unique
   passwordHash  String?
-  role          UserRole  @default(ADOPTER)
-  emailVerified Boolean   @default(false)
-  googleId      String?   @unique
+  role          UserRole @default(ADOPTER)
+  emailVerified Boolean  @default(false)
+  googleId      String?  @unique
   firstName     String?
   lastName      String?
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  orgId         String?
-  org           Organization? @relation("OrgMembers", fields: [orgId], references: [id], onDelete: SetNull)
+  orgId String?
+  org   Organization? @relation("OrgMembers", fields: [orgId], references: [id], onDelete: SetNull)
 
   refreshTokens   RefreshToken[]
-  organization    Organization? @relation("OrgAdmin")
+  organization    Organization?           @relation("OrgAdmin")
   auditLogs       AuditLog[]
   applications    AdoptionApplication[]
-  authoredNotes   ApplicationNote[] @relation("NoteAuthor")
-  sentTeamInvites TeamInvite[]      @relation("InvitedBy")
+  authoredNotes   ApplicationNote[]       @relation("NoteAuthor")
+  sentTeamInvites TeamInvite[]            @relation("InvitedBy")
+  acknowledgments DossierAcknowledgment[]
 
   @@index([orgId])
   @@map("users")
@@ -117,13 +126,15 @@ model Organization {
   status       OrgStatus @default(ACTIVE)
   adminId      String    @unique
   admin        User      @relation("OrgAdmin", fields: [adminId], references: [id])
+  verifiedAt   DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  animals      Animal[]
-  members      User[]       @relation("OrgMembers")
-  teamInvites  TeamInvite[]
-  applications AdoptionApplication[]
+  animals         Animal[]
+  members         User[]                @relation("OrgMembers")
+  teamInvites     TeamInvite[]
+  applications    AdoptionApplication[]
+  adoptionStories AdoptionStory[]
 
   @@map("organizations")
 }
@@ -141,17 +152,17 @@ model OrgInvite {
 }
 
 model TeamInvite {
-  id           String       @id @default(uuid())
-  orgId        String
-  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  email        String
-  role         UserRole
-  token        String       @unique
-  invitedById  String
-  invitedBy    User         @relation("InvitedBy", fields: [invitedById], references: [id])
-  expiresAt    DateTime
-  acceptedAt   DateTime?
-  createdAt    DateTime     @default(now())
+  id          String       @id @default(uuid())
+  orgId       String
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  email       String
+  role        UserRole
+  token       String       @unique
+  invitedById String
+  invitedBy   User         @relation("InvitedBy", fields: [invitedById], references: [id])
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime     @default(now())
 
   @@index([orgId, email])
   @@index([email])
@@ -187,15 +198,29 @@ model Animal {
   vaccinated        Boolean      @default(false)
   sterilized        Boolean      @default(false)
   trained           Boolean      @default(false)
-  status            AnimalStatus @default(AVAILABLE)
-  organizationId    String
-  organization      Organization @relation(fields: [organizationId], references: [id])
-  photos            AnimalPhoto[]
-  coverPhotoId      String?
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
-  archivedAt        DateTime?
-  applications      AdoptionApplication[]
+
+  // Phase 15 dossier fields (per D-05)
+  adoptionCategory     AdoptionCategory?
+  behavioralEvaluation String?           @db.Text
+  medicalHistory       String?           @db.Text
+  monthlyCostUsdMin    Int?
+  monthlyCostUsdMax    Int?
+  knownTriggers        String[]          @default([])
+  shelterEntryDate     DateTime?         @db.Date
+  dossierComplete      Boolean           @default(false)
+  dossierVersion       Int               @default(1)
+
+  status          AnimalStatus            @default(AVAILABLE)
+  organizationId  String
+  organization    Organization            @relation(fields: [organizationId], references: [id])
+  photos          AnimalPhoto[]
+  coverPhotoId    String?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  archivedAt      DateTime?
+  applications    AdoptionApplication[]
+  acknowledgments DossierAcknowledgment[]
+  stories         AdoptionStory[]
 
   @@map("animals")
 }
@@ -217,14 +242,15 @@ model AdoptionApplication {
   adopterFirstName  String?
   adopterLastName   String?
   adopterEmail      String?
+  adopterCity       String?
   score             Int?
   scoreDetails      Json?
   submittedAt       DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
-  photos            ApplicationPhoto[]
-  notes             ApplicationNote[]
-  notifications     Notification[]
+  photos        ApplicationPhoto[]
+  notes         ApplicationNote[]
+  notifications Notification[]
 
   // Active-application uniqueness is enforced via a PostgreSQL partial unique index
   // (migration 10_partial_unique_active_applications): UNIQUE (animalId, userId) WHERE status != 'RETIRADA'.
@@ -234,14 +260,14 @@ model AdoptionApplication {
 }
 
 model ApplicationNote {
-  id              String              @id @default(uuid())
-  applicationId   String
-  application     AdoptionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  organizationId  String
-  authorId        String
-  author          User                @relation("NoteAuthor", fields: [authorId], references: [id])
-  body            String
-  createdAt       DateTime            @default(now())
+  id             String              @id @default(uuid())
+  applicationId  String
+  application    AdoptionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  organizationId String
+  authorId       String
+  author         User                @relation("NoteAuthor", fields: [authorId], references: [id])
+  body           String
+  createdAt      DateTime            @default(now())
 
   @@map("application_notes")
 }
@@ -283,15 +309,15 @@ model AuditLog {
 }
 
 model Notification {
-  id            String              @id @default(uuid())
-  userId        String              // adopter who receives the notification
+  id            String               @id @default(uuid())
+  userId        String // adopter who receives the notification
   type          NotificationType
-  title         String              // Spanish text, e.g., "Tu solicitud fue aprobada"
-  body          String?             // Additional context, e.g., "para Max"
+  title         String // Spanish text, e.g., "Tu solicitud fue aprobada"
+  body          String? // Additional context, e.g., "para Max"
   applicationId String?
   application   AdoptionApplication? @relation(fields: [applicationId], references: [id])
-  isRead        Boolean             @default(false)
-  createdAt     DateTime            @default(now())
+  isRead        Boolean              @default(false)
+  createdAt     DateTime             @default(now())
 
   @@index([userId, isRead])
   @@index([userId, createdAt])
@@ -299,19 +325,51 @@ model Notification {
 }
 
 model WebhookOutbox {
-  id             String   @id @default(uuid())
-  eventType      String   // application.submitted, application.status_changed, etc.
-  payload        Json     // Full event payload
-  idempotencyKey String   @unique
-  status         String   @default("PENDING") // PENDING, DELIVERED, FAILED
-  attempts       Int      @default(0)
-  maxAttempts    Int      @default(6)
+  id             String    @id @default(uuid())
+  eventType      String // application.submitted, application.status_changed, etc.
+  payload        Json // Full event payload
+  idempotencyKey String    @unique
+  status         String    @default("PENDING") // PENDING, DELIVERED, FAILED
+  attempts       Int       @default(0)
+  maxAttempts    Int       @default(6)
   nextAttemptAt  DateTime?
   lastError      String?
   deliveredAt    DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([status, nextAttemptAt])
   @@map("webhook_outbox")
+}
+
+model AdoptionStory {
+  id               String       @id @default(uuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id])
+  adopterFirstName String
+  city             String
+  testimonial      String       @db.Text
+  photoUrl         String?
+  animalId         String?
+  animal           Animal?      @relation(fields: [animalId], references: [id], onDelete: SetNull)
+  publishedAt      DateTime?
+  createdAt        DateTime     @default(now())
+
+  @@index([publishedAt(sort: Desc)])
+  @@index([organizationId, publishedAt(sort: Desc)])
+  @@map("adoption_stories")
+}
+
+model DossierAcknowledgment {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  animalId       String
+  animal         Animal   @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  ackedAt        DateTime @default(now())
+  dossierVersion Int
+
+  @@unique([userId, animalId])
+  @@index([animalId])
+  @@map("dossier_acknowledgments")
 }
