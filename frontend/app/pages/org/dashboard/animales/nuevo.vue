@@ -27,7 +27,7 @@
               ? 'bg-primary text-white'
               : currentStep === index
                 ? 'bg-primary text-white'
-                : 'bg-[--color-border]/40 text-gray-500'
+                : 'bg-[var(--color-border)]/40 text-gray-500'
           ]"
         >
           <KIcon v-if="currentStep > index" name="check" :size="16" />
@@ -42,7 +42,7 @@
         <div
           v-if="index < steps.length - 1"
           class="flex-1 h-0.5 mx-2"
-          :class="currentStep > index ? 'bg-primary' : 'bg-[--color-border]/40'"
+          :class="currentStep > index ? 'bg-primary' : 'bg-[var(--color-border)]/40'"
         />
       </div>
     </div>
@@ -78,7 +78,7 @@
       </div>
 
       <!-- Navigation -->
-      <div class="flex justify-between mt-6 pt-4 border-t border-[--color-border]">
+      <div class="flex justify-between mt-6 pt-4 border-t border-[var(--color-border)]">
         <UButton
           v-if="currentStep > 0"
           variant="outline"
@@ -207,12 +207,18 @@ async function createAnimal() {
         key: p.key,
         caption: p.caption || undefined,
       }))
-      await post(`/animals/${animal.id}/photos`, { photos })
+      const savedPhotos = await post<{ id: string; key: string }[]>(`/animals/${animal.id}/photos`, { photos })
 
       // 3. Set cover photo if selected
+      // coverPhoto comes from PhotoUploader local state and only has tempId, not a server id.
+      // Match the chosen cover back to its saved server record by key (the MinIO object key is
+      // stable and present in both the local photo object and the upload payload).
       const coverPhoto = photoUploaderRef.value?.getCoverPhoto()
-      if (coverPhoto && coverPhoto.id) {
-        await patch(`/animals/${animal.id}/photos/cover`, { photoId: coverPhoto.id })
+      if (coverPhoto && Array.isArray(savedPhotos) && savedPhotos.length > 0) {
+        const savedCover = savedPhotos.find((sp) => sp.key === coverPhoto.key)
+        if (savedCover?.id) {
+          await patch(`/animals/${animal.id}/photos/cover`, { photoId: savedCover.id })
+        }
       }
     }
 
