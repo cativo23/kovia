@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach, afterAll, vi } from 'vitest';
 import pg from 'pg';
 import { ClsService } from 'nestjs-cls';
 import { PrismaService } from '../prisma/prisma.service';
@@ -172,5 +172,135 @@ describe('AnimalsService integration (PATTERN-03)', () => {
     const result = await animalsService.findPublic({ organization: orgSlug });
     expect(result.data.length).toBeGreaterThanOrEqual(1);
     expect(result.data.every((a: any) => a.organizationId === orgId)).toBe(true);
+  });
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Phase 15 plan 02 — dossier behavior assertions
+  // (PATTERN-02 runtime smoke for dossierComplete + dossierVersion logic).
+  // ──────────────────────────────────────────────────────────────────────────
+  describe('update() dossier behavior (Phase 15 plan 02)', () => {
+    // Reset the seeded animal's dossier state before every test so each
+    // assertion starts from a known-blank baseline (dossierVersion=1,
+    // dossierComplete=false, all dossier columns NULL / empty).
+    beforeEach(async () => {
+      await superClient.query(
+        `UPDATE animals
+            SET "adoptionCategory"     = NULL,
+                "behavioralEvaluation" = NULL,
+                "medicalHistory"       = NULL,
+                "monthlyCostUsdMin"    = NULL,
+                "monthlyCostUsdMax"    = NULL,
+                "knownTriggers"        = ARRAY[]::TEXT[],
+                "shelterEntryDate"     = NULL,
+                "dossierComplete"      = false,
+                "dossierVersion"       = 1
+          WHERE id = $1`,
+        [animalId],
+      );
+    });
+
+    it('update() flips dossierComplete=true and bumps dossierVersion when all 5 required fields set', async () => {
+      const before = await superClient.query(
+        `SELECT "dossierVersion", "dossierComplete" FROM animals WHERE id = $1`,
+        [animalId],
+      );
+      expect(before.rows[0].dossierComplete).toBe(false);
+      const prevVersion = before.rows[0].dossierVersion;
+
+      await animalsService.update(
+        animalId,
+        {
+          adoptionCategory: 'SALUDABLE_ADULTO',
+          behavioralEvaluation: 'Friendly adult dog, walks calmly on leash.',
+          medicalHistory: 'Vaccinated, sterilized, no chronic conditions.',
+          monthlyCostUsdMin: 50,
+          shelterEntryDate: new Date('2026-04-01'),
+        },
+        ownerId,
+      );
+
+      const after = await superClient.query(
+        `SELECT "dossierVersion", "dossierComplete" FROM animals WHERE id = $1`,
+        [animalId],
+      );
+      expect(after.rows[0].dossierComplete).toBe(true);
+      expect(after.rows[0].dossierVersion).toBe(prevVersion + 1);
+    });
+
+    it('update() leaves dossierComplete=false when only some required fields set', async () => {
+      // Only 2 of 5 required fields set — completion criterion not met.
+      await animalsService.update(
+        animalId,
+        {
+          behavioralEvaluation: 'Energetic but trainable.',
+          medicalHistory: 'Healthy adult.',
+        },
+        ownerId,
+      );
+
+      const after = await superClient.query(
+        `SELECT "dossierVersion", "dossierComplete" FROM animals WHERE id = $1`,
+        [animalId],
+      );
+      expect(after.rows[0].dossierComplete).toBe(false);
+      // Version still bumped because dossier fields were touched (D-09).
+      expect(after.rows[0].dossierVersion).toBe(2);
+    });
+
+    it('update() bumps dossierVersion when any dossier field changes (even optional ones)', async () => {
+      // Only the optional `knownTriggers` array is touched. dossierComplete must
+      // remain false (no required fields set) but the version must still bump.
+      await animalsService.update(
+        animalId,
+        {
+          knownTriggers: ['ruidos fuertes', 'visitas inesperadas'],
+        },
+        ownerId,
+      );
+
+      const after = await superClient.query(
+        `SELECT "dossierVersion", "dossierComplete", "knownTriggers" FROM animals WHERE id = $1`,
+        [animalId],
+      );
+      expect(after.rows[0].dossierVersion).toBe(2);
+      expect(after.rows[0].dossierComplete).toBe(false);
+      expect(after.rows[0].knownTriggers).toEqual([
+        'ruidos fuertes',
+        'visitas inesperadas',
+      ]);
+    });
+
+    it('update() does NOT bump dossierVersion when no dossier fields in payload', async () => {
+      // Touch a non-dossier field only.
+      await animalsService.update(
+        animalId,
+        { name: `Animals Int Animal ${tag} renamed` },
+        ownerId,
+      );
+
+      const after = await superClient.query(
+        `SELECT "dossierVersion", "dossierComplete", name FROM animals WHERE id = $1`,
+        [animalId],
+      );
+      expect(after.rows[0].dossierVersion).toBe(1); // unchanged
+      expect(after.rows[0].name).toBe(`Animals Int Animal ${tag} renamed`);
+    });
+
+    it('update() ignores client-supplied dossierComplete (T-15-06 mitigation)', async () => {
+      // Attempt to flip dossierComplete=true via the raw service surface
+      // without filling the 5 required fields. The service must strip the key
+      // before reaching Prisma, AND its server-side recompute must override
+      // it with the true (computed) value, which is false here.
+      const malicious = { dossierComplete: true } as any;
+      await animalsService.update(animalId, malicious, ownerId);
+
+      const after = await superClient.query(
+        `SELECT "dossierVersion", "dossierComplete" FROM animals WHERE id = $1`,
+        [animalId],
+      );
+      expect(after.rows[0].dossierComplete).toBe(false);
+      // No dossier fields were touched → no version bump expected.
+      expect(after.rows[0].dossierVersion).toBe(1);
+    });
   });
 });
