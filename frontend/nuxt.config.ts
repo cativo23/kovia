@@ -78,8 +78,19 @@ export default defineNuxtConfig({
 
   // Phase 15-09 / D-16 — bundle budget split.
   // Splits auth store + plugin, Nuxt UI overlays/floating, and motion-v runtime
-  // into separate async chunks that are NOT in the initial preload graph for `/`.
-  // This brings the initial JS for public routes from 249 KB gzip → ≤ 180 KB gzip.
+  // into named async chunks that can be separately cached and debugged.
+  //
+  // Build-time discovery: the landing page (/) statically imports KSpringCard, BentoHero,
+  // and the default layout (which imports DropdownMenu → Reka UI). This means motion-v,
+  // Reka UI, and Floating UI cannot be fully deferred from the initial preload graph —
+  // they appear as separate named chunks but are still preloaded by the browser.
+  // The manualChunks rules below are best-effort: they name chunks for observability and
+  // enable future incremental removal (e.g., converting KSpringCard to a CSS animation).
+  //
+  // Stores/auth: Rollup warns "dynamic import will not move module into another chunk"
+  // because stores/auth is statically imported from 20+ files. The rule still groups
+  // the plugin file; the store itself stays in the main vendor chunk.
+  //
   // Note: Nuxt 4 overrides chunkFileNames to hash-only in production builds by default;
   // we set chunkFileNames explicitly so the chunk names are preserved in the output
   // filenames, making them identifiable for audit and verification.

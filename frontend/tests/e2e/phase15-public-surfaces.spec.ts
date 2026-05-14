@@ -106,9 +106,17 @@ test.describe('Phase 15 public surfaces @phase15', () => {
     //   SSR/CSR diff (motion.div components render server-empty then mount
     //   client-side). 15-07 SUMMARY §Deferred Issues already tracks this.
     //   Not introduced or made worse by 15-08.
+    // - "Failed to load resource: ... 401" — Phase 15-09 changed auth plugin
+    //   from auth.ts (SSR) to auth.client.ts (client-only, deferred to app:mounted).
+    //   The /auth/refresh POST that previously ran server-side now runs in the
+    //   browser. On public routes with no session, this 401 is expected and is
+    //   caught silently by authStore.initialize(). The browser logs it as a
+    //   console error regardless (browser network error, not JS error). This is
+    //   expected behavior — not a regression.
     const knownNoise = [
       /seed\/stories\/story-\d+\.jpg/,
       /Failed to load resource.*\b404\b/i,
+      /Failed to load resource.*\b401\b/i,
       /Hydration completed but contains mismatches/i,
     ];
     const realErrors = errors.filter(
