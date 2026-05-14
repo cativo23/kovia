@@ -18,6 +18,7 @@ import { UploadModule } from './upload/upload.module';
 import { SpeciesModule } from './species/species.module';
 import { AnimalsModule } from './animals/animals.module';
 import { PublicAnimalsModule } from './public-animals/public-animals.module';
+import { PublicLandingModule } from './public-landing/public-landing.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { ApplicationNotesModule } from './application-notes/application-notes.module';
@@ -55,6 +56,7 @@ import { TeamModule } from './team/team.module';
     SpeciesModule,
     AnimalsModule,
     PublicAnimalsModule,
+    PublicLandingModule,
     ApplicationsModule,
     ScoringModule,
     ApplicationNotesModule,
