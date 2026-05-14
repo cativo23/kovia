@@ -27,7 +27,29 @@ interface CreateAnimalInput {
   vaccinated?: boolean;
   sterilized?: boolean;
   trained?: boolean;
+  // Phase 15 dossier fields (per D-05 / 15-02 plan)
+  // NOTE: dossierComplete and dossierVersion are deliberately absent —
+  // they are server-computed (D-08, D-09).
+  adoptionCategory?: string;
+  behavioralEvaluation?: string;
+  medicalHistory?: string;
+  monthlyCostUsdMin?: number;
+  monthlyCostUsdMax?: number;
+  knownTriggers?: string[];
+  shelterEntryDate?: Date;
 }
+
+// The 7 dossier-field names that, when present in an update payload, trigger
+// a dossierVersion bump (D-09 staleness mechanism).
+const DOSSIER_FIELDS = [
+  'adoptionCategory',
+  'behavioralEvaluation',
+  'medicalHistory',
+  'monthlyCostUsdMin',
+  'monthlyCostUsdMax',
+  'knownTriggers',
+  'shelterEntryDate',
+] as const;
 
 interface AnimalQueryInput {
   page?: number;
@@ -60,31 +82,66 @@ export class AnimalsService {
 
   async create(dto: CreateAnimalInput, userId: string) {
     const organizationId = this.cls.get('organizationId') as string;
+    // Build initial data
+    const data: any = {
+      name: dto.name,
+      description: dto.description,
+      species: { connect: { id: dto.speciesId } },
+      organization: { connect: { id: organizationId } },
+      breed: dto.breed,
+      gender: dto.gender,
+      ageMonths: dto.ageMonths,
+      size: dto.size,
+      energyLevel: dto.energyLevel,
+      goodWithKids: dto.goodWithKids,
+      goodWithDogs: dto.goodWithDogs,
+      goodWithCats: dto.goodWithCats,
+      goodWithOtherPets: dto.goodWithOtherPets,
+      specialNeeds: dto.specialNeeds,
+      vaccinated: dto.vaccinated,
+      sterilized: dto.sterilized,
+      trained: dto.trained,
+      // Phase 15 dossier fields — passed straight through; service-side recompute
+      // below decides dossierComplete (server-only, never client-controlled).
+      adoptionCategory: dto.adoptionCategory,
+      behavioralEvaluation: dto.behavioralEvaluation,
+      medicalHistory: dto.medicalHistory,
+      monthlyCostUsdMin: dto.monthlyCostUsdMin,
+      monthlyCostUsdMax: dto.monthlyCostUsdMax,
+      knownTriggers: dto.knownTriggers,
+      shelterEntryDate: dto.shelterEntryDate,
+    };
+
     const animal = await this.prismaRls.animal.create({
-      data: {
-        name: dto.name,
-        description: dto.description,
-        species: { connect: { id: dto.speciesId } },
-        organization: { connect: { id: organizationId } },
-        breed: dto.breed,
-        gender: dto.gender,
-        ageMonths: dto.ageMonths,
-        size: dto.size,
-        energyLevel: dto.energyLevel,
-        goodWithKids: dto.goodWithKids,
-        goodWithDogs: dto.goodWithDogs,
-        goodWithCats: dto.goodWithCats,
-        goodWithOtherPets: dto.goodWithOtherPets,
-        specialNeeds: dto.specialNeeds,
-        vaccinated: dto.vaccinated,
-        sterilized: dto.sterilized,
-        trained: dto.trained,
-      },
+      data,
       include: {
         species: true,
         photos: { orderBy: { position: 'asc' } },
       },
     });
+
+    // If the creating refugio happened to fill the 5 required dossier fields at
+    // create-time, flip dossierComplete=true (D-08). dossierVersion stays at the
+    // schema default (1) on create; bumps only happen on subsequent updates.
+    // Treat a missing/undefined dossierComplete as false (schema default) so
+    // we only persist a real flip.
+    const complete = this.computeDossierComplete(animal);
+    const priorComplete = animal.dossierComplete === true;
+    if (complete !== priorComplete) {
+      const recomputed = await this.prismaRls.animal.update({
+        where: { id: animal.id },
+        data: { dossierComplete: complete },
+        include: {
+          species: true,
+          photos: { orderBy: { position: 'asc' } },
+        },
+      });
+      await this.auditService.log('animal.create', userId, {
+        animalId: recomputed.id,
+        name: recomputed.name,
+      });
+      return recomputed;
+    }
 
     await this.auditService.log('animal.create', userId, {
       animalId: animal.id,
@@ -95,20 +152,108 @@ export class AnimalsService {
   }
 
   async update(id: string, dto: Partial<CreateAnimalInput>, userId: string) {
+    // 1. Strip server-computed fields from the inbound payload (defense-in-depth
+    //    against T-15-06 / T-15-Dossier-Version-Stale — at the HTTP boundary
+    //    ValidationPipe.forbidNonWhitelisted already rejects unknown keys, but
+    //    a service-level caller using `any` casts must also be neutered).
+    const {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      dossierComplete: _dropDossierComplete,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      dossierVersion: _dropDossierVersion,
+      ...safeDto
+    } = dto as Partial<CreateAnimalInput> & {
+      dossierComplete?: unknown;
+      dossierVersion?: unknown;
+    };
+
+    // 2. Look up the prior animal to read its current dossierVersion AND its
+    //    current dossier-field values (needed by the recompute step below).
+    const prev = await this.prismaRls.animal.findUnique({ where: { id } });
+    if (!prev) {
+      throw new NotFoundException(`Animal with ID ${id} not found`);
+    }
+
+    // 3. If the incoming payload touches any dossier field, bump dossierVersion
+    //    by 1 (D-09). Detection: `in` operator so a caller sending
+    //    `behavioralEvaluation: null` (intentional clear-out) also counts as a touch.
+    const bumpVersion = this.bumpDossierVersionIfNeeded(safeDto, prev);
+
+    const data: any = { ...safeDto };
+    if (bumpVersion) {
+      data.dossierVersion = prev.dossierVersion + 1;
+    }
+
     const animal = await this.prismaRls.animal.update({
       where: { id },
-      data: dto,
+      data,
       include: {
         species: true,
         photos: { orderBy: { position: 'asc' } },
       },
     });
 
+    // 4. Server-side recompute of dossierComplete (D-08): authoritative — never
+    //    accepts the value from the client. Treat undefined as false (schema default).
+    const complete = this.computeDossierComplete(animal);
+    const priorComplete = animal.dossierComplete === true;
+    if (complete !== priorComplete) {
+      const recomputed = await this.prismaRls.animal.update({
+        where: { id },
+        data: { dossierComplete: complete },
+        include: {
+          species: true,
+          photos: { orderBy: { position: 'asc' } },
+        },
+      });
+      await this.auditService.log('animal.update', userId, { animalId: id });
+      return recomputed;
+    }
+
     await this.auditService.log('animal.update', userId, {
       animalId: id,
     });
 
     return animal;
+  }
+
+  /**
+   * Detect whether any of the 7 dossier-tracked fields appear in the update
+   * payload as an explicit (i.e. `key in dto`) entry. We use `in` (not
+   * `!== undefined`) so that an intentional `null` clear-out also counts as a
+   * touch — matches D-09 ("any of these fields in the update payload bumps
+   * version by 1").
+   */
+  private bumpDossierVersionIfNeeded(
+    dto: Partial<CreateAnimalInput>,
+    _prev: { dossierVersion: number },
+  ): boolean {
+    for (const field of DOSSIER_FIELDS) {
+      if (field in dto) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Compute dossierComplete from the 5 required fields (D-08):
+   * behavioralEvaluation, medicalHistory, monthlyCostUsdMin, adoptionCategory,
+   * shelterEntryDate. monthlyCostUsdMax + knownTriggers are optional.
+   */
+  private computeDossierComplete(animal: {
+    behavioralEvaluation: string | null;
+    medicalHistory: string | null;
+    monthlyCostUsdMin: number | null;
+    adoptionCategory: string | null;
+    shelterEntryDate: Date | null;
+  }): boolean {
+    return !!(
+      animal.behavioralEvaluation &&
+      animal.medicalHistory &&
+      animal.monthlyCostUsdMin !== null &&
+      animal.monthlyCostUsdMin !== undefined &&
+      animal.adoptionCategory &&
+      animal.shelterEntryDate
+    );
   }
 
   async findById(id: string) {
