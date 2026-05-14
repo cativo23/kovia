@@ -2,10 +2,10 @@
   <div>
     <!-- Page title -->
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-[--color-text]">
+      <h1 class="text-3xl font-bold text-[var(--color-text)]">
         {{ $t('listings.title') }}
       </h1>
-      <p class="mt-1 text-[--color-text]/70">
+      <p class="mt-1 text-[var(--color-text)]/70">
         {{ $t('listings.subtitle') }}
       </p>
     </div>
@@ -80,6 +80,24 @@ const filters = ref<FilterState>({
   organization: route.query.organization as string || undefined,
   search: route.query.search as string || undefined,
 })
+
+// Keep filter UI in sync when the URL changes (e.g. browser back/forward navigation).
+// The data fetch already reacts to route.query via queryParams, but the filters ref
+// is only initialized once at setup — without this watch it goes stale after navigation.
+watch(
+  () => route.query,
+  (query) => {
+    filters.value = {
+      species: query.species as string || undefined,
+      size: query.size as string || undefined,
+      ageMin: query.ageMin ? parseInt(query.ageMin as string) : undefined,
+      ageMax: query.ageMax ? parseInt(query.ageMax as string) : undefined,
+      energyLevel: query.energyLevel as string || undefined,
+      organization: query.organization as string || undefined,
+      search: query.search as string || undefined,
+    }
+  }
+)
 
 const currentPage = computed(() => parseInt(route.query.page as string || '1'))
 
