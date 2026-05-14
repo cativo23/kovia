@@ -311,7 +311,7 @@
     "age": {
       "newborn": "Recien nacido",
       "months": "meses",
-      "years": "anos"
+      "years": "años"
     },
     "actions": {
       "edit": "Editar",
@@ -574,7 +574,7 @@
         "headlineCoral": "hogar",
         "headlineAfter": " honesto para tu próximo compañero",
         "subhead": "Cada perfil incluye historial médico, costos mensuales y guía honesta. Sin filtros engañosos.",
-        "availableCount": "{n} animal espera un hogar hoy | {n} animales esperan un hogar hoy",
+        "availableCount": "animal espera un hogar hoy | animales esperan un hogar hoy",
         "mascotAria": "Mascota Kovia saludando"
       }
     },

@@ -11,7 +11,7 @@
     >
       <!-- Cover Photo -->
       <template #header>
-        <div class="aspect-[4/3] overflow-hidden bg-amber-50 relative -mx-4 -mt-4">
+        <div class="aspect-[4/3] overflow-hidden bg-[var(--color-bg-secondary)] relative -mx-4 -mt-4">
           <img
             v-if="coverPhoto"
             :src="coverPhoto.url"
@@ -19,7 +19,7 @@
             class="w-full h-full object-cover transition-transform group-hover:scale-105"
           />
           <div v-else class="w-full h-full flex items-center justify-center">
-            <KIcon name="paw-print" :size="64" class="text-amber-300" />
+            <KIcon name="paw-print" :size="64" class="text-[var(--color-text)]/25" />
           </div>
           <!-- Species badge -->
           <div class="absolute top-2 left-2">
@@ -33,7 +33,7 @@
       <div class="space-y-2">
         <!-- Name and breed -->
         <div>
-          <h3 class="font-bold text-base text-[--color-text] group-hover:text-primary transition-colors">
+          <h3 class="font-bold text-base text-[var(--color-text)] group-hover:text-primary transition-colors">
             {{ animal.name }}
           </h3>
           <p v-if="animal.breed" class="text-sm text-gray-500">{{ animal.breed }}</p>
@@ -48,7 +48,7 @@
         />
 
         <!-- Age, size, energy -->
-        <div class="flex flex-wrap gap-1 text-xs text-[--color-text]/70">
+        <div class="flex flex-wrap gap-1 text-xs text-[var(--color-text)]/70">
           <span v-if="animal.ageMonths !== null" class="flex items-center gap-1">
             <KIcon name="calendar" :size="12" />
             {{ formatAge(animal.ageMonths) }}
@@ -83,7 +83,7 @@
         </div>
 
         <!-- Org name -->
-        <p v-if="animal.organization" class="text-xs text-[--color-text-muted] mt-1">
+        <p v-if="animal.organization" class="text-xs text-[var(--color-text-muted)] mt-1">
           {{ animal.organization.name }}
         </p>
       </div>
@@ -92,10 +92,10 @@
     <!-- List Mode -->
     <div
       v-else
-      class="flex items-center gap-4 p-3 rounded-lg border border-[--color-border] hover:bg-[--color-border]/40 transition-colors"
+      class="flex items-center gap-4 p-3 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-border)]/40 transition-colors"
     >
       <!-- Thumbnail -->
-      <div class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-amber-50">
+      <div class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-[var(--color-bg-secondary)]">
         <img
           v-if="coverPhoto"
           :src="coverPhoto.url"
@@ -103,14 +103,14 @@
           class="w-full h-full object-cover"
         />
         <div v-else class="w-full h-full flex items-center justify-center">
-          <KIcon name="paw-print" :size="32" class="text-amber-300" />
+          <KIcon name="paw-print" :size="32" class="text-[var(--color-text)]/25" />
         </div>
       </div>
 
       <!-- Info -->
       <div class="flex-1 min-w-0">
         <div class="flex items-start justify-between gap-2">
-          <h3 class="font-bold text-sm text-[--color-text] group-hover:text-primary transition-colors truncate">
+          <h3 class="font-bold text-sm text-[var(--color-text)] group-hover:text-primary transition-colors truncate">
             {{ animal.name }}
           </h3>
           <UBadge v-if="animal.species" color="primary" variant="soft" size="sm" class="flex-shrink-0">
@@ -125,7 +125,7 @@
           class="mt-1"
         />
         <p v-if="animal.breed" class="text-xs text-gray-500 mt-0.5">{{ animal.breed }}</p>
-        <div class="flex flex-wrap gap-2 mt-1 text-xs text-[--color-text]/70">
+        <div class="flex flex-wrap gap-2 mt-1 text-xs text-[var(--color-text)]/70">
           <span v-if="animal.ageMonths !== null">{{ formatAge(animal.ageMonths) }}</span>
           <span v-if="animal.size">{{ $t(`animals.form.sizeOptions.${sizeKey(animal.size)}`) }}</span>
           <span v-if="animal.organization" class="text-gray-400">{{ animal.organization.name }}</span>
@@ -187,11 +187,12 @@ const coverPhoto = computed(() => {
 })
 
 function formatAge(months: number): string {
-  if (months === 0) return 'Recien nacido'
-  if (months < 12) return `${months} ${months === 1 ? 'mes' : 'meses'}`
+  const { t } = useI18n()
+  if (months === 0) return t('animals.age.newborn')
+  if (months < 12) return `${months} ${months === 1 ? 'mes' : t('animals.age.months')}`
   const years = Math.floor(months / 12)
   const rem = months % 12
-  if (rem === 0) return `${years} ${years === 1 ? 'ano' : 'anos'}`
+  if (rem === 0) return `${years} ${years === 1 ? 'año' : t('animals.age.years')}`
   return `${years}a ${rem}m`
 }
 
