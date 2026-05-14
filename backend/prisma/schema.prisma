@@ -1,6 +1,12 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  // Force the TS generator to emit `.js` extensions in import statements.
+  // With NodeNext moduleResolution Prisma defaults to `.ts` literals, which
+  // SWC keeps verbatim when compiling to CommonJS — producing
+  // require("./internal/class.ts") that Node can't resolve at runtime.
+  // See: https://github.com/prisma/prisma/issues/25833
+  importFileExtension = "js"
 }
 
 datasource db {
