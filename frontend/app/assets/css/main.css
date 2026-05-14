@@ -107,10 +107,10 @@
  */
 .dark {
   --color-bg:           #1A0F06;
-  --color-bg-secondary: color-mix(in srgb, #FEF3E2 8%, #1A0F06);
+  --color-bg-secondary: color-mix(in srgb, #FEF3E2 18%, #1A0F06);
   --color-text:         #FEF3E2;
   --color-text-muted:   color-mix(in srgb, #FEF3E2 65%, transparent);
-  --color-border:       color-mix(in srgb, #FEF3E2 15%, transparent);
+  --color-border:       color-mix(in srgb, #FEF3E2 22%, transparent);
 }
 
 /*
