@@ -98,8 +98,14 @@
       </motion.div>
 
       <!-- STORY cells — StoriesStrip parent fragment-renders 3 direct
-           grid children (each its own grid-area + stagger). -->
-      <StoriesStrip :stories="landing.stories" />
+           grid children (each its own grid-area + stagger). Day-1 zero-state
+           hides the strip entirely; the parent v-if also prevents the
+           lazy-imported chunk from ever being fetched on launch (15-08
+           bundle-budget mitigation). -->
+      <StoriesStrip
+        v-if="landing.stories.length > 0"
+        :stories="landing.stories"
+      />
 
       <!-- MARQUEE cell (full width below grid; hidden when empty per D-15) -->
       <motion.div
@@ -117,15 +123,28 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import BentoHero from '~/components/landing/BentoHero.vue'
 import BentoStatsBlock from '~/components/landing/BentoStatsBlock.vue'
 import VerifiedRescuesBlock from '~/components/landing/VerifiedRescuesBlock.vue'
 import StoriesStrip from '~/components/landing/StoriesStrip.vue'
-import AdopterMarquee from '~/components/landing/AdopterMarquee.vue'
 import AnimalCard from '~/components/animals/AnimalCard.vue'
 import KSpringCard from '~/components/motion/KSpringCard.vue'
 import type { AnimalPublic } from '~/types/public-animal'
+
+// Below-the-fold cell (15-08 bundle-budget mitigation): lazy-import
+// AdopterMarquee. Hidden on Day-1 (zero finalized adoptions) so its JS cost
+// is wasted at launch. defineAsyncComponent moves its chunk out of the
+// initial graph; the chunk is fetched on demand once the landing-stats
+// payload actually carries marqueeAdopters rows.
+//
+// StoriesStrip stays as a static import because its template root is a
+// Vue fragment (`<template v-if=...>` with `<motion.div v-for>` children).
+// defineAsyncComponent + fragment-root SFCs render a warning + no-op in
+// the SSR pipeline, which broke the bento layout in 15-08 testing.
+const AdopterMarquee = defineAsyncComponent(
+  () => import('~/components/landing/AdopterMarquee.vue'),
+)
 
 /*
  * Local mirror of the backend `PublicLandingStats` shape (backend file:

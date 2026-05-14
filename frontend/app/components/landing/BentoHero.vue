@@ -15,7 +15,10 @@
   this card into the bento HERO area declared by pages/index.vue.
 -->
 <template>
-  <KSpringCard class="bento-hero [grid-area:hero] rounded-[var(--radius-card-lg,32px)] p-8 md:p-10">
+  <KSpringCard
+    data-testid="bento-hero"
+    class="bento-hero [grid-area:hero] rounded-[var(--radius-card-lg,32px)] p-8 md:p-10"
+  >
     <div class="flex flex-col items-center text-center gap-4">
       <KMascot
         variant="hero"
@@ -32,7 +35,7 @@
 
       <p class="bento-hero__stat text-2xl font-semibold mt-2">
         <span class="bento-hero__stat-number">{{ availableCount }}</span>
-        {{ $tc('landing.hero.day1.availableCount', availableCount, { n: availableCount }) }}
+        {{ availableCountCopy }}
       </p>
 
       <p class="bento-hero__subhead mt-3 text-base text-[--color-text]/80 max-w-xl">
@@ -69,12 +72,22 @@
 import { computed } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 
-defineProps<{
+const props = defineProps<{
   availableCount: number
 }>()
 
 const authStore = useAuthStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
+
+// Use composable `t(key, named, count)` form instead of template `$tc(...)`.
+// `$tc` was removed from the component-instance in vue-i18n 9+ and trips a
+// runtime "TypeError: _ctx.$tc is not a function" in the SSR pipeline (the
+// dev server returns a 500 page, hiding the bento cells entirely).
+// Pattern matches the dossier page fix from 15-06 (composable form + computed).
+const { t } = useI18n()
+const availableCountCopy = computed(() =>
+  t('landing.hero.day1.availableCount', { n: props.availableCount }, props.availableCount),
+)
 </script>
 
 <style scoped>

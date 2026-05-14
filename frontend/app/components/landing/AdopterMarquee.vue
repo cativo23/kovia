@@ -19,6 +19,7 @@
 <template>
   <div
     v-if="adopters.length > 0"
+    data-testid="bento-marquee"
     class="adopter-marquee [grid-area:marquee] overflow-hidden"
     :aria-label="$t('landing.marquee.ariaLabel')"
     role="region"

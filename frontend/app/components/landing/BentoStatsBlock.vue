@@ -9,20 +9,23 @@
   Methodology link → /verificacion (D-14).
 -->
 <template>
-  <KSpringCard class="bento-stats [grid-area:stats] rounded-[var(--radius-card,24px)] p-6">
+  <KSpringCard
+    data-testid="bento-stats"
+    class="bento-stats [grid-area:stats] rounded-[var(--radius-card,24px)] p-6"
+  >
     <div class="flex flex-col gap-3">
       <!-- Primary stat: availableCount with coral pop on the number (Color §reserved-for #2). -->
       <div class="bento-stats__primary">
         <span class="bento-stats__number">{{ availableCount }}</span>
         <p class="bento-stats__caption mt-1 text-sm text-[--color-text]/80">
-          {{ $tc('landing.hero.day1.availableCount', availableCount, { n: availableCount }) }}
+          {{ availableCountCopy }}
         </p>
       </div>
 
       <!-- Verified rescues count (always shown). -->
       <div class="bento-stats__secondary mt-2">
         <p class="text-base font-semibold">
-          {{ $tc('landing.stats.verifiedRescues', verifiedRefugiosCount, { n: verifiedRefugiosCount }) }}
+          {{ verifiedRescuesCopy }}
         </p>
         <NuxtLink
           to="/verificacion"
@@ -44,12 +47,26 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import { computed } from 'vue'
+
+const props = defineProps<{
   availableCount: number
   verifiedRefugiosCount: number
   totalAdoptions: number
   layoutVariant: 'day1' | 'year2'
 }>()
+
+// Use composable `t(key, named, count)` form instead of template `$tc(...)`.
+// `$tc` was removed from the component-instance in vue-i18n 9+ and trips a
+// runtime "TypeError: _ctx.$tc is not a function" in the SSR pipeline. Same
+// fix pattern as BentoHero (15-08 Rule-1 deviation).
+const { t } = useI18n()
+const availableCountCopy = computed(() =>
+  t('landing.hero.day1.availableCount', { n: props.availableCount }, props.availableCount),
+)
+const verifiedRescuesCopy = computed(() =>
+  t('landing.stats.verifiedRescues', { n: props.verifiedRefugiosCount }, props.verifiedRefugiosCount),
+)
 </script>
 
 <style scoped>

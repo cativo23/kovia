@@ -121,6 +121,7 @@
         color="primary"
         block
         class="rounded-[--radius-pill]"
+        data-testid="apply-cta"
         :disabled="!ackChecked"
         :aria-disabled="!ackChecked"
         :label="$t('dossier.apply.cta')"

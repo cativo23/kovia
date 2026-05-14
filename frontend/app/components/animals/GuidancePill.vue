@@ -1,7 +1,9 @@
 <template>
   <span
     role="status"
+    data-testid="guidance-pill"
     :aria-label="ariaLabel"
+    :data-guidance-color="guidance.color"
     :data-variant="variant"
     :data-size="size"
     :class="[
