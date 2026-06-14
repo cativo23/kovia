@@ -51,29 +51,29 @@
           />
         </UFormField>
 
-        <div class="border-t border-gray-200 dark:border-gray-800 pt-6">
+        <div class="border-t border-[var(--color-border)] pt-6">
           <h3 class="font-semibold mb-4">{{ $t('org.setup.socialTitle') }}</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <UFormField :label="$t('org.instagram')">
               <UInput
                 v-model="form.instagram"
-                :placeholder="$t('org.setup.instagramPlaceholder')"
-                icon="i-lucide-instagram"
-              />
+                :placeholder="$t('org.setup.instagramPlaceholder')">
+          <template #leading><KIcon name="instagram" /></template>
+        </UInput>
             </UFormField>
             <UFormField :label="$t('org.facebook')">
               <UInput
                 v-model="form.facebook"
-                :placeholder="$t('org.setup.facebookPlaceholder')"
-                icon="i-lucide-facebook"
-              />
+                :placeholder="$t('org.setup.facebookPlaceholder')">
+          <template #leading><KIcon name="facebook" /></template>
+        </UInput>
             </UFormField>
             <UFormField :label="$t('org.whatsapp')">
               <UInput
                 v-model="form.whatsapp"
-                :placeholder="$t('org.setup.whatsappPlaceholder')"
-                icon="i-lucide-message-circle"
-              />
+                :placeholder="$t('org.setup.whatsappPlaceholder')">
+          <template #leading><KIcon name="message-circle" /></template>
+        </UInput>
             </UFormField>
           </div>
         </div>

@@ -140,18 +140,29 @@ export class AdminService {
     return result;
   }
 
-  async listUsers(pagination: { page: number; limit: number }) {
-    const { page, limit } = pagination;
+  async listUsers(pagination: { page: number; limit: number; search?: string }) {
+    const { page, limit, search } = pagination;
     const skip = (page - 1) * limit;
+
+    const where = search
+      ? {
+          OR: [
+            { firstName: { contains: search, mode: 'insensitive' as const } },
+            { lastName: { contains: search, mode: 'insensitive' as const } },
+            { email: { contains: search, mode: 'insensitive' as const } },
+          ],
+        }
+      : {};
 
     const [data, total] = await Promise.all([
       this.prisma.user.findMany({
+        where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: { organization: true },
       }),
-      this.prisma.user.count(),
+      this.prisma.user.count({ where }),
     ]);
 
     return { data, total, page, limit };

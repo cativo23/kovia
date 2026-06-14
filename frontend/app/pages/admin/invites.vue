@@ -6,10 +6,11 @@
         <p class="text-gray-500 mt-1">{{ $t('admin.invites.description') }}</p>
       </div>
       <UButton
-        icon="i-lucide-plus"
+       
         :label="$t('admin.invites.create')"
-        @click="showCreateModal = true"
-      />
+        @click="showCreateModal = true">
+          <template #leading><KIcon name="plus" /></template>
+        </UButton>
     </div>
 
     <!-- Create Invite Modal -->
@@ -46,17 +47,18 @@
     <UAlert
       v-if="createdInviteLink"
       color="info"
-      icon="i-lucide-link"
+     
       :title="$t('admin.invites.linkCreated')"
       :description="createdInviteLink"
       class="mb-6"
-      :close-button="{ onClick: () => createdInviteLink = '' }"
-    />
+      :close-button="{ onClick: () => createdInviteLink = '' }">
+          <template #leading><KIcon name="link" /></template>
+        </UAlert>
 
     <!-- Invites Table -->
     <UCard>
       <div v-if="loading" class="flex justify-center py-8">
-        <UIcon name="i-lucide-loader-2" class="w-6 h-6 animate-spin" />
+        <KIcon name="loader-2" :size="24" class="animate-spin" />
       </div>
       <UTable v-else :data="invites" :columns="columns">
         <template #status-cell="{ row }">
@@ -75,19 +77,21 @@
               v-if="row.original.status !== 'accepted'"
               size="xs"
               variant="outline"
-              icon="i-lucide-send"
+             
               :label="$t('admin.invites.resend')"
               :loading="resending === row.original.id"
-              @click="resendInvite(row.original.id)"
-            />
+              @click="resendInvite(row.original.id)">
+          <template #leading><KIcon name="send" /></template>
+        </UButton>
             <UButton
               v-if="row.original.status === 'pending'"
               size="xs"
               variant="outline"
               color="error"
-              icon="i-lucide-trash-2"
-              @click="deleteInvite(row.original.id)"
-            />
+             
+              @click="deleteInvite(row.original.id)">
+          <template #leading><KIcon name="trash-2" /></template>
+        </UButton>
           </div>
         </template>
       </UTable>

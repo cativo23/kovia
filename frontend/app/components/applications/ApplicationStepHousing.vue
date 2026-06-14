@@ -117,18 +117,20 @@
           <UButton
             variant="ghost"
             color="error"
-            icon="i-lucide-x"
+           
             size="sm"
-            @click="removePet(index)"
-          />
+            @click="removePet(index)">
+          <template #leading><KIcon name="x" /></template>
+        </UButton>
         </div>
         <UButton
           variant="link"
           size="sm"
-          icon="i-lucide-plus"
+         
           :label="$t('applications.steps.housing.addPet')"
-          @click="addPet"
-        />
+          @click="addPet">
+          <template #leading><KIcon name="plus" /></template>
+        </UButton>
       </div>
     </div>
   </div>

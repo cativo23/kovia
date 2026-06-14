@@ -13,6 +13,7 @@ services:
       MAIL_PORT: 1025
       JWT_ACCESS_SECRET: dev-access-secret-kovia-2026
       JWT_REFRESH_SECRET: dev-refresh-secret-kovia-2026
+      JWT_VERIFICATION_SECRET: dev-verification-secret-kovia-2026
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-http://localhost:3000/auth/google/callback}
@@ -30,6 +31,10 @@ services:
       - ./backend:/app
       - /app/node_modules
       - /app/src/generated/prisma   # preserve image-baked Prisma client across bind mount
+      # Phase 15-05: locked-copy-consistency boundary spec (T-15-05) reads the
+      # frontend i18n file from the api container at /frontend/i18n. Mounted
+      # read-only because the api never edits frontend assets.
+      - ./frontend/i18n:/frontend/i18n:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -108,8 +113,8 @@ services:
   mailpit:
     image: axllent/mailpit:latest
     ports:
-      - "8025:8025"
-      - "1025:1025"
+      - "8026:8025"
+      - "1026:1025"
     environment:
       MP_MAX_MESSAGES: 500
 

@@ -1,6 +1,6 @@
 <template>
   <li
-    class="px-3 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded transition-colors"
+    class="px-3 py-2 cursor-pointer hover:bg-[var(--color-border)]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded transition-colors"
     :class="[
       notification.isRead ? 'opacity-60' : 'bg-elevated font-medium',
     ]"
@@ -15,7 +15,7 @@
       <div v-else class="mt-1.5 w-2 h-2 shrink-0" aria-hidden="true" />
       <div class="flex-1 min-w-0">
         <p class="text-sm truncate">{{ notification.title }}</p>
-        <p v-if="notification.body" class="text-xs text-gray-500 dark:text-gray-400 truncate">
+        <p v-if="notification.body" class="text-xs text-[var(--color-text)]/70 truncate">
           {{ notification.body }}
         </p>
         <p class="text-xs text-gray-400 mt-0.5">{{ formatRelativeTime(notification.createdAt) }}</p>

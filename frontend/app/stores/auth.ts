@@ -16,6 +16,17 @@ interface AuthState {
   isInitialized: boolean
 }
 
+/**
+ * Validates that a redirect path is root-relative (e.g. "/dashboard") and not
+ * an absolute URL (e.g. "https://evil.com"). Prevents open-redirect attacks via
+ * the OAuth callback flow.
+ */
+function isSafeRedirectPath(path: string): boolean {
+  // Accept "/" exactly, or any path starting with "/" that is not "//"
+  // The "//" prefix would be treated as protocol-relative by browsers
+  return path === '/' || /^\/[^/]/.test(path)
+}
+
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     user: null,
@@ -57,9 +68,21 @@ export const useAuthStore = defineStore('auth', {
     loginWithGoogle() {
       const config = useRuntimeConfig()
       const router = useRouter()
-      const currentPath = router.currentRoute.value.fullPath
-      if (currentPath !== '/login' && currentPath !== '/register') {
-        sessionStorage.setItem('kovia:oauth_redirect', currentPath)
+      const route = router.currentRoute.value
+      let pathToSave: string | null = null
+      if (route.path === '/login' || route.path === '/register') {
+        const redirectParam = route.query.redirect
+        if (typeof redirectParam === 'string' && redirectParam.length > 0 && isSafeRedirectPath(redirectParam)) {
+          pathToSave = redirectParam
+        }
+      }
+      else {
+        if (isSafeRedirectPath(route.fullPath)) {
+          pathToSave = route.fullPath
+        }
+      }
+      if (pathToSave) {
+        sessionStorage.setItem('kovia:oauth_redirect', pathToSave)
       }
       window.location.href = `${config.public.backendUrl}/auth/google`
     },
@@ -170,6 +193,9 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async _fetchProfile(config: ReturnType<typeof useRuntimeConfig>) {
+      if (!this.accessToken) {
+        throw new Error('Cannot fetch profile: no access token available')
+      }
       const user = await $fetch<User>('/auth/me', {
         baseURL: config.public.apiUrl as string,
         headers: { Authorization: `Bearer ${this.accessToken}` },

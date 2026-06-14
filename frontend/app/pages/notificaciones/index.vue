@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+      <h1 class="text-3xl font-bold text-[var(--color-text)]">
         {{ $t('notifications.page.title') }}
       </h1>
     </div>
@@ -28,6 +28,8 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ middleware: 'auth' })
+
 const { t } = useI18n()
 const { notifications, unreadCount, loading, error, fetchNotifications, markAsRead, markAllAsRead } = useNotifications()
 

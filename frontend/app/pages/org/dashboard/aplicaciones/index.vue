@@ -48,12 +48,12 @@
     <!-- Table -->
     <UCard>
       <div v-if="loading" class="flex justify-center py-8">
-        <UIcon name="i-lucide-loader-2" class="w-6 h-6 animate-spin" />
+        <KIcon name="loader-2" :size="24" class="animate-spin" />
       </div>
 
       <div v-else-if="applications.length === 0" class="text-center py-12">
-        <UIcon name="i-lucide-clipboard-list" class="w-12 h-12 mx-auto mb-4 text-gray-300" />
-        <p class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+        <KIcon name="clipboard-list" :size="48" class="mx-auto mb-4 text-gray-300" />
+        <p class="text-lg font-semibold text-[var(--color-text)]/70 mb-2">
           {{ $t('applications.queue.empty.heading') }}
         </p>
         <p class="text-sm text-gray-500">
@@ -83,9 +83,9 @@
             />
             <div
               v-else
-              class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0"
+              class="w-10 h-10 rounded-lg bg-[var(--color-border)]/40 flex items-center justify-center flex-shrink-0"
             >
-              <UIcon name="i-lucide-paw-print" class="w-5 h-5 text-gray-400" />
+              <KIcon name="paw-print" :size="20" class="text-gray-400" />
             </div>
             <span>{{ row.original.animal?.name ?? '-' }}</span>
           </div>
@@ -125,7 +125,7 @@
       <!-- Pagination -->
       <div
         v-if="totalPages > 1"
-        class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-800"
+        class="flex items-center justify-between mt-4 pt-4 border-t border-[var(--color-border)]"
       >
         <p class="text-sm text-gray-500">
           {{ total }} {{ $t('applications.queue.heading').toLowerCase() }}

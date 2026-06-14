@@ -4,7 +4,7 @@
       <h3 class="font-semibold text-base">{{ $t('adoptantes.historyHeading') }}</h3>
     </template>
     <div v-if="loading" class="flex justify-center py-4">
-      <UIcon name="i-lucide-loader-2" class="w-5 h-5 animate-spin text-primary" />
+      <KIcon name="loader-2" :size="20" class="animate-spin text-primary" />
     </div>
     <template v-else>
       <div class="space-y-2">
@@ -27,7 +27,7 @@
         class="text-sm text-primary hover:underline mt-3 inline-flex items-center gap-1"
       >
         {{ $t('adoptantes.viewFullHistory') }}
-        <UIcon name="i-lucide-arrow-right" class="w-4 h-4" />
+        <KIcon name="arrow-right" :size="16" />
       </NuxtLink>
     </template>
   </UCard>

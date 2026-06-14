@@ -14,16 +14,18 @@
       </template>
       <div class="flex gap-3">
         <UButton
-          icon="i-lucide-paw-print"
+         
           :label="$t('animals.dashboard.viewAll')"
-          to="/org/dashboard/animales"
-        />
+          to="/org/dashboard/animales">
+          <template #leading><KIcon name="paw-print" /></template>
+        </UButton>
         <UButton
           variant="outline"
-          icon="i-lucide-plus"
+         
           :label="$t('animals.dashboard.addNew')"
-          to="/org/dashboard/animales/nuevo"
-        />
+          to="/org/dashboard/animales/nuevo">
+          <template #leading><KIcon name="plus" /></template>
+        </UButton>
       </div>
     </UCard>
   </div>

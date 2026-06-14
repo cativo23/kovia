@@ -24,6 +24,61 @@
     "footer": {
       "tagline": "Adopcion inteligente de mascotas",
       "madeWith": "Hecho con amor para los animales"
+    },
+    "theme": {
+      "light": "Modo claro",
+      "dark": "Modo oscuro"
+    }
+  },
+  "designSystem": {
+    "title": "Sistema de diseño Kovia",
+    "subtitle": "Referencia visual de tokens, tipografía, íconos, mascota y movimiento.",
+    "nav": {
+      "tokens": "Tokens",
+      "typography": "Tipografía",
+      "icons": "Íconos",
+      "mascot": "Mascota",
+      "motion": "Movimiento"
+    },
+    "tokens": {
+      "rawColors": "Colores base",
+      "semanticColors": "Colores semánticos",
+      "radius": "Radios",
+      "spacing": "Espaciado"
+    },
+    "typography": {
+      "displayHover": "Pasá el mouse para sentir el peso",
+      "heading": "Título de tarjeta",
+      "label": "Etiqueta",
+      "body": "Texto base de párrafo: el cuerpo de la lectura ocurre aquí, con altura de línea cómoda y peso 400."
+    },
+    "icons": {
+      "heading": "63 íconos KIcon",
+      "subtitle": "Importados desde la fuente única de verdad ALL_ICON_NAMES."
+    },
+    "mascot": {
+      "variant": {
+        "hero": "Hero",
+        "emptyState": "Estado vacío",
+        "loading": "Cargando",
+        "status": "Estado"
+      },
+      "status": {
+        "pending": "Pendiente",
+        "approved": "Aprobado",
+        "rejected": "Rechazado"
+      }
+    },
+    "motion": {
+      "springCard": "Pasá el mouse para sentir el resorte",
+      "springCardBody": "Lift sutil con resorte iOS-widget (rigidez 300, amortiguación 20).",
+      "pawLoader": "Carga con caminata de huellas",
+      "marquee": "Marquee de huellas (CSS keyframes puros).",
+      "fadeUp": "Aparición progresiva al entrar en vista."
+    },
+    "emptyState": {
+      "heading": "Aquí no hay nada todavía",
+      "body": "Los animales están esperando. Explorá el catálogo."
     }
   },
   "auth": {
@@ -231,6 +286,22 @@
     "filter": {
       "all": "Todos"
     },
+    "guidance": {
+      "verde": {
+        "label": "Buena pareja"
+      },
+      "ambar": {
+        "label": "Considerá: {factor}",
+        "factor": {
+          "senior": "edad senior",
+          "reactivo": "manejo cuidadoso"
+        }
+      },
+      "rojo": {
+        "label": "Necesidades especiales · revisá dossier",
+        "medicalCopy": "Animal con condición médica activa. Conocé los detalles y costos antes de aplicar"
+      }
+    },
     "table": {
       "name": "Nombre",
       "species": "Especie",
@@ -240,7 +311,7 @@
     "age": {
       "newborn": "Recien nacido",
       "months": "meses",
-      "years": "anos"
+      "years": "años"
     },
     "actions": {
       "edit": "Editar",
@@ -271,6 +342,7 @@
       "step1": "Informacion basica",
       "step2": "Caracteristicas",
       "step3": "Fotos",
+      "stepDossier": "Dossier publico",
       "next": "Siguiente",
       "prev": "Anterior",
       "create": "Crear animal"
@@ -320,6 +392,27 @@
         "low": "Bajo",
         "medium": "Medio",
         "high": "Alto"
+      },
+      "dossier": {
+        "helpText": "Cuando los 5 campos obligatorios esten completos, este animal aparece en el sitio publico.",
+        "categoryLabel": "Categoria de adopcion",
+        "categoryOptions": {
+          "SALUDABLE_ADULTO": "Saludable adulto",
+          "SENIOR": "Senior",
+          "MEDICO_CRONICO": "Medico cronico",
+          "REACTIVO": "Reactivo",
+          "ESPECIAL": "Especial"
+        },
+        "behavioralEvaluationLabel": "Evaluacion conductual",
+        "behavioralEvaluationPlaceholder": "Describi el comportamiento del animal: socializacion, reactividad, energia...",
+        "medicalHistoryLabel": "Historial medico",
+        "medicalHistoryPlaceholder": "Condiciones medicas activas, tratamientos en curso, vacunas, esterilizacion...",
+        "costRangeLabel": "Costo mensual estimado (USD)",
+        "costMinPlaceholder": "Minimo",
+        "costMaxPlaceholder": "Maximo (opcional)",
+        "triggersLabel": "Disparadores conocidos",
+        "triggersPlaceholder": "Uno por linea o separados por coma",
+        "shelterEntryDateLabel": "Fecha de ingreso al refugio"
       }
     },
     "photos": {
@@ -434,6 +527,7 @@
     "removeSuccess": "Miembro removido del equipo",
     "removeError": "No se pudo remover al miembro",
     "lastAdminTooltip": "No puedes remover al único administrador",
+    "lastAdminDemoteTooltip": "No puedes degradar al único administrador",
     "removeModal": {
       "heading": "Remover miembro",
       "body": "Esta acción removerá a {name} de tu organización. Su rol volverá a Adoptante y su historial se conservará.",
@@ -474,7 +568,36 @@
     "hero": {
       "title": "Encuentra a tu companero perfecto",
       "subtitle": "Miles de animales esperan un hogar amoroso. Adopta, no compres.",
-      "cta": "Ver animales en adopcion"
+      "cta": "Ver animales",
+      "day1": {
+        "headlineBefore": "Encontrá un ",
+        "headlineCoral": "hogar",
+        "headlineAfter": " honesto para tu próximo compañero",
+        "subhead": "Cada perfil incluye historial médico, costos mensuales y guía honesta. Sin filtros engañosos.",
+        "availableCount": "animal espera un hogar hoy | animales esperan un hogar hoy",
+        "mascotAria": "Mascota Kovia saludando"
+      }
+    },
+    "stats": {
+      "verifiedRescues": "{n} refugio verificado | {n} refugios verificados",
+      "methodologyLink": "Cómo verificamos a los refugios"
+    },
+    "stories": {
+      "heading": "Historias recientes",
+      "attribution": "{firstName}, {city}",
+      "empty": "Pronto compartiremos las primeras historias."
+    },
+    "marquee": {
+      "item": "{firstName} adoptó a {animalName} en {city}",
+      "ariaLabel": "Adopciones recientes en Kovia"
+    },
+    "verifiedRescues": {
+      "heading": "Refugios verificados",
+      "foundedYear": "Fundado en {year}"
+    },
+    "error": {
+      "heading": "No pudimos cargar la página",
+      "body": "Revisá tu conexión e intentá de nuevo."
     },
     "featured": {
       "title": "Animales disponibles",
@@ -483,6 +606,19 @@
     "orgCta": {
       "title": "Sos una organizacion?",
       "description": "Registrate en Kovia y publica tus animales en adopcion de forma gratuita"
+    }
+  },
+  "verificacion": {
+    "title": "Cómo verificamos a los refugios",
+    "body": {
+      "intro": "En Kovia, verificar a un refugio significa garantizar que la organización opera con transparencia, cumple con estándares de bienestar animal y mantiene prácticas éticas en cada adopción. Nuestra metodología se publica abiertamente y se actualiza cuando cambian los estándares locales.",
+      "section1Heading": "Constancia legal",
+      "section1Body": "Verificamos que la organización esté legalmente constituida en El Salvador y que su misión declarada incluya el bienestar de animales en adopción. Solicitamos documentación oficial y la revisamos antes de otorgar la marca de verificación.",
+      "section2Heading": "Protocolos sanitarios y de bienestar",
+      "section2Body": "Realizamos una inspección documental de los protocolos sanitarios y de bienestar animal del refugio: planes de vacunación, esterilización, alimentación, espacios y manejo de casos médicos. Buscamos consistencia entre lo que el refugio declara y lo que documenta.",
+      "section3Heading": "Referencias de la comunidad",
+      "section3Body": "Pedimos referencias a organizaciones locales de rescate y a personas que hayan adoptado previamente con el refugio. Una organización verificada por Kovia es reconocida por su comunidad como un actor confiable.",
+      "outro": "La verificación se renueva cada 12 meses. Si detectamos un cambio en las prácticas del refugio o recibimos reportes consistentes, podemos suspender la verificación hasta resolver la situación. Nuestra metodología completa está disponible públicamente y se actualiza cuando cambian los estándares de bienestar animal en El Salvador."
     }
   },
   "listings": {
@@ -794,6 +930,10 @@
     "error": "No se pudo guardar la nota. Verifica tu conexion e intenta de nuevo."
   },
   "adoptantes": {
+    "pageSubtitle": "Para ver los adoptantes que han aplicado a tus animales, revisa la cola de aplicaciones.",
+    "goToApplications": "Ir a aplicaciones",
+    "detailedViewHeading": "Vista detallada por adoptante",
+    "detailedViewBody": "Desde la cola de aplicaciones puedes abrir la ficha de cada adoptante con su historial completo.",
     "historyHeading": "Historial del solicitante",
     "solicitudes": "solicitudes",
     "adoptados": "adoptados",
@@ -804,6 +944,14 @@
     "empty": "Este solicitante no tiene historial de adopciones previas en tu organizacion.",
     "otherOrg": "otra organizacion",
     "unknownSpecies": "Especie desconocida"
+  },
+  "profile": {
+    "userInfoDescription": "Tu información personal de cuenta en Kovia.",
+    "name": "Nombre",
+    "email": "Correo",
+    "role": "Rol",
+    "notLoaded": "No se pudo cargar la información del usuario.",
+    "orgProfileComingSoon": "La edición del perfil de organización estará disponible próximamente."
   },
   "notifications": {
     "bell": {
@@ -817,6 +965,39 @@
     "viewAll": "Ver todas",
     "page": {
       "title": "Notificaciones"
+    }
+  },
+  "dossier": {
+    "behavioral": {
+      "heading": "Evaluación conductual"
+    },
+    "medical": {
+      "heading": "Historial médico"
+    },
+    "cost": {
+      "heading": "Costo mensual estimado",
+      "range": "USD {min} – {max} al mes",
+      "single": "USD {min} al mes"
+    },
+    "triggers": {
+      "heading": "Disparadores conocidos",
+      "empty": "No se han identificado disparadores en este animal."
+    },
+    "regla333": {
+      "heading": "Regla 3-3-3 de adaptación",
+      "body": "Toma 3 días para que tu nuevo compañero se sienta seguro, 3 semanas para aprender la rutina del hogar, y 3 meses para sentir que verdaderamente es su lugar. Sé paciente con cada etapa."
+    },
+    "timeAtShelter": {
+      "heading": "Tiempo en refugio",
+      "days": "{n} día | {n} días"
+    },
+    "apply": {
+      "cta": "Aplicar para adoptar",
+      "ackLabel": "Reconozco haber leído este dossier",
+      "ackHelper": "Marcá la casilla para activar el botón.",
+      "ackReady": "Listo. Hacé clic en Aplicar para continuar.",
+      "loginRequired": "Necesitás una cuenta para aplicar. Te llevamos al inicio de sesión.",
+      "ackError": "No pudimos registrar tu confirmación. Intentá de nuevo."
     }
   }
 }

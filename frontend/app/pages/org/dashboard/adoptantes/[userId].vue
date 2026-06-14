@@ -2,7 +2,7 @@
   <div>
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-12">
-      <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary" />
+      <KIcon name="loader-2" :size="32" class="animate-spin text-primary" />
     </div>
 
     <template v-else>
@@ -11,7 +11,7 @@
         to="/org/dashboard/aplicaciones"
         class="text-sm text-gray-500 hover:text-primary inline-flex items-center gap-1 mb-6"
       >
-        <UIcon name="i-lucide-arrow-left" class="w-4 h-4" />
+        <KIcon name="arrow-left" :size="16" />
         {{ $t('adoptantes.backToApplications') }}
       </NuxtLink>
 

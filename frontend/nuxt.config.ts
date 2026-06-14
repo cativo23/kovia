@@ -2,7 +2,41 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
 
-  modules: ['@nuxt/ui', '@pinia/nuxt', '@nuxtjs/i18n'],
+  modules: ['@nuxt/ui', 'motion-v/nuxt', '@pinia/nuxt', '@nuxtjs/i18n'],
+
+  // Phase 14-03 / DESIGN-02 — Inter font preload (D-05).
+  // The actual WOFF2 path served by @fontsource-variable/inter resolves under
+  // Nuxt's _fonts/ output directory; the verifier should confirm the network
+  // tab shows the preload hit and adjust href if the package version changes.
+  app: {
+    head: {
+      link: [
+        {
+          rel: 'preload',
+          as: 'font',
+          type: 'font/woff2',
+          href: '/_fonts/inter-latin-wght-normal.woff2',
+          crossorigin: 'anonymous',
+        },
+      ],
+    },
+  },
+
+  // Phase 14-02 / DESIGN-01 — color-mode (auto-registered by @nuxt/ui v4).
+  // D-04: localStorage key 'kovia-theme'; first-visit honors prefers-color-scheme.
+  // classSuffix: '' so the class is `.dark` (not `.dark-mode`).
+  colorMode: {
+    preference: 'system',
+    fallback: 'light',
+    classSuffix: '',
+    storageKey: 'kovia-theme',
+  },
+
+  // Phase 14-02 — pre-wires Plan 06 (route view-transitions). Lands here as the
+  // only nuxt.config touch in the design-system foundation.
+  experimental: {
+    viewTransition: true,
+  },
 
   icon: {
     serverBundle: 'local',
@@ -28,6 +62,11 @@ export default defineNuxtConfig({
       backendUrl: process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3000',
       // Shadow mode: when false, ScorePanel renders nothing (scores computed but hidden until calibration)
       scoringDisplayEnabled: process.env.NUXT_PUBLIC_SCORING_DISPLAY_ENABLED === 'true',
+      // Phase 14-07 / D-15 — gates the /design-system/* demo route tree.
+      // Default false (env var unset) → middleware redirects to /. Set
+      // NUXT_PUBLIC_DESIGN_SYSTEM_ENABLED=true in dev to access the demo.
+      // CI deployment configs MUST NOT set this true (RESEARCH Security Domain, T-14-09).
+      designSystemEnabled: process.env.NUXT_PUBLIC_DESIGN_SYSTEM_ENABLED === 'true',
     },
   },
 
@@ -37,9 +76,60 @@ export default defineNuxtConfig({
 
   nitro: {},
 
+  // Phase 15-09 / D-16 — bundle budget split.
+  // Splits auth store + plugin, Nuxt UI overlays/floating, and motion-v runtime
+  // into named async chunks that can be separately cached and debugged.
+  //
+  // Build-time discovery: the landing page (/) statically imports KSpringCard, BentoHero,
+  // and the default layout (which imports DropdownMenu → Reka UI). This means motion-v,
+  // Reka UI, and Floating UI cannot be fully deferred from the initial preload graph —
+  // they appear as separate named chunks but are still preloaded by the browser.
+  // The manualChunks rules below are best-effort: they name chunks for observability and
+  // enable future incremental removal (e.g., converting KSpringCard to a CSS animation).
+  //
+  // Stores/auth: Rollup warns "dynamic import will not move module into another chunk"
+  // because stores/auth is statically imported from 20+ files. The rule still groups
+  // the plugin file; the store itself stays in the main vendor chunk.
+  //
+  // Note: Nuxt 4 overrides chunkFileNames to hash-only in production builds by default;
+  // we set chunkFileNames explicitly so the chunk names are preserved in the output
+  // filenames, making them identifiable for audit and verification.
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          // Include chunk name in filename so chunk-auth, chunk-motion, chunk-ui-overlays
+          // are identifiable in .output/public/_nuxt/ for verification and debugging.
+          chunkFileNames: '_nuxt/[name]-[hash].js',
+          manualChunks: (id: string): string | undefined => {
+            // Rule A — auth chunk: Pinia auth store + auth plugin
+            if (id.includes('stores/auth') || id.includes('plugins/auth')) {
+              return 'chunk-auth'
+            }
+            // Rule B — ui-overlays chunk: Nuxt UI overlay primitives + Floating UI + Reka UI
+            if (
+              id.includes('@nuxt/ui') ||
+              id.includes('node_modules/@floating-ui') ||
+              id.includes('node_modules/reka-ui')
+            ) {
+              return 'chunk-ui-overlays'
+            }
+            // Rule C — motion chunk: motion-v runtime (spring physics, transforms, scroll)
+            if (id.includes('node_modules/motion-v') || id.includes('node_modules/motion')) {
+              return 'chunk-motion'
+            }
+            // All other modules: let Vite's default chunking decide
+            return undefined
+          },
+        },
+      },
+    },
+  },
+
   devtools: { enabled: true },
 
   css: [
     '~/assets/css/main.css',
+    '@fontsource-variable/inter',
   ],
 });

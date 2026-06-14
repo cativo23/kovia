@@ -11,7 +11,7 @@
           @click="emit('go-to-step', 0)"
         />
       </div>
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2 text-sm">
+      <div class="bg-[var(--color-border)]/40 rounded-lg p-4 space-y-2 text-sm">
         <div class="flex gap-2">
           <span class="text-gray-500 w-32">{{ $t('applications.steps.personal.phone') }}:</span>
           <span>{{ personalData?.phone || '—' }}</span>
@@ -38,7 +38,7 @@
           @click="emit('go-to-step', 1)"
         />
       </div>
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2 text-sm">
+      <div class="bg-[var(--color-border)]/40 rounded-lg p-4 space-y-2 text-sm">
         <div class="flex gap-2">
           <span class="text-gray-500 w-32">{{ $t('applications.steps.housing.housingType') }}:</span>
           <span>{{ housingData?.housingType || '—' }}</span>
@@ -81,7 +81,7 @@
           @click="emit('go-to-step', 2)"
         />
       </div>
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2 text-sm">
+      <div class="bg-[var(--color-border)]/40 rounded-lg p-4 space-y-2 text-sm">
         <div class="flex gap-2">
           <span class="text-gray-500 w-40">{{ $t('applications.steps.lifestyle.speciesExperience') }}:</span>
           <span>{{ lifestyleData?.speciesExperience || '—' }}</span>
@@ -116,7 +116,7 @@
         <div
           v-for="(photo, index) in photos"
           :key="index"
-          class="aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800"
+          class="aspect-square rounded-lg overflow-hidden bg-[var(--color-border)]/40"
         >
           <img
             :src="photo.url"
@@ -129,7 +129,7 @@
     </div>
 
     <!-- Optional fields -->
-    <div class="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+    <div class="space-y-4 pt-4 border-t border-[var(--color-border)]">
       <h3 class="text-base font-bold">{{ $t('applications.review.additionalInfo') }}</h3>
 
       <!-- Social Media -->

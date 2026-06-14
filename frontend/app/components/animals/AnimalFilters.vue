@@ -9,9 +9,10 @@
             <UInput
               v-model="localFilters.search"
               :placeholder="$t('listings.search')"
-              icon="i-lucide-search"
-              @update:model-value="onSearchInput"
-            />
+             
+              @update:model-value="onSearchInput">
+          <template #leading><KIcon name="search" /></template>
+        </UInput>
           </div>
 
           <!-- Species -->
@@ -67,10 +68,11 @@
             v-if="hasActiveFilters"
             color="neutral"
             variant="ghost"
-            icon="i-lucide-x"
+           
             :label="$t('listings.clearFilters')"
-            @click="clearAll"
-          />
+            @click="clearAll">
+          <template #leading><KIcon name="x" /></template>
+        </UButton>
         </div>
       </UCard>
     </div>
@@ -81,17 +83,19 @@
         block
         color="neutral"
         variant="outline"
-        :icon="mobileOpen ? 'i-lucide-chevron-up' : 'i-lucide-sliders-horizontal'"
+       
         :label="$t('listings.filters')"
-        @click="mobileOpen = !mobileOpen"
-      />
+        @click="mobileOpen = !mobileOpen">
+          <template #leading><KIcon :name="mobileOpen ? 'chevron-up' : 'sliders-horizontal'" /></template>
+        </UButton>
       <div v-if="mobileOpen" class="mt-2 space-y-2">
         <UInput
           v-model="localFilters.search"
           :placeholder="$t('listings.search')"
-          icon="i-lucide-search"
-          @update:model-value="onSearchInput"
-        />
+         
+          @update:model-value="onSearchInput">
+          <template #leading><KIcon name="search" /></template>
+        </UInput>
         <USelectMenu
           v-model="localFilters.species"
           :items="speciesOptions"
@@ -129,10 +133,11 @@
           block
           color="neutral"
           variant="ghost"
-          icon="i-lucide-x"
+         
           :label="$t('listings.clearFilters')"
-          @click="clearAll"
-        />
+          @click="clearAll">
+          <template #leading><KIcon name="x" /></template>
+        </UButton>
       </div>
     </div>
   </div>

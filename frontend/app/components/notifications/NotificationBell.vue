@@ -3,9 +3,10 @@
     <UButton
       variant="ghost"
       color="neutral"
-      icon="i-lucide-bell"
+     
       :aria-label="t('notifications.bell.tooltip')"
     >
+          <template #leading><KIcon name="bell" /></template>
       <template v-if="unreadCount > 0" #trailing>
         <UBadge color="error" size="xs" :label="String(unreadCount)" />
       </template>
