@@ -25,6 +25,7 @@ import { ApplicationNotesModule } from './application-notes/application-notes.mo
 import { AdoptersModule } from './adopters/adopters.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { TeamModule } from './team/team.module';
+import { AdopterProfileModule } from './adopter-profile/adopter-profile.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { TeamModule } from './team/team.module';
     AdoptersModule,
     NotificationsModule,
     TeamModule,
+    AdopterProfileModule,
   ],
   controllers: [AppController],
   providers: [
