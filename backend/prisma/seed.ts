@@ -208,6 +208,261 @@ async function main() {
     });
   }
 
+  // 7. Phase 16: Seed ExtrasTemplate rows for DameTuPataSV — one per AdoptionCategory.
+  //    Each template uses behavioral-specificity framing (APPLY-04): observable past behavior
+  //    or concrete resource constraints, NOT self-evaluation ("¿Sos activo?").
+  //    criticality field ('CRITICA'|'IMPORTANTE'|'OPCIONAL') is stored in DB but stripped
+  //    from adopter-facing API responses by the DTO layer (APPLY-05 / D-09).
+  //    Upsert is idempotent: empty update clause means re-running seed is a no-op.
+  const dametupatasv = await prisma.organization.findFirst({ where: { slug: 'dametupatasv' } });
+  if (!dametupatasv) {
+    throw new Error('[seed] DameTuPataSV organization not found — seed must run after step 3');
+  }
+
+  const extrasTemplates = [
+    {
+      adoptionCategory: 'SALUDABLE_ADULTO' as const,
+      questions: [
+        {
+          id: 'sa-q1',
+          text: '¿Cuántas caminatas de más de 20 minutos hiciste con un perro la semana pasada?',
+          type: 'number',
+          criticality: 'CRITICA',
+          required: true,
+          placeholder: 'Ej: 7',
+        },
+        {
+          id: 'sa-q2',
+          text: '¿Cuántas horas al día permanece la vivienda sola (sin personas adultas presentes)?',
+          type: 'number',
+          criticality: 'CRITICA',
+          required: true,
+          placeholder: 'Ej: 8',
+        },
+        {
+          id: 'sa-q3',
+          text: '¿Tenés patio, jardín u otro espacio exterior al que el perro pueda acceder sin supervisión constante?',
+          type: 'boolean',
+          criticality: 'IMPORTANTE',
+          required: true,
+        },
+        {
+          id: 'sa-q4',
+          text: '¿Con qué frecuencia realizás actividades físicas al aire libre (correr, caminar, senderismo) en una semana típica?',
+          type: 'select',
+          options: ['Todos los días', '4–6 veces por semana', '1–3 veces por semana', 'Menos de una vez por semana'],
+          criticality: 'IMPORTANTE',
+          required: true,
+        },
+        {
+          id: 'sa-q5',
+          text: '¿Hay alguna restricción en tu vivienda (contrato de alquiler, reglamento de condominio) que limite tener mascotas?',
+          type: 'text',
+          criticality: 'OPCIONAL',
+          required: false,
+          placeholder: 'Describí la restricción si aplica, o escribí "Ninguna"',
+        },
+      ],
+    },
+    {
+      adoptionCategory: 'SENIOR' as const,
+      questions: [
+        {
+          id: 'sr-q1',
+          text: '¿Tenés acceso regular a un veterinario de confianza? ¿Con qué frecuencia llevás o has llevado una mascota al veterinario en el último año?',
+          type: 'text',
+          criticality: 'CRITICA',
+          required: true,
+          placeholder: 'Ej: Clínica X en Santa Tecla, visitas cada 3 meses',
+        },
+        {
+          id: 'sr-q2',
+          text: '¿Cuántas horas al día hay al menos una persona adulta presente en la vivienda?',
+          type: 'number',
+          criticality: 'CRITICA',
+          required: true,
+          placeholder: 'Ej: 16',
+        },
+        {
+          id: 'sr-q3',
+          text: '¿Tu vivienda tiene acceso sin gradas o con rampa para un perro con movilidad reducida?',
+          type: 'boolean',
+          criticality: 'CRITICA',
+          required: true,
+        },
+        {
+          id: 'sr-q4',
+          text: '¿Alguna vez cuidaste a una mascota de edad avanzada (más de 8 años)? Describí brevemente esa experiencia.',
+          type: 'text',
+          criticality: 'IMPORTANTE',
+          required: false,
+          placeholder: 'Ej: Tuve un perro de 12 años durante sus últimos dos años de vida...',
+        },
+        {
+          id: 'sr-q5',
+          text: '¿Cuánto presupuesto mensual estimás poder destinar a cuidados veterinarios de rutina y emergencias?',
+          type: 'select',
+          options: ['Menos de $30', '$30–$60', '$60–$120', 'Más de $120'],
+          criticality: 'OPCIONAL',
+          required: false,
+        },
+      ],
+    },
+    {
+      adoptionCategory: 'MEDICO_CRONICO' as const,
+      questions: [
+        {
+          id: 'mc-q1',
+          text: '¿Podés comprometerte a visitas veterinarias mensuales? ¿Tenés acceso a un veterinario de confianza?',
+          type: 'text',
+          criticality: 'CRITICA',
+          required: true,
+          placeholder: 'Ej: Sí, tengo veterinario en San Salvador y puedo ir mensualmente',
+        },
+        {
+          id: 'mc-q2',
+          text: '¿Cuánto presupuesto mensual podés destinar a medicamentos y cuidados crónicos (aparte de alimentación)?',
+          type: 'select',
+          options: ['Menos de $30', '$30–$60', '$60–$120', 'Más de $120'],
+          criticality: 'CRITICA',
+          required: true,
+        },
+        {
+          id: 'mc-q3',
+          text: '¿Alguna vez administraste medicación oral o inyectable a una mascota? Describí cuánto tiempo lo hiciste y con qué frecuencia.',
+          type: 'text',
+          criticality: 'IMPORTANTE',
+          required: false,
+          placeholder: 'Ej: Le di pastillas diarias a mi gato durante 6 meses por una infección crónica de riñón',
+        },
+        {
+          id: 'mc-q4',
+          text: '¿Cuántas horas por semana podés dedicar a cuidados especiales (medicación, dieta terapéutica, chequeos)?',
+          type: 'number',
+          criticality: 'IMPORTANTE',
+          required: true,
+          placeholder: 'Ej: 5',
+        },
+        {
+          id: 'mc-q5',
+          text: '¿Contás con apoyo familiar o de convivientes para los cuidados si estás fuera o enfermás?',
+          type: 'text',
+          criticality: 'OPCIONAL',
+          required: false,
+          placeholder: 'Describí brevemente quién puede apoyar',
+        },
+      ],
+    },
+    {
+      adoptionCategory: 'REACTIVO' as const,
+      questions: [
+        {
+          id: 'rx-q1',
+          text: '¿Alguna vez viviste con un perro que reaccionó fuerte a otros perros? Describí cómo lo manejaste.',
+          type: 'text',
+          criticality: 'CRITICA',
+          required: true,
+          placeholder: 'Ej: Usábamos correa corta y cruzábamos a la acera contraria; fue manejable después de entrenamiento',
+        },
+        {
+          id: 'rx-q2',
+          text: '¿Cuántas personas adultas y niños menores de 12 años viven en el hogar?',
+          type: 'text',
+          criticality: 'CRITICA',
+          required: true,
+          placeholder: 'Ej: 2 adultos, 0 niños',
+        },
+        {
+          id: 'rx-q3',
+          text: '¿Cuántas sesiones de entrenamiento formal (con instructor o con libro/video estructurado) hiciste con un perro en los últimos 2 años?',
+          type: 'number',
+          criticality: 'IMPORTANTE',
+          required: false,
+          placeholder: 'Ej: 8 sesiones con instructor en 2024',
+        },
+        {
+          id: 'rx-q4',
+          text: '¿Tu vivienda tiene vallas o cercas que contengan al perro en el exterior sin supervisión?',
+          type: 'boolean',
+          criticality: 'IMPORTANTE',
+          required: true,
+        },
+        {
+          id: 'rx-q5',
+          text: '¿Qué detonantes o situaciones sabés que pueden causar reactividad en perros (ruidos, visitas, otros animales)? ¿Cómo planificás manejar esas situaciones?',
+          type: 'text',
+          criticality: 'OPCIONAL',
+          required: false,
+          placeholder: 'Describí tu plan de manejo',
+        },
+      ],
+    },
+    {
+      adoptionCategory: 'ESPECIAL' as const,
+      questions: [
+        {
+          id: 'esp-q1',
+          text: '¿Cuántas horas a la semana podés dedicar a entrenamiento o cuidado especializado (fisioterapia, estimulación sensorial, adaptaciones del entorno)?',
+          type: 'number',
+          criticality: 'CRITICA',
+          required: true,
+          placeholder: 'Ej: 7',
+        },
+        {
+          id: 'esp-q2',
+          text: '¿Tu vivienda tiene o podés adaptar: pisos antideslizantes, acceso sin gradas, rampas o espacios seguros para un animal con movilidad, visión o audición limitada?',
+          type: 'text',
+          criticality: 'CRITICA',
+          required: true,
+          placeholder: 'Describí las adaptaciones actuales o que podés hacer',
+        },
+        {
+          id: 'esp-q3',
+          text: '¿Cuánto presupuesto mensual estimás poder destinar a cuidados especiales (equipo ortopédico, fisioterapia, suplementos, veterinario especialista)?',
+          type: 'select',
+          options: ['Menos de $50', '$50–$100', '$100–$200', 'Más de $200'],
+          criticality: 'IMPORTANTE',
+          required: true,
+        },
+        {
+          id: 'esp-q4',
+          text: '¿Alguna vez cuidaste a una mascota o persona con discapacidad motriz, visual o auditiva? Describí cuánto tiempo y qué implicó.',
+          type: 'text',
+          criticality: 'IMPORTANTE',
+          required: false,
+          placeholder: 'Ej: Cuidé a mi perro después de una cirugía de rodilla durante 3 meses, rehabilitación diaria',
+        },
+        {
+          id: 'esp-q5',
+          text: '¿Tenés vehículo propio o acceso confiable a transporte para llevar al animal al veterinario en caso de emergencia?',
+          type: 'boolean',
+          criticality: 'OPCIONAL',
+          required: false,
+        },
+      ],
+    },
+  ];
+
+  for (const template of extrasTemplates) {
+    await prisma.extrasTemplate.upsert({
+      where: {
+        organizationId_adoptionCategory: {
+          organizationId: dametupatasv.id,
+          adoptionCategory: template.adoptionCategory,
+        },
+      },
+      update: {},
+      create: {
+        organizationId: dametupatasv.id,
+        adoptionCategory: template.adoptionCategory,
+        questions: template.questions,
+      },
+    });
+  }
+
+  // eslint-disable-next-line no-console
+  console.log('[seed] Phase 16: 5 ExtrasTemplate rows seeded for DameTuPataSV.');
+
   // Suppress unused variable warning for admin (used for context/logging only)
   void admin;
 

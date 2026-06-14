@@ -102,6 +102,7 @@ model User {
   authoredNotes   ApplicationNote[]       @relation("NoteAuthor")
   sentTeamInvites TeamInvite[]            @relation("InvitedBy")
   acknowledgments DossierAcknowledgment[]
+  adopterProfile  AdopterProfile?
 
   @@index([orgId])
   @@map("users")
@@ -136,11 +137,12 @@ model Organization {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  animals         Animal[]
-  members         User[]                @relation("OrgMembers")
-  teamInvites     TeamInvite[]
-  applications    AdoptionApplication[]
-  adoptionStories AdoptionStory[]
+  animals          Animal[]
+  members          User[]                @relation("OrgMembers")
+  teamInvites      TeamInvite[]
+  applications     AdoptionApplication[]
+  adoptionStories  AdoptionStory[]
+  extrasTemplates  ExtrasTemplate[]
 
   @@map("organizations")
 }
@@ -254,6 +256,17 @@ model AdoptionApplication {
   submittedAt       DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
+  // Phase 16 additions — profile snapshot + extras + co-aplicante fields
+  profileSnapshot           Json?
+  extraAnswers              Json?
+  coAplicanteNombre         String?
+  coAplicanteEmail          String?
+  coAplicantePhone          String?
+  coAplicanteToken          String?   @unique
+  coAplicanteTokenExpiresAt DateTime?
+  coAplicanteConfirmed      Boolean   @default(false)
+  coAplicanteConfirmedAt    DateTime?
+
   photos        ApplicationPhoto[]
   notes         ApplicationNote[]
   notifications Notification[]
@@ -262,6 +275,8 @@ model AdoptionApplication {
   // (migration 10_partial_unique_active_applications): UNIQUE (animalId, userId) WHERE status != 'RETIRADA'.
   // Prisma @@unique cannot express a WHERE clause, so the constraint lives in raw SQL.
   // D-14: allows resubmit after withdraw; service layer rejects duplicates in non-RETIRADA states.
+  @@index([coAplicanteToken])
+  @@index([coAplicanteConfirmed])
   @@map("adoption_applications")
 }
 
@@ -378,4 +393,74 @@ model DossierAcknowledgment {
   @@unique([userId, animalId])
   @@index([animalId])
   @@map("dossier_acknowledgments")
+}
+
+// Phase 16 — AdopterProfile: one-to-one with User (role = ADOPTER).
+// Five sections: datos básicos, hogar, estilo de vida, experiencia general, fotos del hogar.
+// completionPct is computed server-side in AdopterProfileService (not stored here).
+model AdopterProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Section 1: datos básicos
+  phone      String?
+  occupation String?
+  birthDate  DateTime? @db.Date
+  city       String?
+
+  // Section 2: hogar
+  housingType   String?  // "casa" | "apartamento" | "cuarto" | "otro"
+  ownership     String?  // "propio" | "alquilado" | "familiar"
+  exteriorSpace Boolean?
+  petPermission Boolean?
+  adults        Int?
+  children      Int?
+  currentPets   Json?    // [{species, count}]
+
+  // Section 3: estilo de vida
+  activityLevel  String?
+  hoursAlone     Int?
+  adoptionReason String?
+
+  // Section 4: experiencia general
+  speciesExperience Boolean?
+  previousPets      Json?
+  additionalContext String?
+
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  photos    ProfilePhoto[]
+
+  @@map("adopter_profiles")
+}
+
+// Phase 16 — ProfilePhoto: mirrors ApplicationPhoto; owned by AdopterProfile.
+// Photos stored in MinIO via presigned URL (UploadService), reused across applications.
+model ProfilePhoto {
+  id        String         @id @default(uuid())
+  profileId String
+  profile   AdopterProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  url       String
+  key       String
+  position  Int            @default(0)
+  createdAt DateTime       @default(now())
+
+  @@map("profile_photos")
+}
+
+// Phase 16 — ExtrasTemplate: one row per (organizationId + adoptionCategory).
+// questions JSONB: [{id, text, type, options?, criticality, required, placeholder?}]
+// criticality ('CRITICA'|'IMPORTANTE'|'OPCIONAL') is NEVER exposed to adopter-facing API.
+model ExtrasTemplate {
+  id               String           @id @default(uuid())
+  organizationId   String
+  organization     Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  adoptionCategory AdoptionCategory
+  questions        Json             // [{id, text, type, options?, criticality, required, placeholder?}]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@unique([organizationId, adoptionCategory])
+  @@map("extras_templates")
 }
