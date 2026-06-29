@@ -1024,7 +1024,20 @@
     "submit": "Enviar aplicación",
     "submitting": "Enviando...",
     "extras": {
-      "empty": "Este animal no tiene preguntas adicionales"
+      "empty": "Este animal no tiene preguntas adicionales",
+      "requiredError": "Este campo es obligatorio"
+    },
+    "coAplicante": {
+      "nombre": "Nombre del co-aplicante",
+      "email": "Correo del co-aplicante",
+      "phone": "Teléfono del co-aplicante (opcional)",
+      "nombrePlaceholder": "Nombre completo",
+      "phonePlaceholder": "+503 7890 1234",
+      "confirmationCopy": "{nombre} recibirá un enlace de confirmación en {email}",
+      "errors": {
+        "nombreRequired": "Ingresá el nombre del co-aplicante",
+        "emailInvalid": "Ingresá un correo electrónico válido"
+      }
     },
     "success": {
       "heading": "¡Aplicación enviada!",
@@ -1037,7 +1050,7 @@
   "coapplicant": {
     "confirm": {
       "heading": "Confirmá tu participación",
-      "body": "{coAplicanteNombre}, {adopterFirstName} quiere adoptar a {animalName}. ¿Confirmás que todos en el hogar están de acuerdo con esta adopción?",
+      "body": "{adopterFirstName} quiere adoptar a {animalName}. ¿Confirmás que todos en el hogar están de acuerdo con esta adopción?",
       "cta": "Confirmo mi participación en este hogar",
       "successHeading": "Confirmación registrada",
       "successBody": "Gracias por confirmar. El refugio ahora puede revisar la solicitud.",
