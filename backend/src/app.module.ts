@@ -27,6 +27,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { TeamModule } from './team/team.module';
 import { AdopterProfileModule } from './adopter-profile/adopter-profile.module';
 import { ExtrasTemplateModule } from './extras-template/extras-template.module';
+import { CoAplicanteModule } from './co-aplicante/co-aplicante.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { ExtrasTemplateModule } from './extras-template/extras-template.module';
     TeamModule,
     AdopterProfileModule,
     ExtrasTemplateModule,
+    CoAplicanteModule,
   ],
   controllers: [AppController],
   providers: [
