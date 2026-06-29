@@ -6,6 +6,7 @@ import { NotificationType } from '../generated/prisma/client';
 import { MailDispatcher } from '../mail/mail-dispatcher.service';
 import { ApplicationSubmittedMail } from '../mail/mailables/application-submitted.mail';
 import { StatusChangedMail } from '../mail/mailables/status-changed.mail';
+import { CoAplicanteConfirmationMail } from '../mail/mailables/co-aplicante-confirmation.mail';
 
 /**
  * EventsService — centralized event emission service.
@@ -187,6 +188,47 @@ export class EventsService {
         organizationId: context.organizationId,
         metadata: { animalName: context.animalName },
       },
+    );
+  }
+
+  /**
+   * emitCoAplicanteConfirmationRequested — webhook enqueue + direct mail dispatch.
+   *
+   * IMPORTANT: does NOT call emitAndEnqueue() because that helper creates a
+   * notification row requiring a userId. Co-aplicantes are external persons
+   * with no Kovia account; there is no notification row to create (APPLY-06).
+   *
+   * Post-create concern: called after the AdoptionApplication row is persisted
+   * so the applicationId is available for the webhook payload (D-11).
+   */
+  async emitCoAplicanteConfirmationRequested(
+    applicationId: string,
+    payload: {
+      coAplicanteNombre: string;
+      coAplicanteEmail: string;
+      coAplicantePhone?: string;
+      confirmationUrl: string;
+      expiresAt: Date;
+      animalName?: string;
+      adopterFirstName?: string;
+    },
+  ): Promise<void> {
+    await this.webhookService.enqueue('co_aplicante.confirmation_requested', {
+      applicationId,
+      ...payload,
+    });
+
+    await this.mailDispatcher.send(
+      new CoAplicanteConfirmationMail(payload.coAplicanteEmail, {
+        nombre: payload.coAplicanteNombre,
+        confirmationUrl: payload.confirmationUrl,
+        animalName: payload.animalName,
+        adopterFirstName: payload.adopterFirstName,
+      }),
+    );
+
+    this.logger.debug(
+      `Event emitted: co_aplicante.confirmation_requested (application: ${applicationId})`,
     );
   }
 

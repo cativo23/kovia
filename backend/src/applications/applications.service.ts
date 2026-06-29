@@ -5,18 +5,22 @@ import {
   ConflictException,
   ForbiddenException,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { randomUUID } from 'node:crypto';
+import { ConfigService } from '@nestjs/config';
 import { PRISMA_RLS } from '../prisma/prisma.module';
-import { PrismaService } from '../prisma/prisma.service';
 import { PublicPrismaService } from '../prisma/public-prisma.service';
 import { UploadService } from '../upload/upload.service';
 import { AuditService } from '../audit/audit.service';
 import { ClsService } from 'nestjs-cls';
-import { CreateApplicationDto } from './dto/create-application.dto';
+import { SubmitApplicationDto } from './dto/submit-application.dto';
 import { ApplicationQueryDto } from './dto/application-query.dto';
 import { EventsService } from '../notifications/events.service';
+import { AdopterProfileService } from '../adopter-profile/adopter-profile.service';
+import { ExtrasTemplateService } from '../extras-template/extras-template.service';
 
 interface UserContext {
   id: string;
@@ -43,12 +47,34 @@ export class ApplicationsService {
     private readonly cls: ClsService,
     @InjectQueue('scoring') private readonly scoringQueue: Queue,
     private readonly eventsService: EventsService,
+    private readonly adopterProfileService: AdopterProfileService,
+    private readonly extrasTemplateService: ExtrasTemplateService,
+    private readonly configService: ConfigService,
   ) {}
 
-  async create(dto: CreateApplicationDto, user: UserContext) {
-    // Lookup animal to get organizationId and verify availability
+  /**
+   * create() — Phase 16 restructured apply flow (APPLY-01, APPLY-02, APPLY-06).
+   *
+   * Flow (in order):
+   *   1. Animal lookup via rlsBypassPrisma (existing pattern)
+   *   2. Availability + duplicate checks (existing)
+   *   3. NEW — profile completeness gate (422 if completionPct < 100, D-01)
+   *   4. NEW — build profileSnapshot server-side (explicit field copy, D-04)
+   *   5. NEW — freeze extraAnswers from ExtrasTemplate (questionText verbatim, D-08)
+   *   6. NEW — generate 72h co-aplicante UUID token (D-10/D-11)
+   *   7. Insert AdoptionApplication row via prismaRls
+   *   8. Emit APPLICATION_SUBMITTED event (existing — unchanged)
+   *   9. NEW — emit co-aplicante confirmation event (D-11)
+   *
+   * PATTERN-01 (CLAUDE.md): rlsPrisma for the INSERT, rlsBypassPrisma for animal + duplicate lookups.
+   * T-16-06-01 mitigation: profileSnapshot built server-side — frontend cannot supply snapshot fields.
+   * T-16-06-02 mitigation: questionText frozen from template — frontend-supplied text discarded.
+   */
+  async create(dto: SubmitApplicationDto, user: UserContext) {
+    // Step 1: Animal lookup — includes name and adoptionCategory for template lookup
     const animal = await this.rlsBypassPrisma.animal.findUnique({
       where: { id: dto.animalId },
+      select: { id: true, name: true, status: true, organizationId: true, adoptionCategory: true },
     });
 
     if (!animal) {
@@ -61,9 +87,8 @@ export class ApplicationsService {
       );
     }
 
-    // Check uniqueness: one active (non-RETIRADA) application per animalId+userId.
-    // Use rlsBypassPrisma (RLS-bypass) with explicit userId filter for consistency with
-    // other self-scoped adopter reads (D-19-BE) and to allow resubmit after withdraw (D-14/D-18-BE).
+    // Step 2: Duplicate check — one active (non-RETIRADA) application per (animalId, userId).
+    // Uses rlsBypassPrisma for consistency with other self-scoped adopter reads (D-19-BE).
     const existing = await this.rlsBypassPrisma.adoptionApplication.findFirst({
       where: {
         animalId: dto.animalId,
@@ -79,34 +104,79 @@ export class ApplicationsService {
       );
     }
 
-    // Create application using RLS client so app.current_user_id is set for INSERT policy
+    // Step 3: Profile completeness gate (D-01, T-16-06-06 mitigation).
+    // Server-side 422 even if the frontend redirect is bypassed.
+    const profile = await this.adopterProfileService.getMyProfile(user.id);
+    if (profile.completionPct < 100) {
+      throw new UnprocessableEntityException(
+        'Completá tu perfil antes de aplicar',
+      );
+    }
+
+    // Step 4: Build profileSnapshot server-side (T-16-06-01 mitigation, D-04).
+    // Explicit field-by-field copy — spread is forbidden here to prevent
+    // future Prisma column drift from leaking internal fields into the snapshot.
+    // photos: URLs only (D-04 — freeze home photos as they existed at apply time).
+    const profileSnapshot = {
+      phone: profile.phone,
+      occupation: profile.occupation,
+      birthDate: profile.birthDate,
+      city: profile.city,
+      housingType: profile.housingType,
+      ownership: profile.ownership,
+      exteriorSpace: profile.exteriorSpace,
+      petPermission: profile.petPermission,
+      adults: profile.adults,
+      children: profile.children,
+      currentPets: profile.currentPets,
+      activityLevel: profile.activityLevel,
+      hoursAlone: profile.hoursAlone,
+      adoptionReason: profile.adoptionReason,
+      speciesExperience: profile.speciesExperience,
+      previousPets: profile.previousPets,
+      additionalContext: profile.additionalContext,
+      photos: profile.photos.map((photo) => photo.url),  // D-04: photo URLs only
+      completionPct: profile.completionPct,
+      snapshotAt: new Date().toISOString(),
+    };
+
+    // Step 5: Freeze extraAnswers from the ExtrasTemplate (T-16-06-02 mitigation, D-08).
+    // findForAnimalRaw() returns raw questions including criticality (internal only).
+    // If no template exists for this animal's category, returns [] — apply proceeds with no extras.
+    const rawQuestions = await this.extrasTemplateService.findForAnimalRaw(dto.animalId);
+    const frozenExtraAnswers = dto.extraAnswers.map((a) => {
+      const q = rawQuestions.find((tq: any) => tq.id === a.questionId);
+      if (!q) {
+        throw new BadRequestException(`Pregunta inválida: ${a.questionId}`);
+      }
+      return { questionId: a.questionId, questionText: q.text, answer: a.answer };
+    });
+
+    // Step 6: Generate 72h co-aplicante UUID token (D-10/D-11, T-16-06-04 mitigation).
+    const coAplicanteToken = randomUUID();
+    const coAplicanteTokenExpiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000);
+
+    // Step 7: Insert AdoptionApplication row via RLS client so INSERT policy fires.
+    // Legacy fields (personalInfo, housing, lifestyle, photos relation) left null for
+    // new applications — they remain on the table for backward compat with historical records.
     const application = await this.prismaRls.adoptionApplication.create({
       data: {
         animalId: dto.animalId,
         userId: user.id,
         organizationId: animal.organizationId,
-        personalInfo: dto.personalInfo,
-        housing: dto.housing,
-        lifestyle: dto.lifestyle,
-        socialMedia: dto.socialMedia,
-        additionalContext: dto.additionalContext,
         adopterFirstName: user.firstName,
         adopterLastName: user.lastName,
         adopterEmail: user.email,
+        profileSnapshot,
+        extraAnswers: frozenExtraAnswers,
+        coAplicanteNombre: dto.coAplicanteNombre,
+        coAplicanteEmail: dto.coAplicanteEmail,
+        coAplicantePhone: dto.coAplicantePhone,
+        coAplicanteToken,
+        coAplicanteTokenExpiresAt,
+        coAplicanteConfirmed: false,
       },
     });
-
-    // Create photo records if provided
-    if (dto.photos && dto.photos.length > 0) {
-      await this.prismaRls.applicationPhoto.createMany({
-        data: dto.photos.map((photo, idx) => ({
-          applicationId: application.id,
-          url: photo.url,
-          key: photo.key,
-          position: photo.position ?? idx,
-        })),
-      });
-    }
 
     await this.auditService.log('application.create', user.id, {
       applicationId: application.id,
@@ -116,8 +186,23 @@ export class ApplicationsService {
     // Enqueue scoring job asynchronously
     await this.scoringQueue.add('score', { applicationId: application.id });
 
-    // Emit event: notification + webhook
+    // Step 8: Emit APPLICATION_SUBMITTED event (existing — unchanged).
     await this.eventsService.emitApplicationSubmitted(application.id);
+
+    // Step 9: Emit co-aplicante confirmation event (D-11, T-16-06-07 mitigation).
+    // frontendUrl from config ensures HTTPS in staging/prod (Pitfall 7).
+    // Post-transaction emit — applicationId is available now.
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL', '');
+    const confirmationUrl = `${frontendUrl}/confirmar-coapplicante/${coAplicanteToken}`;
+    await this.eventsService.emitCoAplicanteConfirmationRequested(application.id, {
+      coAplicanteNombre: dto.coAplicanteNombre,
+      coAplicanteEmail: dto.coAplicanteEmail,
+      coAplicantePhone: dto.coAplicantePhone,
+      confirmationUrl,
+      expiresAt: coAplicanteTokenExpiresAt,
+      animalName: animal.name,
+      adopterFirstName: user.firstName,
+    });
 
     return application;
   }

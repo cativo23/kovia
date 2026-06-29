@@ -7,13 +7,15 @@ import {
   Body,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { ScoringService } from '../scoring/scoring.service';
-import { CreateApplicationDto } from './dto/create-application.dto';
+import { SubmitApplicationDto } from './dto/submit-application.dto';
 import { UpdateApplicationStatusDto } from './dto/update-application-status.dto';
 import { ApplicationQueryDto } from './dto/application-query.dto';
 import { Roles } from '../common/decorators/roles.decorator';
+import { DossierAckGuard } from '../public-animals/dossier-ack.guard';
 
 @Controller('applications')
 export class ApplicationsController {
@@ -24,7 +26,8 @@ export class ApplicationsController {
 
   @Post()
   @Roles('ADOPTER')
-  async create(@Body() dto: CreateApplicationDto, @Req() req: any) {
+  @UseGuards(DossierAckGuard)
+  async create(@Body() dto: SubmitApplicationDto, @Req() req: any) {
     return this.applicationsService.create(dto, req.user);
   }
 

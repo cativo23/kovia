@@ -76,6 +76,40 @@ const mockEventsService = {
   emitApplicationStatusChanged: vi.fn(),
   emitApplicationWithdrawn: vi.fn(),
   emitApplicationDevuelta: vi.fn(),
+  emitCoAplicanteConfirmationRequested: vi.fn(),
+};
+
+const mockAdopterProfileService = {
+  getMyProfile: vi.fn().mockResolvedValue({
+    id: 'profile-1',
+    phone: '+503123',
+    occupation: 'Dev',
+    birthDate: '1990-01-01',
+    city: 'SV',
+    housingType: 'HOUSE',
+    ownership: 'OWNED',
+    exteriorSpace: true,
+    petPermission: true,
+    adults: 2,
+    children: 0,
+    currentPets: [],
+    activityLevel: 'HIGH',
+    hoursAlone: 4,
+    adoptionReason: 'Love',
+    speciesExperience: true,
+    previousPets: [],
+    additionalContext: null,
+    photos: [],
+    completionPct: 100,
+  }),
+};
+
+const mockExtrasTemplateService = {
+  findForAnimalRaw: vi.fn().mockResolvedValue([]),
+};
+
+const mockConfigService = {
+  get: vi.fn().mockReturnValue('https://kovia.app'),
 };
 
 describe('ApplicationsService', () => {
@@ -92,6 +126,9 @@ describe('ApplicationsService', () => {
       mockCls as any,
       mockScoringQueue as any,
       mockEventsService as any,
+      mockAdopterProfileService as any,
+      mockExtrasTemplateService as any,
+      mockConfigService as any,
     );
   });
 
@@ -103,19 +140,24 @@ describe('ApplicationsService', () => {
       lastName: 'Garcia',
     };
 
+    // Phase 16 SubmitApplicationDto shape (co-aplicante fields required)
     const dto = {
       animalId: 'animal-1',
-      personalInfo: { age: 30 },
-      housing: { type: 'house' },
-      lifestyle: { active: true },
+      extraAnswers: [],
+      coAplicanteNombre: 'María Co-Aplicante',
+      coAplicanteEmail: 'co@example.com',
+    };
+
+    const availableAnimal = {
+      id: 'animal-1',
+      name: 'Firulais',
+      status: 'AVAILABLE',
+      organizationId: 'org-1',
+      adoptionCategory: 'SALUDABLE_ADULTO',
     };
 
     it('should create application with status ENVIADA and snapshot adopter info', async () => {
-      mockPublicPrisma.animal.findUnique.mockResolvedValue({
-        id: 'animal-1',
-        status: 'AVAILABLE',
-        organizationId: 'org-1',
-      });
+      mockPublicPrisma.animal.findUnique.mockResolvedValue(availableAnimal);
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue(null);
       const created = {
         id: 'app-1',
@@ -143,17 +185,15 @@ describe('ApplicationsService', () => {
             adopterFirstName: 'Ana',
             adopterLastName: 'Garcia',
             adopterEmail: 'adopter@example.com',
+            coAplicanteNombre: 'María Co-Aplicante',
+            coAplicanteEmail: 'co@example.com',
           }),
         }),
       );
     });
 
     it('should throw ConflictException if a non-RETIRADA application exists for same animalId+userId', async () => {
-      mockPublicPrisma.animal.findUnique.mockResolvedValue({
-        id: 'animal-1',
-        status: 'AVAILABLE',
-        organizationId: 'org-1',
-      });
+      mockPublicPrisma.animal.findUnique.mockResolvedValue(availableAnimal);
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue({
         id: 'existing-app',
       });
@@ -162,11 +202,7 @@ describe('ApplicationsService', () => {
     });
 
     it('should allow re-apply when the only existing application is RETIRADA (D-14)', async () => {
-      mockPublicPrisma.animal.findUnique.mockResolvedValue({
-        id: 'animal-1',
-        status: 'AVAILABLE',
-        organizationId: 'org-1',
-      });
+      mockPublicPrisma.animal.findUnique.mockResolvedValue(availableAnimal);
       // findFirst returns null because of the `status: { not: 'RETIRADA' }` filter
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue(null);
       mockPrismaRls.adoptionApplication.create.mockResolvedValue({
@@ -190,20 +226,15 @@ describe('ApplicationsService', () => {
 
     it('should throw BadRequestException if animal status is not AVAILABLE', async () => {
       mockPublicPrisma.animal.findUnique.mockResolvedValue({
-        id: 'animal-1',
+        ...availableAnimal,
         status: 'ADOPTED',
-        organizationId: 'org-1',
       });
 
       await expect(service.create(dto, user)).rejects.toThrow(BadRequestException);
     });
 
     it('should call auditService.log on successful creation', async () => {
-      mockPublicPrisma.animal.findUnique.mockResolvedValue({
-        id: 'animal-1',
-        status: 'AVAILABLE',
-        organizationId: 'org-1',
-      });
+      mockPublicPrisma.animal.findUnique.mockResolvedValue(availableAnimal);
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue(null);
       mockPrismaRls.adoptionApplication.create.mockResolvedValue({
         id: 'app-1',
