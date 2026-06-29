@@ -32,23 +32,50 @@
       <UButton to="/animales" :label="$t('applications.history.emptyCta')" />
     </UCard>
 
-    <!-- Tabs (Activas / Histórico) -->
-    <UTabs
-      v-else
-      v-model="activeTab"
-      :items="tabItems"
-      :default-value="activeTab"
-    >
+    <!-- Tabs + banner (when applications exist) -->
+    <template v-else>
+      <!-- Co-aplicante pending confirmation banner (APPLY-06) -->
+      <UAlert
+        v-if="pendingCoAplicante.length > 0"
+        class="mb-4"
+        color="warning"
+        :title="$t('applications.coapplicant.bannerTitle')"
+        :description="$t('applications.coapplicant.bannerBody')"
+      />
+
+      <!-- Tabs (Activas / Histórico) -->
+      <UTabs
+        v-model="activeTab"
+        :items="tabItems"
+        :default-value="activeTab"
+      >
       <template #activas>
         <div v-if="activeApps.length === 0" class="text-sm text-gray-500 py-6 text-center">
           {{ $t('applications.emptyByTab.active') }}
         </div>
         <div v-else class="space-y-4">
-          <PanelApplicationRow
-            v-for="app in activeApps"
-            :key="app.id"
-            :app="app"
-          />
+          <div v-for="app in activeApps" :key="app.id">
+            <PanelApplicationRow :app="app" />
+            <!-- Co-aplicante badge (APPLY-07) -->
+            <div class="px-1 pt-1">
+              <UBadge
+                v-if="app.coAplicanteConfirmed"
+                color="success"
+                variant="subtle"
+                class="rounded-full"
+              >
+                {{ $t('applications.coapplicant.confirmed') }}
+              </UBadge>
+              <UBadge
+                v-else-if="app.coAplicanteEmail"
+                color="warning"
+                variant="subtle"
+                class="rounded-full"
+              >
+                {{ $t('applications.coapplicant.pending') }}
+              </UBadge>
+            </div>
+          </div>
         </div>
       </template>
       <template #historico>
@@ -56,14 +83,32 @@
           {{ $t('applications.emptyByTab.historic') }}
         </div>
         <div v-else class="space-y-4">
-          <PanelApplicationRow
-            v-for="app in historicApps"
-            :key="app.id"
-            :app="app"
-          />
+          <div v-for="app in historicApps" :key="app.id">
+            <PanelApplicationRow :app="app" />
+            <!-- Co-aplicante badge (APPLY-07) -->
+            <div class="px-1 pt-1">
+              <UBadge
+                v-if="app.coAplicanteConfirmed"
+                color="success"
+                variant="subtle"
+                class="rounded-full"
+              >
+                {{ $t('applications.coapplicant.confirmed') }}
+              </UBadge>
+              <UBadge
+                v-else-if="app.coAplicanteEmail"
+                color="warning"
+                variant="subtle"
+                class="rounded-full"
+              >
+                {{ $t('applications.coapplicant.pending') }}
+              </UBadge>
+            </div>
+          </div>
         </div>
       </template>
     </UTabs>
+    </template>
   </div>
 </template>
 
@@ -88,6 +133,8 @@ interface ApplicationListItem {
   id: string
   status: ApplicationStatus
   submittedAt: string
+  coAplicanteConfirmed: boolean
+  coAplicanteEmail?: string | null
   animal: {
     id: string
     name: string
@@ -136,6 +183,10 @@ const historicApps = computed(() =>
   applications.value
     .filter(a => (HISTORIC_STATUSES as readonly string[]).includes(a.status))
     .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()),
+)
+
+const pendingCoAplicante = computed(() =>
+  applications.value.filter(a => a.coAplicanteEmail && !a.coAplicanteConfirmed)
 )
 
 async function loadApplications() {
