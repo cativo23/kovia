@@ -7,6 +7,8 @@ import { UploadModule } from '../upload/upload.module';
 import { AuditModule } from '../audit/audit.module';
 import { ScoringModule } from '../scoring/scoring.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { AdopterProfileModule } from '../adopter-profile/adopter-profile.module';
+import { ExtrasTemplateModule } from '../extras-template/extras-template.module';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
     AuditModule,
     ScoringModule,
     NotificationsModule,
+    AdopterProfileModule,
+    ExtrasTemplateModule,
     BullModule.registerQueue({ name: 'scoring' }),
   ],
   controllers: [ApplicationsController],
