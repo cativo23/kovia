@@ -805,6 +805,12 @@
       "active": "Activas",
       "historic": "Histórico"
     },
+    "coapplicant": {
+      "pending": "Esperando confirmación del hogar",
+      "confirmed": "Hogar confirmado",
+      "bannerTitle": "Confirmación de hogar pendiente",
+      "bannerBody": "Enviamos un enlace de confirmación. Pedile a tu co-aplicante que revise su correo."
+    },
     "emptyByTab": {
       "active": "No tienes solicitudes activas.",
       "historic": "No tienes solicitudes en el histórico."
@@ -951,7 +957,93 @@
     "email": "Correo",
     "role": "Rol",
     "notLoaded": "No se pudo cargar la información del usuario.",
-    "orgProfileComingSoon": "La edición del perfil de organización estará disponible próximamente."
+    "orgProfileComingSoon": "La edición del perfil de organización estará disponible próximamente.",
+    "title": "Mi perfil de adopción",
+    "completionPct": "{pct}% completo",
+    "completionFull": "Perfil completo",
+    "completionPipsAriaLabel": "Estado de completitud por sección",
+    "sections": {
+      "datos-basicos": "Datos básicos",
+      "hogar": "Mi hogar",
+      "estilo-de-vida": "Estilo de vida",
+      "experiencia": "Experiencia con mascotas",
+      "fotos": "Fotos del hogar"
+    },
+    "section": {
+      "edit": "Editar",
+      "save": "Guardar cambios",
+      "cancel": "Descartar cambios",
+      "completeAria": "Sección completa",
+      "incompleteAria": "Sección incompleta"
+    },
+    "applyBlocked": "Completa tu perfil para poder aplicar",
+    "goToProfile": "Ir a Mi Perfil",
+    "photos": {
+      "add": "Agregar foto",
+      "remove": "Eliminar foto",
+      "alt": "Foto del hogar"
+    },
+    "empty": {
+      "heading": "Comenzá tu perfil de adopción",
+      "body": "Completá las secciones para poder aplicar a animales en adopción."
+    },
+    "errors": {
+      "loadFailed": "No pudimos cargar tu perfil. Intentá de nuevo.",
+      "saveFailed": "No pudimos guardar los cambios. Revisá tu conexión e intentá de nuevo.",
+      "photoUploadFailed": "No pudimos subir la foto. Intentá de nuevo.",
+      "photoRemoveFailed": "No pudimos eliminar la foto. Intentá de nuevo."
+    },
+    "fields": {
+      "phone": "Teléfono",
+      "occupation": "Ocupación",
+      "birthDate": "Fecha de nacimiento",
+      "city": "Ciudad",
+      "housingType": "Tipo de vivienda",
+      "ownership": "Propiedad",
+      "exteriorSpace": "Espacio exterior",
+      "petPermission": "Permiso para mascotas",
+      "adults": "Adultos en el hogar",
+      "children": "Menores de 18",
+      "currentPets": "Mascotas actuales",
+      "activityLevel": "Nivel de actividad",
+      "hoursAlone": "Horas sola en casa",
+      "adoptionReason": "Razón de adopción",
+      "speciesExperience": "Experiencia con la especie",
+      "previousPets": "Mascotas anteriores",
+      "additionalContext": "Información adicional"
+    }
+  },
+  "apply": {
+    "steps": {
+      "profile": "Tu perfil",
+      "extras": "Preguntas del animal",
+      "coapplicant": "Confirmación del hogar"
+    },
+    "next": "Continuar",
+    "back": "Volver",
+    "submit": "Enviar aplicación",
+    "submitting": "Enviando...",
+    "extras": {
+      "empty": "Este animal no tiene preguntas adicionales"
+    },
+    "success": {
+      "heading": "¡Aplicación enviada!",
+      "body": "Enviamos un enlace de confirmación a tu co-aplicante. Podés seguir el estado en Mis Aplicaciones."
+    },
+    "errors": {
+      "failed": "No pudimos enviar tu aplicación. Revisá tu conexión e intentá de nuevo."
+    }
+  },
+  "coapplicant": {
+    "confirm": {
+      "heading": "Confirmá tu participación",
+      "body": "{coAplicanteNombre}, {adopterFirstName} quiere adoptar a {animalName}. ¿Confirmás que todos en el hogar están de acuerdo con esta adopción?",
+      "cta": "Confirmo mi participación en este hogar",
+      "successHeading": "Confirmación registrada",
+      "successBody": "Gracias por confirmar. El refugio ahora puede revisar la solicitud.",
+      "expiredHeading": "Este enlace ya no es válido",
+      "expiredBody": "El enlace expiró o ya fue usado. Si necesitás ayuda, contactá al refugio directamente."
+    }
   },
   "notifications": {
     "bell": {
