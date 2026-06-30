@@ -22,6 +22,7 @@
 
 import { PrismaClient } from '../src/generated/prisma/client.ts';
 import { PrismaPg } from '@prisma/adapter-pg';
+import * as bcrypt from 'bcrypt';
 
 const adapter = new PrismaPg({
   connectionString: process.env.MIGRATION_DATABASE_URL ?? process.env.DATABASE_URL,
@@ -70,6 +71,8 @@ const report: Report = {
 // ---------------------------------------------------------------------------
 // findOrCreateUser — upsert by email using unique constraint
 // ---------------------------------------------------------------------------
+const TEST_PASSWORD = 'Password1234!';
+
 async function findOrCreateUser(params: {
   email: string;
   firstName: string;
@@ -79,19 +82,21 @@ async function findOrCreateUser(params: {
     where: { email: params.email },
     select: { id: true },
   });
+  const passwordHash = await bcrypt.hash(TEST_PASSWORD, 10);
   if (existing) {
+    // Ensure passwordHash is correct on re-runs (first run may have used wrong hash)
+    await prisma.user.update({
+      where: { id: existing.id },
+      data: { passwordHash },
+    });
     return existing.id;
   }
-  // bcrypt hash for "Password1234!" — pre-computed so we skip bcrypt runtime dep.
-  // Not security-sensitive: test-only credentials on .test TLD.
-  const PLACEHOLDER_HASH =
-    '$2b$10$YJiXhYTH/p5GtpWE.LyVlORkIlx9fMfMJE5kv3SV7rHOl3jnEzPgm';
   const user = await prisma.user.create({
     data: {
       email: params.email,
       firstName: params.firstName,
       lastName: params.lastName,
-      password: PLACEHOLDER_HASH,
+      passwordHash,
       role: 'ADOPTER',
       emailVerified: true,
     },
@@ -193,8 +198,8 @@ async function seedCompleteAdopter(): Promise<void> {
         hoursAlone: 4,
         adoptionReason: 'Quiero compañía y dar una segunda oportunidad a un animal.',
         // Section 4: experiencia general
-        speciesExperience: 'Tuve un perro labrador por 8 años. Sé manejar adiestramiento básico.',
-        previousPets: null as never,
+        speciesExperience: true,
+        previousPets: [{ species: 'perro', breed: 'labrador', years: 8 }],
         additionalContext: 'Trabajo desde casa 3 días a la semana.',
       },
       select: { id: true },
@@ -258,7 +263,7 @@ async function seedLegacyAdopter(orgId: string, animalId: string): Promise<void>
         userId,
         animalId,
         organizationId: orgId,
-        status: 'PENDIENTE',
+        status: 'ENVIADA',
         submittedAt: new Date('2025-06-01T00:00:00.000Z'),
         // Legacy blobs — no profileSnapshot or extraAnswers (pre-Phase 16)
         personalInfo: {
