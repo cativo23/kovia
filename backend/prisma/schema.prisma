@@ -75,6 +75,33 @@ enum NotificationType {
   SCORED
   WITHDRAWN
   RETURNED
+  ENCUENTRO_SCHEDULED
+  REFLEXION_STARTED
+  FINALIZED
+  CHECK_IN_DELIVERED
+}
+
+enum EncuentroRecomendacion {
+  PROCEED
+  REQUIRES_FOSTER
+  DO_NOT_PROCEED
+}
+
+enum FosterOutcome {
+  PROCEED
+  REJECTED
+}
+
+enum CheckInType {
+  DAY_14
+  DAY_60
+}
+
+enum CheckInStatus {
+  PENDING
+  DISPATCHED
+  COMPLETED
+  SKIPPED
 }
 
 enum AdoptionCategory {
@@ -273,9 +300,18 @@ model AdoptionApplication {
   coAplicanteConfirmed      Boolean   @default(false)
   coAplicanteConfirmedAt    DateTime?
 
+  // Phase 17 additions — gate-supporting columns (D-03, D-09/D-10)
+  approvedAt     DateTime? // Set when entering APPROVED; drives 48h reflexión gate (D-03)
+  fosterRequired Boolean   @default(false) // Set by counselor during encuentro (D-09/D-10)
+
   photos        ApplicationPhoto[]
   notes         ApplicationNote[]
   notifications Notification[]
+
+  // Phase 17 relations
+  encuentro    Encuentro?
+  fosterPeriod FosterPeriod?
+  checkIns     PostAdoptionCheckIn[]
 
   // Active-application uniqueness is enforced via a PostgreSQL partial unique index
   // (migration 10_partial_unique_active_applications, rebuilt in phase17_status_rename):
@@ -470,4 +506,73 @@ model ExtrasTemplate {
 
   @@unique([organizationId, adoptionCategory])
   @@map("extras_templates")
+}
+
+// Phase 17 — Encuentro: 1:1 with AdoptionApplication (presencial-only, D-05).
+// Counselor logs structured observations (recomendación + optional notes + alert signals) (D-07).
+// fosterRequired: counselor-set signal (D-09) that propagates to application.fosterRequired.
+// No modality enum — presencial-only for v3.0.
+// Document/ID capture deferred to v3.1+ (D-11).
+model Encuentro {
+  id            String                  @id @default(uuid())
+  applicationId String                  @unique // 1:1 with application
+  application   AdoptionApplication     @relation(fields: [applicationId], references: [id])
+  scheduledAt   DateTime
+  location      String?
+  address       String?
+  completedAt   DateTime?
+  // Observations (D-07)
+  recomendacion EncuentroRecomendacion?
+  notes         String?                 @db.Text
+  alertSignals  String?                 @db.Text
+  // Foster signal (D-09)
+  fosterRequired Boolean               @default(false)
+  counselorId   String // userId of ORG_STAFF who completed it
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  @@map("encuentros")
+}
+
+// Phase 17 — FosterPeriod: 0:1 with AdoptionApplication (D-10/D-11).
+// Light entity: state + dates + counselor notes + outcome.
+// NO document/ID/DUI fields (D-11 defers PII capture to v3.1+).
+model FosterPeriod {
+  id             String              @id @default(uuid())
+  applicationId  String              @unique // 0:1 with application
+  application    AdoptionApplication @relation(fields: [applicationId], references: [id])
+  startedAt      DateTime
+  endedAt        DateTime?
+  outcome        FosterOutcome?
+  counselorNotes String?             @db.Text
+  counselorId    String
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@map("foster_periods")
+}
+
+// Phase 17 — PostAdoptionCheckIn: N:1 with AdoptionApplication (D-13/D-14).
+// Created at FINALIZED with scheduledFor = finalizedAt + 14d (DAY_14) and + 60d (DAY_60).
+// submissionToken: UUID set when dispatched; public no-login page uses it (D-14, PATTERN-01 rlsBypassPrisma).
+// responses: JSON array [{questionId, answer}] submitted via public token page.
+model PostAdoptionCheckIn {
+  id                      String        @id @default(uuid())
+  applicationId           String
+  application             AdoptionApplication @relation(fields: [applicationId], references: [id])
+  checkInType             CheckInType
+  scheduledFor            DateTime
+  status                  CheckInStatus @default(PENDING)
+  submissionToken         String?       @unique // UUID; set when dispatched
+  submissionTokenExpiresAt DateTime?
+  dispatchedAt            DateTime?
+  completedAt             DateTime?
+  responses               Json?         // [{questionId, answer}]
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+
+  @@index([applicationId])
+  @@index([status, scheduledFor])
+  @@index([submissionToken])
+  @@map("post_adoption_check_ins")
 }
