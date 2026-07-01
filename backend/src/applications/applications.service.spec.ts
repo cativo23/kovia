@@ -391,13 +391,23 @@ describe('ApplicationsService', () => {
   });
 
   describe('updateStatus', () => {
+    // D-01 canonical lifecycle (Phase 17)
     const validTransitions = [
       ['SUBMITTED', 'REVIEWING'],
-      ['REVIEWING', 'APPROVED'],
+      ['REVIEWING', 'IN_MEETING'],
       ['REVIEWING', 'REJECTED'],
       ['REVIEWING', 'FOLLOW_UP'],
-      ['FOLLOW_UP', 'APPROVED'],
-      ['APPROVED', 'ADOPTED'],
+      ['FOLLOW_UP', 'IN_MEETING'],
+      ['FOLLOW_UP', 'REJECTED'],
+      ['IN_MEETING', 'IN_FOSTER'],
+      ['IN_MEETING', 'APPROVED'],
+      ['IN_MEETING', 'REJECTED'],
+      ['IN_FOSTER', 'APPROVED'],
+      ['IN_FOSTER', 'REJECTED'],
+      ['APPROVED', 'IN_REFLECTION'],
+      ['IN_REFLECTION', 'FINALIZED'],
+      ['IN_REFLECTION', 'WITHDRAWN'],
+      ['ADOPTED', 'RETURNED'], // legacy pre-v3.0 rows only
     ];
 
     for (const [from, to] of validTransitions) {

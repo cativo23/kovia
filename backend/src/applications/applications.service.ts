@@ -29,18 +29,25 @@ interface UserContext {
   lastName?: string;
 }
 
+// D-01 canonical lifecycle ordering (Phase 17).
+// IN_FOSTER precedes APPROVED: foster is a pre-approval trial that informs the approval decision.
+// APPROVED → IN_REFLECTION starts the 48h reflexión clock (D-03; approvedAt set on APPROVED entry).
+// ADOPTED retained as legacy terminal for pre-v3.0 rows only — new flow writes FINALIZED.
 const staffTransitions: Record<string, string[]> = {
-  SUBMITTED: ['REVIEWING'],
-  REVIEWING: ['APPROVED', 'REJECTED', 'FOLLOW_UP'],
-  FOLLOW_UP: ['APPROVED', 'REJECTED'],
-  APPROVED: ['ADOPTED'],
-  ADOPTED: ['RETURNED'],
+  SUBMITTED:     ['REVIEWING'],
+  REVIEWING:     ['IN_MEETING', 'REJECTED', 'FOLLOW_UP'],
+  FOLLOW_UP:     ['IN_MEETING', 'REJECTED'],
+  IN_MEETING:    ['IN_FOSTER', 'APPROVED', 'REJECTED'],
+  IN_FOSTER:     ['APPROVED', 'REJECTED'],
+  APPROVED:      ['IN_REFLECTION'],
+  IN_REFLECTION: ['FINALIZED', 'WITHDRAWN'],
+  ADOPTED:       ['RETURNED'], // legacy pre-v3.0 rows only
 };
 
 @Injectable()
 export class ApplicationsService {
   constructor(
-    @Inject(PRISMA_RLS) private readonly prismaRls: any,
+    @Inject(PRISMA_RLS) private readonly rlsPrisma: any,
     private readonly rlsBypassPrisma: PublicPrismaService,
     private readonly uploadService: UploadService,
     private readonly auditService: AuditService,
@@ -62,11 +69,11 @@ export class ApplicationsService {
    *   4. NEW — build profileSnapshot server-side (explicit field copy, D-04)
    *   5. NEW — freeze extraAnswers from ExtrasTemplate (questionText verbatim, D-08)
    *   6. NEW — generate 72h co-aplicante UUID token (D-10/D-11)
-   *   7. Insert AdoptionApplication row via prismaRls
+   *   7. Insert AdoptionApplication row via rlsPrisma
    *   8. Emit APPLICATION_SUBMITTED event (existing — unchanged)
    *   9. NEW — emit co-aplicante confirmation event (D-11)
    *
-   * PATTERN-01 (CLAUDE.md): rlsPrisma for the INSERT, rlsBypassPrisma for animal + duplicate lookups.
+   * PATTERN-01 (CLAUDE.md): rlsPrisma for the INSERT; rlsBypassPrisma for animal + duplicate lookups.
    * T-16-06-01 mitigation: profileSnapshot built server-side — frontend cannot supply snapshot fields.
    * T-16-06-02 mitigation: questionText frozen from template — frontend-supplied text discarded.
    */
@@ -159,7 +166,7 @@ export class ApplicationsService {
     // Step 7: Insert AdoptionApplication row via RLS client so INSERT policy fires.
     // Legacy fields (personalInfo, housing, lifestyle, photos relation) left null for
     // new applications — they remain on the table for backward compat with historical records.
-    const application = await this.prismaRls.adoptionApplication.create({
+    const application = await this.rlsPrisma.adoptionApplication.create({
       data: {
         animalId: dto.animalId,
         userId: user.id,
@@ -298,9 +305,9 @@ export class ApplicationsService {
       }
     }
 
-    // Use prismaRls — org scoping is enforced via CLS context (app.current_org_id)
+    // Use rlsPrisma — org scoping is enforced via CLS context (app.current_org_id)
     const [data, total] = await Promise.all([
-      this.prismaRls.adoptionApplication.findMany({
+      this.rlsPrisma.adoptionApplication.findMany({
         where,
         skip,
         take: limit,
@@ -316,7 +323,7 @@ export class ApplicationsService {
           photos: { orderBy: { position: 'asc' }, take: 1 },
         },
       }),
-      this.prismaRls.adoptionApplication.count({ where }),
+      this.rlsPrisma.adoptionApplication.count({ where }),
     ]);
 
     return {
@@ -329,7 +336,7 @@ export class ApplicationsService {
   }
 
   async findByIdForOrg(id: string) {
-    const application = await this.prismaRls.adoptionApplication.findUnique({
+    const application = await this.rlsPrisma.adoptionApplication.findUnique({
       where: { id },
       include: {
         photos: { orderBy: { position: 'asc' } },
@@ -371,7 +378,7 @@ export class ApplicationsService {
   }
 
   async updateStatus(id: string, newStatus: string, userId: string) {
-    const application = await this.prismaRls.adoptionApplication.findUnique({
+    const application = await this.rlsPrisma.adoptionApplication.findUnique({
       where: { id },
     });
 
@@ -386,7 +393,7 @@ export class ApplicationsService {
       );
     }
 
-    const updated = await this.prismaRls.adoptionApplication.update({
+    const updated = await this.rlsPrisma.adoptionApplication.update({
       where: { id },
       data: { status: newStatus },
     });
