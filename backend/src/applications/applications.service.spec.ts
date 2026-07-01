@@ -508,6 +508,48 @@ describe('ApplicationsService', () => {
     }
   });
 
+  // ─── Phase 17 — 48h reflexión gate skeletons (Plan 04 un-skips) ─────────────
+  //
+  // These skeleton describe.skip blocks are Wave 0 scaffolds (per SAFEGUARD-02).
+  // English enum literals (SUBMITTED/REVIEWING/APPROVED/IN_REFLECTION/FINALIZED)
+  // per D-02. Plan 04 un-skips the block and fills real assertions.
+
+  describe.skip('Phase 17 — 48h reflexión gate (Plan 04 un-skips)', () => {
+    it('[SAFEGUARD-02] FINALIZED blocked before approvedAt + 48h (pure timestamp comparison)', async () => {
+      // Setup: application status=IN_REFLECTION, approvedAt=now (gate not elapsed).
+      // Expectation: service.finalize() throws UnprocessableEntityException.
+      const now = new Date();
+      mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
+        id: 'app-1',
+        status: 'IN_REFLECTION',
+        approvedAt: now, // gate: now + 48h has NOT elapsed
+      });
+
+      // TODO(plan 04): call service.finalize() (or updateStatus to FINALIZED) and
+      // assert it throws UnprocessableEntityException.
+      expect(true).toBe(false); // stub — Plan 04 replaces with real call
+    });
+
+    it('[SAFEGUARD-02] FINALIZED allowed after approvedAt + 48h (pure timestamp comparison)', async () => {
+      // Setup: application status=IN_REFLECTION, approvedAt=3 days ago.
+      // Expectation: finalize succeeds and returns a FINALIZED application.
+      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+      mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
+        id: 'app-1',
+        status: 'IN_REFLECTION',
+        approvedAt: threeDaysAgo, // gate: 48h has elapsed
+      });
+      mockPrismaRls.adoptionApplication.update.mockResolvedValue({
+        id: 'app-1',
+        status: 'FINALIZED',
+      });
+
+      // TODO(plan 04): call service.finalize() / updateStatus('FINALIZED') and
+      // assert result.status === 'FINALIZED'.
+      expect(true).toBe(false); // stub — Plan 04 replaces with real call
+    });
+  });
+
   describe('findStatusHistory', () => {
     it('should enforce ownership via findById then return audit entries', async () => {
       mockPublicPrisma.adoptionApplication.findUnique.mockResolvedValue({

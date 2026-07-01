@@ -541,6 +541,96 @@ describe('ApplicationsService RLS integration', () => {
     await superClient.query(`DELETE FROM animals WHERE id = $1`, [animal2Id]);
   });
 
+  // ─── Phase 17 Safeguards — skeleton blocks (Plan 04 un-skips) ───────────────
+  //
+  // These describe.skip blocks are Wave 0 scaffolds. They are intentionally
+  // described with English enum literals (SUBMITTED/REVIEWING/APPROVED/
+  // IN_REFLECTION/FINALIZED/WITHDRAWN/REJECTED/IN_FOSTER) per D-02.
+  //
+  // Each it() body below is a stub that will fail (expect(true).toBe(false))
+  // once Plan 04 un-skips the block. Plan 04 Task 3 replaces each stub body
+  // with a real assertion against the live DB.
+
+  describe.skip('Phase 17 safeguards (Plan 04 un-skips)', () => {
+    // (a) SAFEGUARD-01 — Encuentro gate
+    it('[SAFEGUARD-01] APPROVED blocked without a completed Encuentro', async () => {
+      // Scenario: application in REVIEWING with no completed encuentro →
+      // transition to APPROVED must throw UnprocessableEntityException.
+      // Plan 04 seeds an application + incomplete encuentro and asserts the gate.
+      expect(true).toBe(false); // TODO(plan 04): replace with real encuentro gate assertion
+    });
+
+    it('[SAFEGUARD-01] APPROVED unblocked once Encuentro observations are logged', async () => {
+      // Scenario: Encuentro has completed=true + recomendacion='PROCEED' →
+      // transition to APPROVED (or IN_REFLECTION) must succeed.
+      expect(true).toBe(false); // TODO(plan 04): replace with real assertion
+    });
+
+    // (b) SAFEGUARD-03 — Foster gate (fosterRequired=true path)
+    it('[SAFEGUARD-03] APPROVED blocked when fosterRequired=true and no completed FosterPeriod', async () => {
+      // Scenario: complex-category animal, fosterRequired=true set on encuentro,
+      // no IN_FOSTER → APPROVED transition must be blocked.
+      expect(true).toBe(false); // TODO(plan 04): replace with foster gate assertion
+    });
+
+    it('[SAFEGUARD-03] APPROVED unblocked once FosterPeriod outcome=PROCEED', async () => {
+      // Scenario: FosterPeriod.outcome='PROCEED' on record → transition to APPROVED allowed.
+      expect(true).toBe(false); // TODO(plan 04)
+    });
+
+    it('[SAFEGUARD-03] foster REJECTED → application REJECTED + animal AVAILABLE', async () => {
+      // Scenario: FosterPeriod.outcome='FAIL' / counselor rejects → application transitions
+      // to REJECTED and animal.status flips back to AVAILABLE.
+      expect(true).toBe(false); // TODO(plan 04)
+    });
+
+    // (c) SAFEGUARD-02 — 48h reflexión gate
+    it('[SAFEGUARD-02] FINALIZED blocked before approvedAt + 48h', async () => {
+      // Scenario: application in IN_REFLECTION with approvedAt = now →
+      // transition to FINALIZED must throw UnprocessableEntityException (gate not elapsed).
+      expect(true).toBe(false); // TODO(plan 04): set approvedAt=now, assert 422
+    });
+
+    it('[SAFEGUARD-02] FINALIZED allowed after approvedAt + 48h', async () => {
+      // Scenario: approvedAt = 3 days ago → FINALIZED transition allowed.
+      expect(true).toBe(false); // TODO(plan 04): set approvedAt=3days_ago, assert success
+    });
+
+    // (d) D-04 — adopter self-service withdrawal during IN_REFLECTION
+    it('[D-04] adopter withdraw during IN_REFLECTION → WITHDRAWN + animal AVAILABLE', async () => {
+      // Scenario: application in IN_REFLECTION → adopter calls withdraw() →
+      // status=WITHDRAWN, animal.status=AVAILABLE.
+      expect(true).toBe(false); // TODO(plan 04)
+    });
+
+    // (e) D-19 — reservation lifecycle: animal reserved at IN_FOSTER / APPROVED
+    it('[D-19] animal reserved IN_PROCESS at IN_FOSTER transition', async () => {
+      // Scenario: application transitions to IN_FOSTER → animal.status flips to IN_PROCESS
+      // (reserved but not yet adopted).
+      expect(true).toBe(false); // TODO(plan 04)
+    });
+
+    it('[D-19] animal reserved IN_PROCESS at APPROVED transition (no prior foster)', async () => {
+      // Scenario: direct REVIEWING→APPROVED (no foster path) → animal.status=IN_PROCESS.
+      expect(true).toBe(false); // TODO(plan 04)
+    });
+
+    // (f) SAFEGUARD-04 / SAFEGUARD-05 — PostAdoptionCheckIn rows at FINALIZED
+    it('[SAFEGUARD-04] FINALIZED creates exactly two PostAdoptionCheckIn rows (DAY_14 + DAY_60, PENDING)', async () => {
+      // Scenario: transition to FINALIZED → exactly 2 rows in post_adoption_check_ins
+      // with scheduleType=DAY_14 and scheduleType=DAY_60, both status=PENDING.
+      expect(true).toBe(false); // TODO(plan 04)
+    });
+
+    // (g) D-19 — sibling auto-close at FINALIZED
+    it('[D-19] FINALIZED auto-closes sibling applications → WITHDRAWN + animal ADOPTED', async () => {
+      // Scenario: adopter1 reaches FINALIZED while adopter2 has an open REVIEWING
+      // application for the same animal → adopter2's application transitions to WITHDRAWN,
+      // animal.status=ADOPTED.
+      expect(true).toBe(false); // TODO(plan 04)
+    });
+  });
+
   it('[APPLY-06] [PATTERN-02] create() produces a webhook_outbox row for co_aplicante.confirmation_requested', async () => {
     /**
      * PATTERN-02 MANDATE: This test uses a REAL EventsService wired to a real
