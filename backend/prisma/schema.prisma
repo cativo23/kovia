@@ -52,14 +52,20 @@ enum AnimalStatus {
 }
 
 enum ApplicationStatus {
-  ENVIADA
-  REVISANDO
-  APROBADA
-  RECHAZADA
-  SEGUIMIENTO
-  ADOPTADA
-  RETIRADA
-  DEVUELTA
+  SUBMITTED
+  REVIEWING
+  APPROVED
+  REJECTED
+  FOLLOW_UP
+  // ADOPTED retained as legacy-only terminal state (pre-v3.0 rows); new flow writes FINALIZED
+  ADOPTED
+  WITHDRAWN
+  RETURNED
+  // New Phase 17 lifecycle states (D-01)
+  IN_MEETING
+  IN_FOSTER
+  IN_REFLECTION
+  FINALIZED
 }
 
 enum NotificationType {
@@ -68,7 +74,7 @@ enum NotificationType {
   NOTE_ADDED
   SCORED
   WITHDRAWN
-  DEVUELTA
+  RETURNED
 }
 
 enum AdoptionCategory {
@@ -241,7 +247,7 @@ model AdoptionApplication {
   user              User              @relation(fields: [userId], references: [id])
   organizationId    String
   organization      Organization      @relation(fields: [organizationId], references: [id])
-  status            ApplicationStatus @default(ENVIADA)
+  status            ApplicationStatus @default(SUBMITTED)
   personalInfo      Json?
   housing           Json?
   lifestyle         Json?
@@ -272,9 +278,10 @@ model AdoptionApplication {
   notifications Notification[]
 
   // Active-application uniqueness is enforced via a PostgreSQL partial unique index
-  // (migration 10_partial_unique_active_applications): UNIQUE (animalId, userId) WHERE status != 'RETIRADA'.
+  // (migration 10_partial_unique_active_applications, rebuilt in phase17_status_rename):
+  // UNIQUE (animalId, userId) WHERE status != 'WITHDRAWN'.
   // Prisma @@unique cannot express a WHERE clause, so the constraint lives in raw SQL.
-  // D-14: allows resubmit after withdraw; service layer rejects duplicates in non-RETIRADA states.
+  // D-14: allows resubmit after withdraw; service layer rejects duplicates in non-WITHDRAWN states.
   @@index([coAplicanteToken])
   @@index([coAplicanteConfirmed])
   @@map("adoption_applications")
