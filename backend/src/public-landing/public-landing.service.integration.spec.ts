@@ -209,7 +209,7 @@ describe('PublicLandingService integration (D-12 + D-15 + D-17)', () => {
          "submittedAt", "updatedAt"
        )
        VALUES (
-         gen_random_uuid(), $1, $2, $3, 'ADOPTADA',
+         gen_random_uuid(), $1, $2, $3, 'ADOPTED',
          $4, $5,
          NOW(), NOW()
        )
@@ -233,7 +233,7 @@ describe('PublicLandingService integration (D-12 + D-15 + D-17)', () => {
          "submittedAt", "updatedAt"
        )
        VALUES (
-         gen_random_uuid(), $1, $2, $3, 'ENVIADA',
+         gen_random_uuid(), $1, $2, $3, 'SUBMITTED',
          $4, $5,
          NOW(), NOW()
        )
@@ -344,12 +344,12 @@ describe('PublicLandingService integration (D-12 + D-15 + D-17)', () => {
   it('totalAdoptions counts only AdoptionApplication rows with status=ADOPTADA', async () => {
     const stats = await publicLandingService.getStats();
     expect(stats.totalAdoptions).toBeGreaterThanOrEqual(1);
-    // The pending ENVIADA application MUST NOT contribute.
+    // The pending SUBMITTED application MUST NOT contribute.
     // We can't directly assert "the count equals N" because other seed
-    // data may exist, but we CAN assert the ADOPTADA fixture is reflected.
+    // data may exist, but we CAN assert the ADOPTED fixture is reflected.
     // Cross-check by querying directly:
     const rawAdopted = await superClient.query(
-      `SELECT COUNT(*)::int as n FROM adoption_applications WHERE status = 'ADOPTADA'`,
+      `SELECT COUNT(*)::int as n FROM adoption_applications WHERE status = 'ADOPTED'`,
     );
     expect(stats.totalAdoptions).toBe(rawAdopted.rows[0].n);
   });
@@ -390,15 +390,15 @@ describe('PublicLandingService integration (D-12 + D-15 + D-17)', () => {
   });
 
   // ── D-15 — Day-1 zero-adoptions handling ────────────────────────────
-  it('marqueeAdopters is empty array when zero ADOPTADA applications match', async () => {
-    // Temporarily flip the ADOPTADA row to RETIRADA, re-run, then restore.
+  it('marqueeAdopters is empty array when zero ADOPTED applications match', async () => {
+    // Temporarily flip the ADOPTED row to WITHDRAWN, re-run, then restore.
     await superClient.query(
-      `UPDATE adoption_applications SET status = 'RETIRADA' WHERE id = $1`,
+      `UPDATE adoption_applications SET status = 'WITHDRAWN' WHERE id = $1`,
       [adoptedAppId],
     );
     try {
       const stats = await publicLandingService.getStats();
-      // Our seeded marquee row is hidden; any other ADOPTADA rows in the
+      // Our seeded marquee row is hidden; any other ADOPTED rows in the
       // DB (none in a fresh test env) MAY still contribute, so we assert
       // specifically that OUR row is gone.
       const ours = stats.marqueeAdopters.find(
@@ -407,7 +407,7 @@ describe('PublicLandingService integration (D-12 + D-15 + D-17)', () => {
       expect(ours).toBeUndefined();
     } finally {
       await superClient.query(
-        `UPDATE adoption_applications SET status = 'ADOPTADA' WHERE id = $1`,
+        `UPDATE adoption_applications SET status = 'ADOPTED' WHERE id = $1`,
         [adoptedAppId],
       );
     }

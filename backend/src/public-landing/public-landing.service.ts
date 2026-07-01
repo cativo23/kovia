@@ -53,7 +53,7 @@ export class PublicLandingService {
         where: { verifiedAt: { not: null } },
       }),
       this.rlsBypassPrisma.adoptionApplication.count({
-        where: { status: 'ADOPTADA' },
+        where: { status: 'ADOPTED' },
       }),
       this.rlsBypassPrisma.animal.findFirst({
         where: { status: 'AVAILABLE', dossierComplete: true },
@@ -83,7 +83,7 @@ export class PublicLandingService {
         },
       }),
       this.rlsBypassPrisma.adoptionApplication.findMany({
-        where: { status: 'ADOPTADA', adopterFirstName: { not: null } },
+        where: { status: 'ADOPTED', adopterFirstName: { not: null } },
         orderBy: { updatedAt: 'desc' },
         take: 20,
         select: {

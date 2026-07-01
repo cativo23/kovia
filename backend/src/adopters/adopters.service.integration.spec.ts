@@ -127,7 +127,7 @@ describe('AdoptersService integration (PATTERN-03)', () => {
     // 7. INSERT one adoption application (adopter → org animal)
     const appRow = await superClient.query(
       `INSERT INTO adoption_applications (id, "userId", "animalId", "organizationId", status, "submittedAt", "updatedAt")
-       VALUES (gen_random_uuid(), $1, $2, $3, 'ENVIADA', NOW(), NOW()) RETURNING id`,
+       VALUES (gen_random_uuid(), $1, $2, $3, 'SUBMITTED', NOW(), NOW()) RETURNING id`,
       [adopterId, animalId, orgId],
     );
     applicationId = appRow.rows[0].id;

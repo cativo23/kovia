@@ -129,7 +129,7 @@ describe('TeamService RLS integration', () => {
     // Pending ENVIADA application at the org for the adopter — feeds D-06 test.
     const app = await superClient.query(
       `INSERT INTO adoption_applications (id, "userId", "organizationId", "animalId", status, "submittedAt", "updatedAt")
-       VALUES (gen_random_uuid(), $1, $2, $3, 'ENVIADA', NOW(), NOW()) RETURNING id`,
+       VALUES (gen_random_uuid(), $1, $2, $3, 'SUBMITTED', NOW(), NOW()) RETURNING id`,
       [adopterId, orgId, animalId],
     );
     applicationId = app.rows[0].id;

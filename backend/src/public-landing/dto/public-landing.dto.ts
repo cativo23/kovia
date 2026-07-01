@@ -18,7 +18,7 @@ export interface PublicLandingStats {
   availableCount: number;
   /** Organizations with verifiedAt IS NOT NULL (D-14). */
   verifiedRefugiosCount: number;
-  /** AdoptionApplication rows in status='ADOPTADA' (RESEARCH §A1 mapping). */
+  /** AdoptionApplication rows in status='ADOPTED' (Phase 17 D-02 English rename). */
   totalAdoptions: number;
   /** Day-1 vs Year-2 hero variant — computed server-side (D-12). */
   layoutVariant: 'day1' | 'year2';

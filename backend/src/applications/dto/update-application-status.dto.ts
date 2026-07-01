@@ -2,6 +2,6 @@ import { IsString, IsIn } from 'class-validator';
 
 export class UpdateApplicationStatusDto {
   @IsString()
-  @IsIn(['REVISANDO', 'APROBADA', 'RECHAZADA', 'SEGUIMIENTO', 'ADOPTADA', 'RETIRADA', 'DEVUELTA'])
+  @IsIn(['REVIEWING', 'APPROVED', 'REJECTED', 'FOLLOW_UP', 'ADOPTED', 'WITHDRAWN', 'RETURNED', 'IN_MEETING', 'IN_FOSTER', 'IN_REFLECTION', 'FINALIZED'])
   status: string;
 }

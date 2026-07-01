@@ -156,7 +156,7 @@ describe('ApplicationsService', () => {
       adoptionCategory: 'SALUDABLE_ADULTO',
     };
 
-    it('should create application with status ENVIADA and snapshot adopter info', async () => {
+    it('should create application with status SUBMITTED and snapshot adopter info', async () => {
       mockPublicPrisma.animal.findUnique.mockResolvedValue(availableAnimal);
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue(null);
       const created = {
@@ -164,7 +164,7 @@ describe('ApplicationsService', () => {
         animalId: 'animal-1',
         userId: 'user-1',
         organizationId: 'org-1',
-        status: 'ENVIADA',
+        status: 'SUBMITTED',
         adopterFirstName: 'Ana',
         adopterLastName: 'Garcia',
         adopterEmail: 'adopter@example.com',
@@ -173,7 +173,7 @@ describe('ApplicationsService', () => {
 
       const result = await service.create(dto, user);
 
-      expect(result.status).toBe('ENVIADA');
+      expect(result.status).toBe('SUBMITTED');
       expect(result.adopterFirstName).toBe('Ana');
       expect(result.adopterEmail).toBe('adopter@example.com');
       expect(mockPrismaRls.adoptionApplication.create).toHaveBeenCalledWith(
@@ -192,7 +192,7 @@ describe('ApplicationsService', () => {
       );
     });
 
-    it('should throw ConflictException if a non-RETIRADA application exists for same animalId+userId', async () => {
+    it('should throw ConflictException if a non-WITHDRAWN application exists for same animalId+userId', async () => {
       mockPublicPrisma.animal.findUnique.mockResolvedValue(availableAnimal);
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue({
         id: 'existing-app',
@@ -201,13 +201,13 @@ describe('ApplicationsService', () => {
       await expect(service.create(dto, user)).rejects.toThrow(ConflictException);
     });
 
-    it('should allow re-apply when the only existing application is RETIRADA (D-14)', async () => {
+    it('should allow re-apply when the only existing application is WITHDRAWN (D-14)', async () => {
       mockPublicPrisma.animal.findUnique.mockResolvedValue(availableAnimal);
-      // findFirst returns null because of the `status: { not: 'RETIRADA' }` filter
+      // findFirst returns null because of the `status: { not: 'WITHDRAWN' }` filter
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue(null);
       mockPrismaRls.adoptionApplication.create.mockResolvedValue({
         id: 'app-2',
-        status: 'ENVIADA',
+        status: 'SUBMITTED',
       });
 
       const result = await service.create(dto, user);
@@ -218,7 +218,7 @@ describe('ApplicationsService', () => {
           where: expect.objectContaining({
             animalId: 'animal-1',
             userId: 'user-1',
-            status: { not: 'RETIRADA' },
+            status: { not: 'WITHDRAWN' },
           }),
         }),
       );
@@ -238,7 +238,7 @@ describe('ApplicationsService', () => {
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue(null);
       mockPrismaRls.adoptionApplication.create.mockResolvedValue({
         id: 'app-1',
-        status: 'ENVIADA',
+        status: 'SUBMITTED',
       });
 
       await service.create(dto, user);
@@ -342,18 +342,18 @@ describe('ApplicationsService', () => {
       mockPrismaRls.adoptionApplication.findMany.mockResolvedValue([]);
       mockPrismaRls.adoptionApplication.count.mockResolvedValue(0);
 
-      await service.findAllByOrg({ page: 1, limit: 10, status: 'REVISANDO' });
+      await service.findAllByOrg({ page: 1, limit: 10, status: 'REVIEWING' });
 
       expect(mockPrismaRls.adoptionApplication.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ status: 'REVISANDO' }),
+          where: expect.objectContaining({ status: 'REVIEWING' }),
         }),
       );
     });
   });
 
   describe('checkExisting', () => {
-    it('should return { exists: true, applicationId } when non-RETIRADA application exists', async () => {
+    it('should return { exists: true, applicationId } when non-WITHDRAWN application exists', async () => {
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue({ id: 'app-1' });
 
       const result = await service.checkExisting('animal-1', 'user-1');
@@ -365,14 +365,14 @@ describe('ApplicationsService', () => {
           where: expect.objectContaining({
             animalId: 'animal-1',
             userId: 'user-1',
-            status: { not: 'RETIRADA' },
+            status: { not: 'WITHDRAWN' },
           }),
         }),
       );
     });
 
-    it('should return { exists: false } when only matching row is RETIRADA (D-18-BE)', async () => {
-      // findFirst with status filter returns null because the only match is RETIRADA
+    it('should return { exists: false } when only matching row is WITHDRAWN (D-18-BE)', async () => {
+      // findFirst with status filter returns null because the only match is WITHDRAWN
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue(null);
 
       const result = await service.checkExisting('animal-1', 'user-1');
@@ -392,12 +392,12 @@ describe('ApplicationsService', () => {
 
   describe('updateStatus', () => {
     const validTransitions = [
-      ['ENVIADA', 'REVISANDO'],
-      ['REVISANDO', 'APROBADA'],
-      ['REVISANDO', 'RECHAZADA'],
-      ['REVISANDO', 'SEGUIMIENTO'],
-      ['SEGUIMIENTO', 'APROBADA'],
-      ['APROBADA', 'ADOPTADA'],
+      ['SUBMITTED', 'REVIEWING'],
+      ['REVIEWING', 'APPROVED'],
+      ['REVIEWING', 'REJECTED'],
+      ['REVIEWING', 'FOLLOW_UP'],
+      ['FOLLOW_UP', 'APPROVED'],
+      ['APPROVED', 'ADOPTED'],
     ];
 
     for (const [from, to] of validTransitions) {
@@ -417,13 +417,13 @@ describe('ApplicationsService', () => {
       });
     }
 
-    it('should throw BadRequestException for invalid transition ENVIADA -> APROBADA', async () => {
+    it('should throw BadRequestException for invalid transition SUBMITTED -> APPROVED', async () => {
       mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
         id: 'app-1',
-        status: 'ENVIADA',
+        status: 'SUBMITTED',
       });
 
-      await expect(service.updateStatus('app-1', 'APROBADA', 'staff-1')).rejects.toThrow(
+      await expect(service.updateStatus('app-1', 'APPROVED', 'staff-1')).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -431,22 +431,22 @@ describe('ApplicationsService', () => {
     it('should call auditService.log on every status change', async () => {
       mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
         id: 'app-1',
-        status: 'ENVIADA',
+        status: 'SUBMITTED',
       });
       mockPrismaRls.adoptionApplication.update.mockResolvedValue({
         id: 'app-1',
-        status: 'REVISANDO',
+        status: 'REVIEWING',
       });
 
-      await service.updateStatus('app-1', 'REVISANDO', 'staff-1');
+      await service.updateStatus('app-1', 'REVIEWING', 'staff-1');
 
       expect(mockAuditService.log).toHaveBeenCalledWith(
         'application.status_change',
         'staff-1',
         expect.objectContaining({
           applicationId: 'app-1',
-          oldStatus: 'ENVIADA',
-          newStatus: 'REVISANDO',
+          oldStatus: 'SUBMITTED',
+          newStatus: 'REVIEWING',
         }),
       );
     });
@@ -454,11 +454,11 @@ describe('ApplicationsService', () => {
 
   describe('withdraw', () => {
     const nonWithdrawableStatuses = [
-      'APROBADA',
-      'SEGUIMIENTO',
-      'ADOPTADA',
-      'RECHAZADA',
-      'DEVUELTA',
+      'APPROVED',
+      'FOLLOW_UP',
+      'ADOPTED',
+      'REJECTED',
+      'RETURNED',
     ];
 
     for (const status of nonWithdrawableStatuses) {
@@ -477,14 +477,14 @@ describe('ApplicationsService', () => {
       mockPublicPrisma.adoptionApplication.findUnique.mockResolvedValue({
         id: 'app-1',
         userId: 'other-user',
-        status: 'ENVIADA',
+        status: 'SUBMITTED',
       });
 
       await expect(service.withdraw('app-1', 'user-1')).rejects.toThrow(ForbiddenException);
     });
 
-    for (const status of ['ENVIADA', 'REVISANDO']) {
-      it(`should set status to RETIRADA when current status is ${status}`, async () => {
+    for (const status of ['SUBMITTED', 'REVIEWING']) {
+      it(`should set status to WITHDRAWN when current status is ${status}`, async () => {
         mockPublicPrisma.adoptionApplication.findUnique.mockResolvedValue({
           id: 'app-1',
           userId: 'user-1',
@@ -492,12 +492,12 @@ describe('ApplicationsService', () => {
         });
         mockPublicPrisma.adoptionApplication.update.mockResolvedValue({
           id: 'app-1',
-          status: 'RETIRADA',
+          status: 'WITHDRAWN',
         });
 
         const result = await service.withdraw('app-1', 'user-1');
 
-        expect(result.status).toBe('RETIRADA');
+        expect(result.status).toBe('WITHDRAWN');
         expect(mockAuditService.log).toHaveBeenCalledWith(
           'application.withdraw',
           'user-1',

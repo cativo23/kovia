@@ -177,7 +177,7 @@ describe('ApplicationsService RLS integration', () => {
     // Seed application owned by adopter1 so list/detail tests have a target row.
     const app1 = await superClient.query(
       `INSERT INTO adoption_applications (id, "userId", "organizationId", "animalId", status, "submittedAt", "updatedAt")
-       VALUES (gen_random_uuid(), $1, $2, $3, 'ENVIADA', NOW(), NOW()) RETURNING id`,
+       VALUES (gen_random_uuid(), $1, $2, $3, 'SUBMITTED', NOW(), NOW()) RETURNING id`,
       [adopter1Id, orgId, animalId],
     );
     app1Id = app1.rows[0].id;
@@ -323,13 +323,13 @@ describe('ApplicationsService RLS integration', () => {
     expect(resubmitted.id).toBeDefined();
     expect(resubmitted.id).not.toBe(app1Id);
 
-    // Verify exactly two rows now, exactly one of which is non-RETIRADA.
+    // Verify exactly two rows now, exactly one of which is non-WITHDRAWN.
     const rows = await superClient.query(
       `SELECT status FROM adoption_applications WHERE "animalId" = $1 AND "userId" = $2`,
       [animalId, adopter1Id],
     );
     expect(rows.rows.length).toBe(2);
-    const activeRows = rows.rows.filter((r: any) => r.status !== 'RETIRADA');
+    const activeRows = rows.rows.filter((r: any) => r.status !== 'WITHDRAWN');
     expect(activeRows.length).toBe(1);
   });
 

@@ -4,7 +4,7 @@
  * Requirement lock: PROFILE-03
  *   - Migration from existing AdoptionApplication-embedded adopter data
  *     preserves historical applications without touching them.
- *   - Backfill script reads most-recent non-RETIRADA application per adopter,
+ *   - Backfill script reads most-recent non-WITHDRAWN application per adopter,
  *     extracts personalInfo/housing/lifestyle blobs, maps to AdopterProfile.
  *
  * Pitfall references (from 16-RESEARCH.md):
@@ -28,5 +28,5 @@ describe('backfill-adopter-profiles', () => {
 
   it.todo('[PROFILE-03] logs count of adopters with completionPct < 100 after backfill completes (supports ops support for partial-blob adopters)');
 
-  it.todo('[PROFILE-03] skips adopters without any non-RETIRADA application — those adopters receive no AdopterProfile row from the backfill');
+  it.todo('[PROFILE-03] skips adopters without any non-WITHDRAWN application — those adopters receive no AdopterProfile row from the backfill');
 });

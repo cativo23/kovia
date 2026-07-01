@@ -236,17 +236,17 @@ export class EventsService {
     const context = await this.fetchApplicationContext(applicationId);
     if (!context) return;
 
-    const template = NOTIFICATION_TEMPLATES.DEVUELTA;
+    const template = NOTIFICATION_TEMPLATES.RETURNED;
     const title = template.title;
     const body = template.bodyFn({ animalName: context.animalName });
 
     await this.emitAndEnqueue(
       context.adopterId,
-      NotificationType.DEVUELTA,
+      NotificationType.RETURNED,
       title,
       body,
       applicationId,
-      'application.devuelta',
+      'application.returned',
       {
         applicationId,
         adopterId: context.adopterId,

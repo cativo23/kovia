@@ -170,7 +170,7 @@ describe('TeamService', () => {
         id: 'app-1',
         userId: 'user-X',
         organizationId: 'org-1',
-        status: 'ENVIADA',
+        status: 'SUBMITTED',
       });
 
       await expect(

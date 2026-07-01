@@ -30,11 +30,11 @@ interface UserContext {
 }
 
 const staffTransitions: Record<string, string[]> = {
-  ENVIADA: ['REVISANDO'],
-  REVISANDO: ['APROBADA', 'RECHAZADA', 'SEGUIMIENTO'],
-  SEGUIMIENTO: ['APROBADA', 'RECHAZADA'],
-  APROBADA: ['ADOPTADA'],
-  ADOPTADA: ['DEVUELTA'],
+  SUBMITTED: ['REVIEWING'],
+  REVIEWING: ['APPROVED', 'REJECTED', 'FOLLOW_UP'],
+  FOLLOW_UP: ['APPROVED', 'REJECTED'],
+  APPROVED: ['ADOPTED'],
+  ADOPTED: ['RETURNED'],
 };
 
 @Injectable()
@@ -87,13 +87,13 @@ export class ApplicationsService {
       );
     }
 
-    // Step 2: Duplicate check — one active (non-RETIRADA) application per (animalId, userId).
+    // Step 2: Duplicate check — one active (non-WITHDRAWN) application per (animalId, userId).
     // Uses rlsBypassPrisma for consistency with other self-scoped adopter reads (D-19-BE).
     const existing = await this.rlsBypassPrisma.adoptionApplication.findFirst({
       where: {
         animalId: dto.animalId,
         userId: user.id,
-        status: { not: 'RETIRADA' },
+        status: { not: 'WITHDRAWN' },
       },
       select: { id: true },
     });
@@ -350,10 +350,10 @@ export class ApplicationsService {
   }
 
   async checkExisting(animalId: string, userId: string) {
-    // D-18-BE: RETIRADA rows must not block re-application (D-14).
+    // D-18-BE: WITHDRAWN rows must not block re-application (D-14).
     // Use rlsBypassPrisma for consistency with the other self-scoped adopter reads (D-19-BE).
     const application = await this.rlsBypassPrisma.adoptionApplication.findFirst({
-      where: { animalId, userId, status: { not: 'RETIRADA' } },
+      where: { animalId, userId, status: { not: 'WITHDRAWN' } },
       select: { id: true },
     });
 
@@ -404,8 +404,8 @@ export class ApplicationsService {
       newStatus,
     );
 
-    // DEVUELTA fires an additional specific event
-    if (newStatus === 'DEVUELTA') {
+    // RETURNED fires an additional specific event
+    if (newStatus === 'RETURNED') {
       await this.eventsService.emitApplicationDevuelta(id);
     }
 
@@ -427,16 +427,16 @@ export class ApplicationsService {
       throw new ForbiddenException('You can only withdraw your own applications');
     }
 
-    // D-17: Adopter may only withdraw from ENVIADA or REVISANDO. Any other status is a hard reject.
-    if (!['ENVIADA', 'REVISANDO'].includes(application.status)) {
+    // D-17: Adopter may only withdraw from SUBMITTED or REVIEWING. Any other status is a hard reject.
+    if (!['SUBMITTED', 'REVIEWING'].includes(application.status)) {
       throw new BadRequestException(
-        `No puedes retirar una solicitud en estado ${application.status}`,
+        `Cannot withdraw an application in status ${application.status}`,
       );
     }
 
     const updated = await this.rlsBypassPrisma.adoptionApplication.update({
       where: { id },
-      data: { status: 'RETIRADA' },
+      data: { status: 'WITHDRAWN' },
     });
 
     await this.auditService.log('application.withdraw', userId, {
