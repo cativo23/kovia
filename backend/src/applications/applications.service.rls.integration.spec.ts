@@ -239,14 +239,35 @@ describe('ApplicationsService RLS integration', () => {
 
   afterAll(async () => {
     if (superClient) {
-      // FK-safe order: webhook_outbox → notifications → photos → profile_photos → adopter_profiles → applications → animals (ALL for org) → species → org → users.
-      // Delete ALL webhook_outbox rows for co-aplicante events (some tests may leave orphans).
+      // FK-safe order: webhook_outbox → notifications → Phase17 rows → photos → profiles → applications → animals → species → org → users.
       await superClient.query(
         `DELETE FROM webhook_outbox WHERE "eventType" = 'co_aplicante.confirmation_requested'`,
       );
       await superClient.query(
         `DELETE FROM notifications WHERE "userId" IN ($1, $2)`,
         [adopter1Id, adopter2Id],
+      );
+      // Phase 17 child rows (FK → adoption_applications)
+      await superClient.query(
+        `DELETE FROM post_adoption_check_ins WHERE "applicationId" IN (
+           SELECT id FROM adoption_applications WHERE "userId" IN ($1, $2)
+             OR "animalId" IN (SELECT id FROM animals WHERE "organizationId" = $3)
+         )`,
+        [adopter1Id, adopter2Id, orgId],
+      );
+      await superClient.query(
+        `DELETE FROM encuentros WHERE "applicationId" IN (
+           SELECT id FROM adoption_applications WHERE "userId" IN ($1, $2)
+             OR "animalId" IN (SELECT id FROM animals WHERE "organizationId" = $3)
+         )`,
+        [adopter1Id, adopter2Id, orgId],
+      );
+      await superClient.query(
+        `DELETE FROM foster_periods WHERE "applicationId" IN (
+           SELECT id FROM adoption_applications WHERE "userId" IN ($1, $2)
+             OR "animalId" IN (SELECT id FROM animals WHERE "organizationId" = $3)
+         )`,
+        [adopter1Id, adopter2Id, orgId],
       );
       await superClient.query(
         `DELETE FROM application_photos WHERE "applicationId" IN (
@@ -259,8 +280,9 @@ describe('ApplicationsService RLS integration', () => {
         [adopter1Id, adopter2Id],
       );
       await superClient.query(
-        `DELETE FROM adoption_applications WHERE "userId" IN ($1, $2)`,
-        [adopter1Id, adopter2Id],
+        `DELETE FROM adoption_applications WHERE "userId" IN ($1, $2)
+           OR "animalId" IN (SELECT id FROM animals WHERE "organizationId" = $3)`,
+        [adopter1Id, adopter2Id, orgId],
       );
       // Delete ALL animals for the test org — individual tests may create extra animals.
       await superClient.query(`DELETE FROM animals WHERE "organizationId" = $1`, [orgId]);
