@@ -490,6 +490,71 @@ export class ApplicationsService {
       newStatus,
     });
 
+    // ── Phase 17 — Animal reservation lifecycle side-effects (D-19) ──────────
+    // Reserve at the earlier of IN_FOSTER or APPROVED (when !fosterRequired).
+    // Release on WITHDRAWN or REJECTED. Set ADOPTED at FINALIZED.
+    const animalId = application.animalId;
+
+    if (newStatus === 'IN_FOSTER') {
+      // Reserve animal while foster trial is in progress (D-19)
+      await this.rlsPrisma.animal.update({
+        where: { id: animalId },
+        data: { status: 'IN_PROCESS' },
+      });
+    } else if (newStatus === 'APPROVED' && !application.fosterRequired) {
+      // Direct approval path (no foster): reserve now (D-19)
+      await this.rlsPrisma.animal.update({
+        where: { id: animalId },
+        data: { status: 'IN_PROCESS' },
+      });
+    } else if (newStatus === 'WITHDRAWN' || newStatus === 'REJECTED') {
+      // Application ended without adoption — release animal (D-19)
+      await this.rlsBypassPrisma.animal.update({
+        where: { id: animalId },
+        data: { status: 'AVAILABLE' },
+      });
+    } else if (newStatus === 'FINALIZED') {
+      // Adoption committed — mark animal as ADOPTED (D-19)
+      await this.rlsPrisma.animal.update({
+        where: { id: animalId },
+        data: { status: 'ADOPTED' },
+      });
+
+      // D-13 (SAFEGUARD-04/05): Create DAY_14 and DAY_60 PostAdoptionCheckIn rows
+      const finalizedAt = new Date();
+      const day14 = new Date(finalizedAt.getTime() + 14 * 24 * 60 * 60 * 1000);
+      const day60 = new Date(finalizedAt.getTime() + 60 * 24 * 60 * 60 * 1000);
+      await this.rlsPrisma.postAdoptionCheckIn.createMany({
+        data: [
+          {
+            applicationId: id,
+            checkInType: 'DAY_14',
+            scheduledFor: day14,
+            status: 'PENDING',
+          },
+          {
+            applicationId: id,
+            checkInType: 'DAY_60',
+            scheduledFor: day60,
+            status: 'PENDING',
+          },
+        ],
+      });
+
+      // D-19 sibling auto-close: close other open applications for the same animal
+      // to WITHDRAWN (not REJECTED — A7 sin-estigma). Uses rlsBypassPrisma because
+      // sibling applications may belong to other tenants/adopters.
+      const terminalStatuses = ['WITHDRAWN', 'REJECTED', 'FINALIZED', 'ADOPTED', 'RETURNED'];
+      await this.rlsBypassPrisma.adoptionApplication.updateMany({
+        where: {
+          animalId,
+          id: { not: id },
+          status: { notIn: terminalStatuses },
+        },
+        data: { status: 'WITHDRAWN' },
+      });
+    }
+
     // Emit event: notification + webhook
     await this.eventsService.emitApplicationStatusChanged(
       id,
@@ -520,8 +585,9 @@ export class ApplicationsService {
       throw new ForbiddenException('You can only withdraw your own applications');
     }
 
-    // D-17: Adopter may only withdraw from SUBMITTED or REVIEWING. Any other status is a hard reject.
-    if (!['SUBMITTED', 'REVIEWING'].includes(application.status)) {
+    // D-04/D-17: Adopter may withdraw from SUBMITTED, REVIEWING, or IN_REFLECTION (self-service sin estigma).
+    // IN_REFLECTION was added in Phase 17 (D-04). Any other status is a hard reject.
+    if (!['SUBMITTED', 'REVIEWING', 'IN_REFLECTION'].includes(application.status)) {
       throw new BadRequestException(
         `Cannot withdraw an application in status ${application.status}`,
       );
@@ -531,6 +597,14 @@ export class ApplicationsService {
       where: { id },
       data: { status: 'WITHDRAWN' },
     });
+
+    // D-19: Release the animal back to AVAILABLE when the adopter withdraws.
+    if (application.animalId) {
+      await this.rlsBypassPrisma.animal.update({
+        where: { id: application.animalId },
+        data: { status: 'AVAILABLE' },
+      });
+    }
 
     await this.auditService.log('application.withdraw', userId, {
       applicationId: id,
