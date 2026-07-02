@@ -3,6 +3,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 
 // Mock external AWS deps (pulled in transitively via UploadService)
@@ -33,11 +34,24 @@ const mockPrismaRls = {
   applicationPhoto: {
     createMany: vi.fn(),
   },
+  encuentro: {
+    findFirst: vi.fn(),
+  },
+  fosterPeriod: {
+    findFirst: vi.fn(),
+  },
+  animal: {
+    update: vi.fn(),
+  },
+  postAdoptionCheckIn: {
+    createMany: vi.fn(),
+  },
 };
 
 const mockPublicPrisma = {
   animal: {
     findUnique: vi.fn(),
+    update: vi.fn(),
   },
   adoptionApplication: {
     create: vi.fn(),
@@ -46,6 +60,7 @@ const mockPublicPrisma = {
     findMany: vi.fn(),
     count: vi.fn(),
     update: vi.fn(),
+    updateMany: vi.fn(),
   },
   applicationPhoto: {
     createMany: vi.fn(),
@@ -130,6 +145,22 @@ describe('ApplicationsService', () => {
       mockExtrasTemplateService as any,
       mockConfigService as any,
     );
+
+    // Default mocks for Phase 17 gates — set to pass so existing tests are unaffected.
+    // Individual gate tests override these to test failure paths.
+    mockPrismaRls.encuentro.findFirst.mockResolvedValue({
+      id: 'enc-1',
+      completedAt: new Date(),
+      recomendacion: 'PROCEED',
+    });
+    mockPrismaRls.fosterPeriod.findFirst.mockResolvedValue({
+      id: 'fp-1',
+      outcome: 'PROCEED',
+    });
+    mockPrismaRls.animal.update.mockResolvedValue({ id: 'animal-1', status: 'IN_PROCESS' });
+    mockPublicPrisma.animal.update.mockResolvedValue({ id: 'animal-1', status: 'AVAILABLE' });
+    mockPublicPrisma.adoptionApplication.updateMany.mockResolvedValue({ count: 0 });
+    mockPrismaRls.postAdoptionCheckIn.createMany.mockResolvedValue({ count: 2 });
   });
 
   describe('create', () => {
@@ -518,45 +549,45 @@ describe('ApplicationsService', () => {
     }
   });
 
-  // ─── Phase 17 — 48h reflexión gate skeletons (Plan 04 un-skips) ─────────────
+  // ─── Phase 17 — 48h reflexión gate (SAFEGUARD-02) ───────────────────────────
   //
-  // These skeleton describe.skip blocks are Wave 0 scaffolds (per SAFEGUARD-02).
-  // English enum literals (SUBMITTED/REVIEWING/APPROVED/IN_REFLECTION/FINALIZED)
-  // per D-02. Plan 04 un-skips the block and fills real assertions.
+  // Pure timestamp comparison — no DB involvement; full integration coverage
+  // lives in the RLS integration spec (Task 3). These unit tests verify the
+  // guard logic in isolation via mocked rlsPrisma.
 
-  describe.skip('Phase 17 — 48h reflexión gate (Plan 04 un-skips)', () => {
+  describe('Phase 17 — 48h reflexión gate (SAFEGUARD-02)', () => {
     it('[SAFEGUARD-02] FINALIZED blocked before approvedAt + 48h (pure timestamp comparison)', async () => {
-      // Setup: application status=IN_REFLECTION, approvedAt=now (gate not elapsed).
-      // Expectation: service.finalize() throws UnprocessableEntityException.
+      // approvedAt = now → gate has NOT elapsed → expect 422
       const now = new Date();
       mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
         id: 'app-1',
         status: 'IN_REFLECTION',
-        approvedAt: now, // gate: now + 48h has NOT elapsed
+        approvedAt: now,
+        fosterRequired: false,
       });
 
-      // TODO(plan 04): call service.finalize() (or updateStatus to FINALIZED) and
-      // assert it throws UnprocessableEntityException.
-      expect(true).toBe(false); // stub — Plan 04 replaces with real call
+      await expect(
+        service.updateStatus('app-1', 'FINALIZED', 'staff-1'),
+      ).rejects.toThrow(UnprocessableEntityException);
     });
 
     it('[SAFEGUARD-02] FINALIZED allowed after approvedAt + 48h (pure timestamp comparison)', async () => {
-      // Setup: application status=IN_REFLECTION, approvedAt=3 days ago.
-      // Expectation: finalize succeeds and returns a FINALIZED application.
+      // approvedAt = 3 days ago → gate has elapsed → expect success
       const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
       mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
         id: 'app-1',
         status: 'IN_REFLECTION',
-        approvedAt: threeDaysAgo, // gate: 48h has elapsed
+        approvedAt: threeDaysAgo,
+        fosterRequired: false,
+        animalId: 'animal-1',
       });
       mockPrismaRls.adoptionApplication.update.mockResolvedValue({
         id: 'app-1',
         status: 'FINALIZED',
       });
 
-      // TODO(plan 04): call service.finalize() / updateStatus('FINALIZED') and
-      // assert result.status === 'FINALIZED'.
-      expect(true).toBe(false); // stub — Plan 04 replaces with real call
+      const result = await service.updateStatus('app-1', 'FINALIZED', 'staff-1');
+      expect(result.status).toBe('FINALIZED');
     });
   });
 
