@@ -557,6 +557,112 @@ describe('ApplicationsService', () => {
     }
   });
 
+  // ─── Phase 17 — reservation lifecycle, check-in rows, extended withdraw ─────
+
+  describe('Phase 17 — reservation lifecycle (D-19)', () => {
+    it('[D-19] IN_FOSTER transition reserves animal to IN_PROCESS', async () => {
+      mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
+        id: 'app-1',
+        status: 'IN_MEETING',
+        animalId: 'animal-1',
+        fosterRequired: false,
+      });
+      mockPrismaRls.adoptionApplication.update.mockResolvedValue({
+        id: 'app-1',
+        status: 'IN_FOSTER',
+      });
+
+      await service.updateStatus('app-1', 'IN_FOSTER', 'staff-1');
+
+      expect(mockPrismaRls.animal.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'animal-1' },
+          data: { status: 'IN_PROCESS' },
+        }),
+      );
+    });
+
+    it('[D-19] WITHDRAWN transition releases animal to AVAILABLE', async () => {
+      mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
+        id: 'app-1',
+        status: 'IN_REFLECTION',
+        animalId: 'animal-1',
+        fosterRequired: false,
+        approvedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      });
+      mockPrismaRls.adoptionApplication.update.mockResolvedValue({
+        id: 'app-1',
+        status: 'WITHDRAWN',
+      });
+
+      await service.updateStatus('app-1', 'WITHDRAWN', 'staff-1');
+
+      expect(mockPublicPrisma.animal.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'animal-1' },
+          data: { status: 'AVAILABLE' },
+        }),
+      );
+    });
+
+    it('[D-19] FINALIZED sets animal to ADOPTED and creates check-in rows', async () => {
+      const approvedAt = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+      mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
+        id: 'app-1',
+        status: 'IN_REFLECTION',
+        animalId: 'animal-1',
+        fosterRequired: false,
+        approvedAt,
+      });
+      mockPrismaRls.adoptionApplication.update.mockResolvedValue({
+        id: 'app-1',
+        status: 'FINALIZED',
+      });
+
+      await service.updateStatus('app-1', 'FINALIZED', 'staff-1');
+
+      expect(mockPrismaRls.animal.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'animal-1' },
+          data: { status: 'ADOPTED' },
+        }),
+      );
+      expect(mockPrismaRls.postAdoptionCheckIn.createMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.arrayContaining([
+            expect.objectContaining({ checkInType: 'DAY_14', status: 'PENDING' }),
+            expect.objectContaining({ checkInType: 'DAY_60', status: 'PENDING' }),
+          ]),
+        }),
+      );
+    });
+  });
+
+  describe('Phase 17 — extended self-service withdraw (D-04)', () => {
+    it('[D-04] withdraw allowed from IN_REFLECTION → WITHDRAWN', async () => {
+      mockPublicPrisma.adoptionApplication.findUnique.mockResolvedValue({
+        id: 'app-1',
+        userId: 'user-1',
+        status: 'IN_REFLECTION',
+        animalId: 'animal-1',
+      });
+      mockPublicPrisma.adoptionApplication.update.mockResolvedValue({
+        id: 'app-1',
+        status: 'WITHDRAWN',
+      });
+
+      const result = await service.withdraw('app-1', 'user-1');
+
+      expect(result.status).toBe('WITHDRAWN');
+      expect(mockPublicPrisma.animal.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'animal-1' },
+          data: { status: 'AVAILABLE' },
+        }),
+      );
+    });
+  });
+
   // ─── Phase 17 — 48h reflexión gate (SAFEGUARD-02) ───────────────────────────
   //
   // Pure timestamp comparison — no DB involvement; full integration coverage
