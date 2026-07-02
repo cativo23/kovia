@@ -28,6 +28,7 @@ import { TeamModule } from './team/team.module';
 import { AdopterProfileModule } from './adopter-profile/adopter-profile.module';
 import { ExtrasTemplateModule } from './extras-template/extras-template.module';
 import { CoAplicanteModule } from './co-aplicante/co-aplicante.module';
+import { EncuentroModule } from './encuentro/encuentro.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { CoAplicanteModule } from './co-aplicante/co-aplicante.module';
     AdopterProfileModule,
     ExtrasTemplateModule,
     CoAplicanteModule,
+    EncuentroModule,
   ],
   controllers: [AppController],
   providers: [
