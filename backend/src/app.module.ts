@@ -29,6 +29,7 @@ import { AdopterProfileModule } from './adopter-profile/adopter-profile.module';
 import { ExtrasTemplateModule } from './extras-template/extras-template.module';
 import { CoAplicanteModule } from './co-aplicante/co-aplicante.module';
 import { EncuentroModule } from './encuentro/encuentro.module';
+import { FosterModule } from './foster/foster.module';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { EncuentroModule } from './encuentro/encuentro.module';
     ExtrasTemplateModule,
     CoAplicanteModule,
     EncuentroModule,
+    FosterModule,
   ],
   controllers: [AppController],
   providers: [
