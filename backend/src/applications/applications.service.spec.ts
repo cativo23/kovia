@@ -443,9 +443,17 @@ describe('ApplicationsService', () => {
 
     for (const [from, to] of validTransitions) {
       it(`should allow transition ${from} -> ${to}`, async () => {
+        // For FINALIZED, approvedAt must be > 48h ago (D-03 gate)
+        const approvedAt =
+          to === 'FINALIZED'
+            ? new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+            : undefined;
         mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
           id: 'app-1',
           status: from,
+          fosterRequired: false,
+          animalId: 'animal-1',
+          ...(approvedAt ? { approvedAt } : {}),
         });
         mockPrismaRls.adoptionApplication.update.mockResolvedValue({
           id: 'app-1',

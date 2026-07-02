@@ -377,6 +377,82 @@ export class ApplicationsService {
     return this.auditService.findByApplication(applicationId);
   }
 
+  /**
+   * validateTransitionPreconditions — gate guard for critical transitions.
+   *
+   * D-06 (SAFEGUARD-01): APPROVED requires a completed Encuentro (completedAt not null + recomendacion set).
+   * D-10 (SAFEGUARD-03): APPROVED requires a FosterPeriod with outcome=PROCEED when fosterRequired=true.
+   * D-03 (SAFEGUARD-02): FINALIZED (from IN_REFLECTION) requires approvedAt + 48h elapsed.
+   *
+   * Each gate rejection is audit-logged for observability.
+   */
+  private async validateTransitionPreconditions(
+    application: any,
+    newStatus: string,
+    userId: string,
+  ): Promise<void> {
+    if (newStatus === 'APPROVED') {
+      // D-06 gate: completed Encuentro with observations required
+      const encuentro = await this.rlsPrisma.encuentro.findFirst({
+        where: {
+          applicationId: application.id,
+          completedAt: { not: null },
+          recomendacion: { not: null },
+        },
+      });
+      if (!encuentro) {
+        await this.auditService.log('application.gate_rejection', userId, {
+          applicationId: application.id,
+          gate: 'D-06',
+          reason: 'No completed Encuentro with observations',
+        });
+        throw new UnprocessableEntityException(
+          'Application cannot be approved without a completed Encuentro with observations logged (D-06)',
+        );
+      }
+
+      // D-10 gate: if fosterRequired=true, a FosterPeriod with outcome=PROCEED is required
+      if (application.fosterRequired) {
+        const fosterPeriod = await this.rlsPrisma.fosterPeriod.findFirst({
+          where: {
+            applicationId: application.id,
+            outcome: 'PROCEED',
+          },
+        });
+        if (!fosterPeriod) {
+          await this.auditService.log('application.gate_rejection', userId, {
+            applicationId: application.id,
+            gate: 'D-10',
+            reason: 'fosterRequired=true but no FosterPeriod outcome=PROCEED',
+          });
+          throw new UnprocessableEntityException(
+            'Application cannot be approved: a completed Foster Period with outcome PROCEED is required (D-10)',
+          );
+        }
+      }
+    }
+
+    if (newStatus === 'FINALIZED') {
+      // D-03 gate: 48h reflexión window must have elapsed since approvedAt
+      // approvedAt is set when entering APPROVED (see updateStatus below, Pitfall 6).
+      const REFLEXION_MS = 48 * 60 * 60 * 1000;
+      if (
+        !application.approvedAt ||
+        Date.now() < new Date(application.approvedAt).getTime() + REFLEXION_MS
+      ) {
+        await this.auditService.log('application.gate_rejection', userId, {
+          applicationId: application.id,
+          gate: 'D-03',
+          reason: '48h reflexión window has not elapsed',
+          approvedAt: application.approvedAt,
+        });
+        throw new UnprocessableEntityException(
+          'Application cannot be finalized: 48-hour reflexión period has not elapsed (D-03)',
+        );
+      }
+    }
+  }
+
   async updateStatus(id: string, newStatus: string, userId: string) {
     const application = await this.rlsPrisma.adoptionApplication.findUnique({
       where: { id },
@@ -393,9 +469,19 @@ export class ApplicationsService {
       );
     }
 
+    // Phase 17 gate guard (D-03, D-06, D-10)
+    await this.validateTransitionPreconditions(application, newStatus, userId);
+
+    // Stamp approvedAt on APPROVED entry (Pitfall 6: set on APPROVED, not IN_REFLECTION).
+    // This drives the 48h reflexión gate (D-03) — do NOT move this to IN_REFLECTION.
+    const extraData: Record<string, any> = {};
+    if (newStatus === 'APPROVED') {
+      extraData.approvedAt = new Date();
+    }
+
     const updated = await this.rlsPrisma.adoptionApplication.update({
       where: { id },
-      data: { status: newStatus },
+      data: { status: newStatus, ...extraData },
     });
 
     await this.auditService.log('application.status_change', userId, {
