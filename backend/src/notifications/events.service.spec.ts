@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { EventsService } from './events.service';
 import { NotificationType } from '../generated/prisma/client';
+import { CoAplicanteConfirmationMail } from '../mail/mailables/co-aplicante-confirmation.mail';
 
 const mockPrisma = {
   $transaction: vi.fn(async (args) => {
@@ -75,7 +76,7 @@ describe('EventsService', () => {
 
   describe('emitApplicationStatusChanged', () => {
     it('creates notification with status info', async () => {
-      await service.emitApplicationStatusChanged('app-1', 'ENVIADA', 'APROBADA');
+      await service.emitApplicationStatusChanged('app-1', 'SUBMITTED', 'APPROVED');
 
       expect(mockPrisma.notification.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -85,8 +86,8 @@ describe('EventsService', () => {
       expect(mockWebhookService.enqueue).toHaveBeenCalledWith(
         'application.status_changed',
         expect.objectContaining({
-          status: 'APROBADA',
-          previousStatus: 'ENVIADA',
+          status: 'APPROVED',
+          previousStatus: 'SUBMITTED',
         }),
       );
     });
@@ -142,11 +143,11 @@ describe('EventsService', () => {
 
       expect(mockPrisma.notification.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          type: NotificationType.DEVUELTA,
+          type: NotificationType.RETURNED,
         }),
       });
       expect(mockWebhookService.enqueue).toHaveBeenCalledWith(
-        'application.devuelta',
+        'application.returned',
         expect.any(Object),
       );
     });
@@ -159,6 +160,56 @@ describe('EventsService', () => {
       // emitApplicationSubmitted will silently return
       await service.emitApplicationSubmitted('nonexistent');
 
+      expect(mockPrisma.notification.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('emitCoAplicanteConfirmationRequested', () => {
+    const coAplicantePayload = {
+      coAplicanteNombre: 'María García',
+      coAplicanteEmail: 'maria@example.com',
+      coAplicantePhone: '+50312345678',
+      confirmationUrl: 'https://kovia.app/confirmar-coapplicante/some-uuid',
+      expiresAt: new Date('2026-07-01T00:00:00Z'),
+      animalName: 'Firulais',
+      adopterFirstName: 'Juan',
+    };
+
+    it('[APPLY-06] emitCoAplicanteConfirmationRequested calls webhookService.enqueue with co_aplicante.confirmation_requested eventType', async () => {
+      mockWebhookService.enqueue.mockResolvedValue(undefined);
+
+      await service.emitCoAplicanteConfirmationRequested('app-co-1', coAplicantePayload);
+
+      expect(mockWebhookService.enqueue).toHaveBeenCalledOnce();
+      expect(mockWebhookService.enqueue).toHaveBeenCalledWith(
+        'co_aplicante.confirmation_requested',
+        expect.objectContaining({
+          applicationId: 'app-co-1',
+          coAplicanteNombre: 'María García',
+          coAplicanteEmail: 'maria@example.com',
+          confirmationUrl: 'https://kovia.app/confirmar-coapplicante/some-uuid',
+        }),
+      );
+    });
+
+    it('[APPLY-06] emitCoAplicanteConfirmationRequested calls mailDispatcher.send with CoAplicanteConfirmationMail to coAplicanteEmail', async () => {
+      mockWebhookService.enqueue.mockResolvedValue(undefined);
+
+      await service.emitCoAplicanteConfirmationRequested('app-co-1', coAplicantePayload);
+
+      expect(mockMailDispatcher.send).toHaveBeenCalledOnce();
+      const sentMail = mockMailDispatcher.send.mock.calls[0][0];
+      expect(sentMail).toBeInstanceOf(CoAplicanteConfirmationMail);
+      expect(sentMail.to).toBe('maria@example.com');
+    });
+
+    it('[APPLY-06] emitCoAplicanteConfirmationRequested does NOT call emitAndEnqueue helper (no notification row for co-aplicante)', async () => {
+      mockWebhookService.enqueue.mockResolvedValue(undefined);
+
+      await service.emitCoAplicanteConfirmationRequested('app-co-1', coAplicantePayload);
+
+      // emitAndEnqueue always creates a notification row via prisma.notification.create —
+      // asserting it was never called proves no notification row was created for the co-aplicante.
       expect(mockPrisma.notification.create).not.toHaveBeenCalled();
     });
   });

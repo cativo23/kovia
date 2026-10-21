@@ -9,10 +9,11 @@
     <div class="flex gap-3 mb-4">
       <UInput
         v-model="searchQuery"
-        icon="i-lucide-search"
+       
         :placeholder="$t('admin.users.searchPlaceholder')"
-        class="w-64"
-      />
+        class="w-64">
+          <template #leading><KIcon name="search" /></template>
+        </UInput>
       <USelectMenu
         v-model="roleFilter"
         :items="roleOptions"
@@ -23,7 +24,7 @@
 
     <UCard>
       <div v-if="loading" class="flex justify-center py-8">
-        <UIcon name="i-lucide-loader-2" class="w-6 h-6 animate-spin" />
+        <KIcon name="loader-2" :size="24" class="animate-spin" />
       </div>
       <UTable v-else :data="filteredUsers" :columns="columns">
         <template #role-cell="{ row }">
@@ -63,9 +64,10 @@
               size="xs"
               variant="outline"
               color="error"
-              icon="i-lucide-trash-2"
-              @click="confirmDelete(row.original)"
-            />
+             
+              @click="confirmDelete(row.original)">
+          <template #leading><KIcon name="trash-2" /></template>
+        </UButton>
           </div>
         </template>
       </UTable>
@@ -82,7 +84,7 @@
         <h3 class="font-semibold text-error">{{ $t('admin.users.deleteTitle') }}</h3>
       </template>
       <template #body>
-        <p class="text-gray-600 dark:text-gray-300">
+        <p class="text-[var(--color-text)]/70">
           {{ $t('admin.users.deleteWarning', { email: pendingDeleteUser?.email }) }}
         </p>
         <p class="mt-2 text-sm text-error font-medium">
@@ -135,19 +137,8 @@ const roleOptions = [
 ]
 
 const filteredUsers = computed(() => {
-  let result = users.value
-  if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase()
-    result = result.filter(u =>
-      u.email.toLowerCase().includes(q)
-      || (u.firstName || '').toLowerCase().includes(q)
-      || (u.lastName || '').toLowerCase().includes(q),
-    )
-  }
-  if (roleFilter.value) {
-    result = result.filter(u => u.role === roleFilter.value)
-  }
-  return result
+  if (!roleFilter.value) return users.value
+  return users.value.filter(u => u.role === roleFilter.value)
 })
 
 const columns = [
@@ -188,7 +179,14 @@ function formatDate(dateStr: string) {
 async function loadUsers() {
   loading.value = true
   try {
-    const result = await get<{ data: any[]; total: number }>(`/admin/users?page=${currentPage.value}&limit=${limit}`)
+    const params = new URLSearchParams({
+      page: String(currentPage.value),
+      limit: String(limit),
+    })
+    if (searchQuery.value) {
+      params.set('search', searchQuery.value)
+    }
+    const result = await get<{ data: any[]; total: number }>(`/admin/users?${params.toString()}`)
     users.value = result.data
     total.value = result.total
   } catch {
@@ -230,6 +228,16 @@ async function executeDelete() {
     deleting.value = false
   }
 }
+
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
+watch(searchQuery, () => {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+  searchDebounceTimer = setTimeout(() => {
+    currentPage.value = 1
+    loadUsers()
+  }, 300)
+})
 
 watch(currentPage, () => loadUsers())
 

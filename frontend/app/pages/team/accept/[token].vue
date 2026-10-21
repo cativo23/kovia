@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
+  <div class="min-h-screen flex flex-col items-center justify-center bg-[var(--color-bg-secondary)] px-4">
     <div class="mb-8">
       <NuxtLink to="/" class="text-3xl font-bold text-primary">
         Kovia
@@ -10,7 +10,7 @@
       <!-- Loading -->
       <UCard v-if="loading">
         <div class="flex flex-col items-center py-8">
-          <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary mb-4" />
+          <KIcon name="loader-2" :size="32" class="animate-spin text-primary mb-4" />
           <p class="text-sm text-gray-500">{{ t('invite.validating') }}</p>
         </div>
       </UCard>
@@ -18,7 +18,7 @@
       <!-- Expired -->
       <UCard v-else-if="expired">
         <div class="text-center py-6">
-          <UIcon name="i-lucide-clock" class="w-12 h-12 text-error mx-auto mb-4" />
+          <KIcon name="clock" :size="48" class="text-error mx-auto mb-4" />
           <h2 class="text-xl font-bold mb-2">{{ t('teamInvite.expired') }}</h2>
           <p class="text-sm text-gray-500">{{ t('teamInvite.expiredDescription') }}</p>
         </div>
@@ -27,7 +27,7 @@
       <!-- Invalid -->
       <UCard v-else-if="invalid">
         <div class="text-center py-6">
-          <UIcon name="i-lucide-x-circle" class="w-12 h-12 text-error mx-auto mb-4" />
+          <KIcon name="x-circle" :size="48" class="text-error mx-auto mb-4" />
           <h2 class="text-xl font-bold mb-2">{{ t('teamInvite.invalid') }}</h2>
           <p class="text-sm text-gray-500">{{ t('teamInvite.invalidDescription') }}</p>
         </div>
@@ -36,7 +36,7 @@
       <!-- Valid invite -->
       <UCard v-else-if="invite">
         <div class="text-center mb-6">
-          <UIcon name="i-lucide-party-popper" class="w-12 h-12 text-primary mx-auto mb-4" />
+          <KIcon name="party-popper" :size="48" class="text-primary mx-auto mb-4" />
           <h2 class="text-xl font-bold">{{ t('teamInvite.heading') }}</h2>
           <p class="text-sm text-gray-500 mt-2">
             {{ t('teamInvite.description', { role: roleLabel, orgName: invite.orgName }) }}
@@ -47,7 +47,7 @@
           <UInput
             :model-value="invite.email"
             disabled
-            class="bg-gray-50 dark:bg-gray-900"
+            class="bg-[var(--color-bg-secondary)]"
           />
         </UFormField>
 
@@ -85,10 +85,11 @@
           <UButton
             block
             variant="outline"
-            icon="i-simple-icons-google"
+           
             :label="t('auth.googleLogin')"
-            @click="continueWithGoogle"
-          />
+            @click="continueWithGoogle">
+          <template #leading><UIcon name="i-simple-icons-google" /></template>
+        </UButton>
         </div>
       </UCard>
     </div>

@@ -35,8 +35,8 @@ export class AdoptersService {
     // Compute summary totals
     const summary = {
       totalApplications: allApplications.length,
-      adopted: allApplications.filter((a: any) => a.status === 'ADOPTADA').length,
-      returned: allApplications.filter((a: any) => a.status === 'DEVUELTA').length,
+      adopted: allApplications.filter((a: any) => a.status === 'ADOPTED').length,
+      returned: allApplications.filter((a: any) => a.status === 'RETURNED').length,
     };
 
     // Project applications: full data for current org, summaries for other orgs (per D-21)
@@ -83,8 +83,8 @@ export class AdoptersService {
     // Counts across ALL orgs using superuser connection (D-21 global history)
     const [totalApplications, adopted, returned] = await Promise.all([
       this.prismaPublic.adoptionApplication.count({ where: { userId } }),
-      this.prismaPublic.adoptionApplication.count({ where: { userId, status: 'ADOPTADA' } }),
-      this.prismaPublic.adoptionApplication.count({ where: { userId, status: 'DEVUELTA' } }),
+      this.prismaPublic.adoptionApplication.count({ where: { userId, status: 'ADOPTED' } }),
+      this.prismaPublic.adoptionApplication.count({ where: { userId, status: 'RETURNED' } }),
     ]);
 
     return { totalApplications, adopted, returned };

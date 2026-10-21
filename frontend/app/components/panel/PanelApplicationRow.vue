@@ -6,38 +6,37 @@
     <UCard class="hover:shadow-md transition-shadow">
       <div class="flex items-center gap-4">
         <!-- Animal thumbnail -->
-        <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
+        <div class="w-12 h-12 rounded-lg overflow-hidden bg-[var(--color-border)]/40 flex-shrink-0">
           <img
             v-if="app.animal?.coverPhoto?.url"
             :src="app.animal.coverPhoto.url"
             :alt="app.animal?.name || ''"
             class="w-full h-full object-cover"
           />
-          <UIcon
+          <KIcon
             v-else
-            name="i-lucide-paw-print"
-            class="w-6 h-6 text-gray-400 m-auto mt-3"
-            aria-hidden="true"
+            name="paw-print"
+            :size="24"
+            class="text-gray-400 m-auto mt-3"
           />
         </div>
 
         <!-- Info column -->
         <div class="flex-1 min-w-0">
-          <p class="font-medium text-gray-900 dark:text-white truncate">
+          <p class="font-medium text-[var(--color-text)] truncate">
             {{ app.animal?.name || '—' }}
           </p>
-          <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          <div class="flex items-center gap-2 text-xs text-[var(--color-text)]/70 mt-0.5">
             <UAvatar
               v-if="app.animal?.organization?.logoUrl"
               :src="app.animal.organization.logoUrl"
               size="2xs"
               :alt="app.animal.organization.name"
             />
-            <UIcon
+            <KIcon
               v-else
-              name="i-lucide-building-2"
-              class="w-3 h-3"
-              aria-hidden="true"
+              name="building-2"
+              :size="12"
             />
             <span class="truncate">{{ app.animal?.organization?.name || '—' }}</span>
           </div>

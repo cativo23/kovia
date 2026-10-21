@@ -1,9 +1,9 @@
 <template>
   <div v-if="registered" class="text-center space-y-4">
-    <UIcon name="i-lucide-mail-check" class="w-16 h-16 text-primary mx-auto" />
+    <KIcon name="mail-check" :size="64" class="text-primary mx-auto" />
     <h2 class="text-xl font-semibold">{{ $t('auth.checkEmail') }}</h2>
-    <p class="text-gray-600 dark:text-gray-400">{{ $t('auth.checkEmailDescription') }}</p>
-    <p class="text-xs text-gray-400 dark:text-gray-500">{{ $t('auth.checkEmailDevHint') }}</p>
+    <p class="text-[var(--color-text)]/70">{{ $t('auth.checkEmailDescription') }}</p>
+    <p class="text-xs text-[var(--color-text-muted)]">{{ $t('auth.checkEmailDevHint') }}</p>
     <UButton variant="outline" :to="route.query.redirect ? `/login?redirect=${route.query.redirect}` : '/login'" :label="$t('auth.goToLogin')" />
   </div>
 

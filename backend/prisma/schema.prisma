@@ -1,6 +1,12 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  // Force the TS generator to emit `.js` extensions in import statements.
+  // With NodeNext moduleResolution Prisma defaults to `.ts` literals, which
+  // SWC keeps verbatim when compiling to CommonJS — producing
+  // require("./internal/class.ts") that Node can't resolve at runtime.
+  // See: https://github.com/prisma/prisma/issues/25833
+  importFileExtension = "js"
 }
 
 datasource db {
@@ -46,14 +52,20 @@ enum AnimalStatus {
 }
 
 enum ApplicationStatus {
-  ENVIADA
-  REVISANDO
-  APROBADA
-  RECHAZADA
-  SEGUIMIENTO
-  ADOPTADA
-  RETIRADA
-  DEVUELTA
+  SUBMITTED
+  REVIEWING
+  APPROVED
+  REJECTED
+  FOLLOW_UP
+  // ADOPTED retained as legacy-only terminal state (pre-v3.0 rows); new flow writes FINALIZED
+  ADOPTED
+  WITHDRAWN
+  RETURNED
+  // New Phase 17 lifecycle states (D-01)
+  IN_MEETING
+  IN_FOSTER
+  IN_REFLECTION
+  FINALIZED
 }
 
 enum NotificationType {
@@ -62,31 +74,68 @@ enum NotificationType {
   NOTE_ADDED
   SCORED
   WITHDRAWN
-  DEVUELTA
+  RETURNED
+  ENCUENTRO_SCHEDULED
+  REFLEXION_STARTED
+  FINALIZED
+  CHECK_IN_DELIVERED
+}
+
+enum EncuentroRecomendacion {
+  PROCEED
+  REQUIRES_FOSTER
+  DO_NOT_PROCEED
+}
+
+enum FosterOutcome {
+  PROCEED
+  REJECTED
+}
+
+enum CheckInType {
+  DAY_14
+  DAY_60
+}
+
+enum CheckInStatus {
+  PENDING
+  DISPATCHED
+  COMPLETED
+  SKIPPED
+}
+
+enum AdoptionCategory {
+  SALUDABLE_ADULTO
+  SENIOR
+  MEDICO_CRONICO
+  REACTIVO
+  ESPECIAL
 }
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
+  id            String   @id @default(uuid())
+  email         String   @unique
   passwordHash  String?
-  role          UserRole  @default(ADOPTER)
-  emailVerified Boolean   @default(false)
-  googleId      String?   @unique
+  role          UserRole @default(ADOPTER)
+  emailVerified Boolean  @default(false)
+  googleId      String?  @unique
   firstName     String?
   lastName      String?
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  orgId         String?
-  org           Organization? @relation("OrgMembers", fields: [orgId], references: [id], onDelete: SetNull)
+  orgId String?
+  org   Organization? @relation("OrgMembers", fields: [orgId], references: [id], onDelete: SetNull)
 
   refreshTokens   RefreshToken[]
-  organization    Organization? @relation("OrgAdmin")
+  organization    Organization?           @relation("OrgAdmin")
   auditLogs       AuditLog[]
   applications    AdoptionApplication[]
-  authoredNotes   ApplicationNote[] @relation("NoteAuthor")
-  sentTeamInvites TeamInvite[]      @relation("InvitedBy")
+  authoredNotes   ApplicationNote[]       @relation("NoteAuthor")
+  sentTeamInvites TeamInvite[]            @relation("InvitedBy")
+  acknowledgments DossierAcknowledgment[]
+  adopterProfile  AdopterProfile?
 
   @@index([orgId])
   @@map("users")
@@ -117,13 +166,16 @@ model Organization {
   status       OrgStatus @default(ACTIVE)
   adminId      String    @unique
   admin        User      @relation("OrgAdmin", fields: [adminId], references: [id])
+  verifiedAt   DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  animals      Animal[]
-  members      User[]       @relation("OrgMembers")
-  teamInvites  TeamInvite[]
-  applications AdoptionApplication[]
+  animals          Animal[]
+  members          User[]                @relation("OrgMembers")
+  teamInvites      TeamInvite[]
+  applications     AdoptionApplication[]
+  adoptionStories  AdoptionStory[]
+  extrasTemplates  ExtrasTemplate[]
 
   @@map("organizations")
 }
@@ -141,17 +193,17 @@ model OrgInvite {
 }
 
 model TeamInvite {
-  id           String       @id @default(uuid())
-  orgId        String
-  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  email        String
-  role         UserRole
-  token        String       @unique
-  invitedById  String
-  invitedBy    User         @relation("InvitedBy", fields: [invitedById], references: [id])
-  expiresAt    DateTime
-  acceptedAt   DateTime?
-  createdAt    DateTime     @default(now())
+  id          String       @id @default(uuid())
+  orgId       String
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  email       String
+  role        UserRole
+  token       String       @unique
+  invitedById String
+  invitedBy   User         @relation("InvitedBy", fields: [invitedById], references: [id])
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime     @default(now())
 
   @@index([orgId, email])
   @@index([email])
@@ -187,15 +239,29 @@ model Animal {
   vaccinated        Boolean      @default(false)
   sterilized        Boolean      @default(false)
   trained           Boolean      @default(false)
-  status            AnimalStatus @default(AVAILABLE)
-  organizationId    String
-  organization      Organization @relation(fields: [organizationId], references: [id])
-  photos            AnimalPhoto[]
-  coverPhotoId      String?
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
-  archivedAt        DateTime?
-  applications      AdoptionApplication[]
+
+  // Phase 15 dossier fields (per D-05)
+  adoptionCategory     AdoptionCategory?
+  behavioralEvaluation String?           @db.Text
+  medicalHistory       String?           @db.Text
+  monthlyCostUsdMin    Int?
+  monthlyCostUsdMax    Int?
+  knownTriggers        String[]          @default([])
+  shelterEntryDate     DateTime?         @db.Date
+  dossierComplete      Boolean           @default(false)
+  dossierVersion       Int               @default(1)
+
+  status          AnimalStatus            @default(AVAILABLE)
+  organizationId  String
+  organization    Organization            @relation(fields: [organizationId], references: [id])
+  photos          AnimalPhoto[]
+  coverPhotoId    String?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  archivedAt      DateTime?
+  applications    AdoptionApplication[]
+  acknowledgments DossierAcknowledgment[]
+  stories         AdoptionStory[]
 
   @@map("animals")
 }
@@ -208,7 +274,7 @@ model AdoptionApplication {
   user              User              @relation(fields: [userId], references: [id])
   organizationId    String
   organization      Organization      @relation(fields: [organizationId], references: [id])
-  status            ApplicationStatus @default(ENVIADA)
+  status            ApplicationStatus @default(SUBMITTED)
   personalInfo      Json?
   housing           Json?
   lifestyle         Json?
@@ -217,31 +283,55 @@ model AdoptionApplication {
   adopterFirstName  String?
   adopterLastName   String?
   adopterEmail      String?
+  adopterCity       String?
   score             Int?
   scoreDetails      Json?
   submittedAt       DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
-  photos            ApplicationPhoto[]
-  notes             ApplicationNote[]
-  notifications     Notification[]
+  // Phase 16 additions — profile snapshot + extras + co-aplicante fields
+  profileSnapshot           Json?
+  extraAnswers              Json?
+  coAplicanteNombre         String?
+  coAplicanteEmail          String?
+  coAplicantePhone          String?
+  coAplicanteToken          String?   @unique
+  coAplicanteTokenExpiresAt DateTime?
+  coAplicanteConfirmed      Boolean   @default(false)
+  coAplicanteConfirmedAt    DateTime?
+
+  // Phase 17 additions — gate-supporting columns (D-03, D-09/D-10)
+  approvedAt     DateTime? // Set when entering APPROVED; drives 48h reflexión gate (D-03)
+  fosterRequired Boolean   @default(false) // Set by counselor during encuentro (D-09/D-10)
+
+  photos        ApplicationPhoto[]
+  notes         ApplicationNote[]
+  notifications Notification[]
+
+  // Phase 17 relations
+  encuentro    Encuentro?
+  fosterPeriod FosterPeriod?
+  checkIns     PostAdoptionCheckIn[]
 
   // Active-application uniqueness is enforced via a PostgreSQL partial unique index
-  // (migration 10_partial_unique_active_applications): UNIQUE (animalId, userId) WHERE status != 'RETIRADA'.
+  // (migration 10_partial_unique_active_applications, rebuilt in phase17_status_rename):
+  // UNIQUE (animalId, userId) WHERE status != 'WITHDRAWN'.
   // Prisma @@unique cannot express a WHERE clause, so the constraint lives in raw SQL.
-  // D-14: allows resubmit after withdraw; service layer rejects duplicates in non-RETIRADA states.
+  // D-14: allows resubmit after withdraw; service layer rejects duplicates in non-WITHDRAWN states.
+  @@index([coAplicanteToken])
+  @@index([coAplicanteConfirmed])
   @@map("adoption_applications")
 }
 
 model ApplicationNote {
-  id              String              @id @default(uuid())
-  applicationId   String
-  application     AdoptionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  organizationId  String
-  authorId        String
-  author          User                @relation("NoteAuthor", fields: [authorId], references: [id])
-  body            String
-  createdAt       DateTime            @default(now())
+  id             String              @id @default(uuid())
+  applicationId  String
+  application    AdoptionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  organizationId String
+  authorId       String
+  author         User                @relation("NoteAuthor", fields: [authorId], references: [id])
+  body           String
+  createdAt      DateTime            @default(now())
 
   @@map("application_notes")
 }
@@ -283,15 +373,15 @@ model AuditLog {
 }
 
 model Notification {
-  id            String              @id @default(uuid())
-  userId        String              // adopter who receives the notification
+  id            String               @id @default(uuid())
+  userId        String // adopter who receives the notification
   type          NotificationType
-  title         String              // Spanish text, e.g., "Tu solicitud fue aprobada"
-  body          String?             // Additional context, e.g., "para Max"
+  title         String // Spanish text, e.g., "Tu solicitud fue aprobada"
+  body          String? // Additional context, e.g., "para Max"
   applicationId String?
   application   AdoptionApplication? @relation(fields: [applicationId], references: [id])
-  isRead        Boolean             @default(false)
-  createdAt     DateTime            @default(now())
+  isRead        Boolean              @default(false)
+  createdAt     DateTime             @default(now())
 
   @@index([userId, isRead])
   @@index([userId, createdAt])
@@ -299,19 +389,190 @@ model Notification {
 }
 
 model WebhookOutbox {
-  id             String   @id @default(uuid())
-  eventType      String   // application.submitted, application.status_changed, etc.
-  payload        Json     // Full event payload
-  idempotencyKey String   @unique
-  status         String   @default("PENDING") // PENDING, DELIVERED, FAILED
-  attempts       Int      @default(0)
-  maxAttempts    Int      @default(6)
+  id             String    @id @default(uuid())
+  eventType      String // application.submitted, application.status_changed, etc.
+  payload        Json // Full event payload
+  idempotencyKey String    @unique
+  status         String    @default("PENDING") // PENDING, DELIVERED, FAILED
+  attempts       Int       @default(0)
+  maxAttempts    Int       @default(6)
   nextAttemptAt  DateTime?
   lastError      String?
   deliveredAt    DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([status, nextAttemptAt])
   @@map("webhook_outbox")
+}
+
+model AdoptionStory {
+  id               String       @id @default(uuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id])
+  adopterFirstName String
+  city             String
+  testimonial      String       @db.Text
+  photoUrl         String?
+  animalId         String?
+  animal           Animal?      @relation(fields: [animalId], references: [id], onDelete: SetNull)
+  publishedAt      DateTime?
+  createdAt        DateTime     @default(now())
+
+  @@index([publishedAt(sort: Desc)])
+  @@index([organizationId, publishedAt(sort: Desc)])
+  @@map("adoption_stories")
+}
+
+model DossierAcknowledgment {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  animalId       String
+  animal         Animal   @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  ackedAt        DateTime @default(now())
+  dossierVersion Int
+
+  @@unique([userId, animalId])
+  @@index([animalId])
+  @@map("dossier_acknowledgments")
+}
+
+// Phase 16 — AdopterProfile: one-to-one with User (role = ADOPTER).
+// Five sections: datos básicos, hogar, estilo de vida, experiencia general, fotos del hogar.
+// completionPct is computed server-side in AdopterProfileService (not stored here).
+model AdopterProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Section 1: datos básicos
+  phone      String?
+  occupation String?
+  birthDate  DateTime? @db.Date
+  city       String?
+
+  // Section 2: hogar
+  housingType   String?  // "casa" | "apartamento" | "cuarto" | "otro"
+  ownership     String?  // "propio" | "alquilado" | "familiar"
+  exteriorSpace Boolean?
+  petPermission Boolean?
+  adults        Int?
+  children      Int?
+  currentPets   Json?    // [{species, count}]
+
+  // Section 3: estilo de vida
+  activityLevel  String?
+  hoursAlone     Int?
+  adoptionReason String?
+
+  // Section 4: experiencia general
+  speciesExperience Boolean?
+  previousPets      Json?
+  additionalContext String?
+
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  photos    ProfilePhoto[]
+
+  @@map("adopter_profiles")
+}
+
+// Phase 16 — ProfilePhoto: mirrors ApplicationPhoto; owned by AdopterProfile.
+// Photos stored in MinIO via presigned URL (UploadService), reused across applications.
+model ProfilePhoto {
+  id        String         @id @default(uuid())
+  profileId String
+  profile   AdopterProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  url       String
+  key       String
+  position  Int            @default(0)
+  createdAt DateTime       @default(now())
+
+  @@map("profile_photos")
+}
+
+// Phase 16 — ExtrasTemplate: one row per (organizationId + adoptionCategory).
+// questions JSONB: [{id, text, type, options?, criticality, required, placeholder?}]
+// criticality ('CRITICA'|'IMPORTANTE'|'OPCIONAL') is NEVER exposed to adopter-facing API.
+model ExtrasTemplate {
+  id               String           @id @default(uuid())
+  organizationId   String
+  organization     Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  adoptionCategory AdoptionCategory
+  questions        Json             // [{id, text, type, options?, criticality, required, placeholder?}]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@unique([organizationId, adoptionCategory])
+  @@map("extras_templates")
+}
+
+// Phase 17 — Encuentro: 1:1 with AdoptionApplication (presencial-only, D-05).
+// Counselor logs structured observations (recomendación + optional notes + alert signals) (D-07).
+// fosterRequired: counselor-set signal (D-09) that propagates to application.fosterRequired.
+// No modality enum — presencial-only for v3.0.
+// Document/ID capture deferred to v3.1+ (D-11).
+model Encuentro {
+  id            String                  @id @default(uuid())
+  applicationId String                  @unique // 1:1 with application
+  application   AdoptionApplication     @relation(fields: [applicationId], references: [id])
+  scheduledAt   DateTime
+  location      String?
+  address       String?
+  completedAt   DateTime?
+  // Observations (D-07)
+  recomendacion EncuentroRecomendacion?
+  notes         String?                 @db.Text
+  alertSignals  String?                 @db.Text
+  // Foster signal (D-09)
+  fosterRequired Boolean               @default(false)
+  counselorId   String // userId of ORG_STAFF who completed it
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  @@map("encuentros")
+}
+
+// Phase 17 — FosterPeriod: 0:1 with AdoptionApplication (D-10/D-11).
+// Light entity: state + dates + counselor notes + outcome.
+// NO document/ID/DUI fields (D-11 defers PII capture to v3.1+).
+model FosterPeriod {
+  id             String              @id @default(uuid())
+  applicationId  String              @unique // 0:1 with application
+  application    AdoptionApplication @relation(fields: [applicationId], references: [id])
+  startedAt      DateTime
+  endedAt        DateTime?
+  outcome        FosterOutcome?
+  counselorNotes String?             @db.Text
+  counselorId    String
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@map("foster_periods")
+}
+
+// Phase 17 — PostAdoptionCheckIn: N:1 with AdoptionApplication (D-13/D-14).
+// Created at FINALIZED with scheduledFor = finalizedAt + 14d (DAY_14) and + 60d (DAY_60).
+// submissionToken: UUID set when dispatched; public no-login page uses it (D-14, PATTERN-01 rlsBypassPrisma).
+// responses: JSON array [{questionId, answer}] submitted via public token page.
+model PostAdoptionCheckIn {
+  id                      String        @id @default(uuid())
+  applicationId           String
+  application             AdoptionApplication @relation(fields: [applicationId], references: [id])
+  checkInType             CheckInType
+  scheduledFor            DateTime
+  status                  CheckInStatus @default(PENDING)
+  submissionToken         String?       @unique // UUID; set when dispatched
+  submissionTokenExpiresAt DateTime?
+  dispatchedAt            DateTime?
+  completedAt             DateTime?
+  responses               Json?         // [{questionId, answer}]
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+
+  @@index([applicationId])
+  @@index([status, scheduledFor])
+  @@index([submissionToken])
+  @@map("post_adoption_check_ins")
 }

@@ -2,10 +2,10 @@
   <div>
     <!-- Page title -->
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+      <h1 class="text-3xl font-bold text-[var(--color-text)]">
         {{ $t('listings.title') }}
       </h1>
-      <p class="mt-1 text-gray-500 dark:text-gray-400">
+      <p class="mt-1 text-[var(--color-text)]/70">
         {{ $t('listings.subtitle') }}
       </p>
     </div>
@@ -18,7 +18,7 @@
 
     <!-- Loading state -->
     <div v-if="pending" class="flex justify-center py-16">
-      <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary" />
+      <KIcon name="loader-2" :size="32" class="animate-spin text-primary" />
     </div>
 
     <!-- Empty state -->
@@ -81,6 +81,24 @@ const filters = ref<FilterState>({
   search: route.query.search as string || undefined,
 })
 
+// Keep filter UI in sync when the URL changes (e.g. browser back/forward navigation).
+// The data fetch already reacts to route.query via queryParams, but the filters ref
+// is only initialized once at setup — without this watch it goes stale after navigation.
+watch(
+  () => route.query,
+  (query) => {
+    filters.value = {
+      species: query.species as string || undefined,
+      size: query.size as string || undefined,
+      ageMin: query.ageMin ? parseInt(query.ageMin as string) : undefined,
+      ageMax: query.ageMax ? parseInt(query.ageMax as string) : undefined,
+      energyLevel: query.energyLevel as string || undefined,
+      organization: query.organization as string || undefined,
+      search: query.search as string || undefined,
+    }
+  }
+)
+
 const currentPage = computed(() => parseInt(route.query.page as string || '1'))
 
 const queryParams = computed(() => ({
@@ -95,7 +113,12 @@ const queryParams = computed(() => ({
   search: filters.value.search || undefined,
 }))
 
-const { data, pending, refresh } = await useFetch<{ data: any[]; total: number; page: number; limit: number; totalPages: number }>('/animals', {
+// Phase 15-05: the public listing now consumes the dedicated public API
+// boundary at GET /public/animals (D-04 / D-16). The response shape includes
+// `guidance` on every item server-resolved (D-04) and structurally lacks
+// `score`/`risks`/`flags` (T-15-01). Query params reuse AnimalQueryDto so
+// existing filter/pagination behavior is unchanged.
+const { data, pending, refresh } = await useFetch<{ data: any[]; total: number; page: number; limit: number; totalPages: number }>('/public/animals', {
   baseURL: config.public.apiUrl as string,
   query: queryParams,
 })

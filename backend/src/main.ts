@@ -41,7 +41,11 @@ async function bootstrap() {
     const token: string | null =
       authHeader?.startsWith('Bearer ')
         ? authHeader.slice(7)
-        : (req.query?.token as string | undefined) ?? null;
+        // bb_token cookie set by GET /admin/queues-access relay (preferred — no token in URL)
+        : (req.cookies?.bb_token as string | undefined)
+        // query-param fallback kept for backward-compat but should not be used from the UI
+        ?? (req.query?.token as string | undefined)
+        ?? null;
 
     if (!token) {
       res.status(401).json({ message: 'Unauthorized' });

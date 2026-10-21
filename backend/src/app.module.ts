@@ -17,12 +17,19 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { UploadModule } from './upload/upload.module';
 import { SpeciesModule } from './species/species.module';
 import { AnimalsModule } from './animals/animals.module';
+import { PublicAnimalsModule } from './public-animals/public-animals.module';
+import { PublicLandingModule } from './public-landing/public-landing.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { ApplicationNotesModule } from './application-notes/application-notes.module';
 import { AdoptersModule } from './adopters/adopters.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { TeamModule } from './team/team.module';
+import { AdopterProfileModule } from './adopter-profile/adopter-profile.module';
+import { ExtrasTemplateModule } from './extras-template/extras-template.module';
+import { CoAplicanteModule } from './co-aplicante/co-aplicante.module';
+import { EncuentroModule } from './encuentro/encuentro.module';
+import { FosterModule } from './foster/foster.module';
 
 @Module({
   imports: [
@@ -53,12 +60,19 @@ import { TeamModule } from './team/team.module';
     UploadModule,
     SpeciesModule,
     AnimalsModule,
+    PublicAnimalsModule,
+    PublicLandingModule,
     ApplicationsModule,
     ScoringModule,
     ApplicationNotesModule,
     AdoptersModule,
     NotificationsModule,
     TeamModule,
+    AdopterProfileModule,
+    ExtrasTemplateModule,
+    CoAplicanteModule,
+    EncuentroModule,
+    FosterModule,
   ],
   controllers: [AppController],
   providers: [

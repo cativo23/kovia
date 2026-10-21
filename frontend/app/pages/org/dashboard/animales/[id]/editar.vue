@@ -6,7 +6,7 @@
         to="/org/dashboard/animales"
         class="text-sm text-gray-500 hover:text-primary inline-flex items-center gap-1 mb-2"
       >
-        <UIcon name="i-lucide-arrow-left" class="w-4 h-4" />
+        <KIcon name="arrow-left" :size="16" />
         {{ $t('animals.title') }}
       </NuxtLink>
       <h2 class="text-2xl font-bold">{{ $t('animals.edit.title') }}</h2>
@@ -14,12 +14,12 @@
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-12">
-      <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary" />
+      <KIcon name="loader-2" :size="32" class="animate-spin text-primary" />
     </div>
 
     <!-- Not Found -->
     <UCard v-else-if="notFound" class="text-center py-8">
-      <UIcon name="i-lucide-alert-circle" class="w-12 h-12 mx-auto mb-4 text-gray-400" />
+      <KIcon name="alert-circle" :size="48" class="mx-auto mb-4 text-gray-400" />
       <p class="text-gray-500">{{ $t('common.noResults') }}</p>
     </UCard>
 
@@ -30,13 +30,13 @@
           ref="formRef"
           mode="edit"
           :initial-data="initialData"
-          :visible-sections="['basic', 'characteristics']"
+          :visible-sections="['basic', 'dossier', 'characteristics']"
           :show-section-headers="true"
           :show-actions="false"
           :submitting="submitting"
         />
 
-        <div class="flex gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-800">
+        <div class="flex gap-3 mt-6 pt-4 border-t border-[var(--color-border)]">
           <UButton
             :label="$t('animals.edit.save')"
             :loading="submitting"
@@ -62,7 +62,7 @@
         />
 
         <!-- Save new photos -->
-        <div v-if="hasNewPhotos" class="flex gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+        <div v-if="hasNewPhotos" class="flex gap-3 mt-4 pt-4 border-t border-[var(--color-border)]">
           <UButton
             :label="$t('animals.edit.save')"
             :loading="savingPhotos"
@@ -107,6 +107,15 @@ interface AnimalDetail {
   vaccinated: boolean
   sterilized: boolean
   trained: boolean
+  // Phase 15 dossier fields (per D-05). dossierComplete + dossierVersion are
+  // read-only server-computed; never sent back in the edit payload.
+  adoptionCategory: string | null
+  behavioralEvaluation: string | null
+  medicalHistory: string | null
+  monthlyCostUsdMin: number | null
+  monthlyCostUsdMax: number | null
+  knownTriggers: string[] | null
+  shelterEntryDate: string | null
   photos: AnimalPhoto[]
 }
 
@@ -128,6 +137,11 @@ const photoUploaderRef = ref<any>(null)
 
 const initialData = computed(() => {
   if (!animal.value) return undefined
+  // Backend returns shelterEntryDate as an ISO string (e.g. "2026-04-01T00:00:00.000Z");
+  // the <input type=date> control wants "yyyy-mm-dd" — slice it before binding.
+  const shelterEntry = animal.value.shelterEntryDate
+    ? animal.value.shelterEntryDate.slice(0, 10)
+    : ''
   return {
     name: animal.value.name,
     speciesId: animal.value.speciesId,
@@ -145,6 +159,14 @@ const initialData = computed(() => {
     vaccinated: animal.value.vaccinated,
     sterilized: animal.value.sterilized,
     trained: animal.value.trained,
+    // Phase 15 dossier initial data — empty string defaults match AnimalForm shape.
+    adoptionCategory: animal.value.adoptionCategory || '',
+    behavioralEvaluation: animal.value.behavioralEvaluation || '',
+    medicalHistory: animal.value.medicalHistory || '',
+    monthlyCostUsdMin: animal.value.monthlyCostUsdMin,
+    monthlyCostUsdMax: animal.value.monthlyCostUsdMax,
+    knownTriggers: animal.value.knownTriggers || [],
+    shelterEntryDate: shelterEntry,
   }
 })
 
@@ -184,13 +206,21 @@ async function saveAnimal() {
       'ageMonths', 'size', 'energyLevel',
       'goodWithKids', 'goodWithDogs', 'goodWithCats', 'goodWithOtherPets',
       'specialNeeds', 'vaccinated', 'sterilized', 'trained',
+      // Phase 15 dossier fields (per D-05 / 15-02 plan). dossierComplete +
+      // dossierVersion are server-computed and intentionally never sent.
+      'adoptionCategory', 'behavioralEvaluation', 'medicalHistory',
+      'monthlyCostUsdMin', 'monthlyCostUsdMax', 'knownTriggers',
+      'shelterEntryDate',
     ]
 
     for (const field of fields) {
       const value = data[field]
-      if (value !== '' && value !== null && value !== undefined) {
-        payload[field] = value
-      }
+      // Skip purely blank scalars.
+      if (value === '' || value === null || value === undefined) continue
+      // Skip empty arrays (e.g. knownTriggers when no triggers entered) so we
+      // don't clobber an existing list with [] on a partial-edit save.
+      if (Array.isArray(value) && value.length === 0) continue
+      payload[field] = value
     }
 
     await patch(`/animals/${animalId.value}`, payload)

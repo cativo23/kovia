@@ -2,7 +2,7 @@
   <div>
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-12">
-      <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary" />
+      <KIcon name="loader-2" :size="32" class="animate-spin text-primary" />
     </div>
 
     <template v-else-if="application">
@@ -11,7 +11,7 @@
         to="/org/dashboard/aplicaciones"
         class="text-sm text-gray-500 hover:text-primary inline-flex items-center gap-1 mb-6"
       >
-        <UIcon name="i-lucide-arrow-left" class="w-4 h-4" />
+        <KIcon name="arrow-left" :size="16" />
         {{ $t('applications.detail.backToQueue') }}
       </NuxtLink>
 
@@ -129,7 +129,7 @@
               <button
                 v-for="(photo, idx) in application.photos"
                 :key="photo.id"
-                class="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer"
+                class="relative aspect-[4/3] overflow-hidden rounded-lg bg-[var(--color-border)]/40 cursor-pointer"
                 @click="openLightbox(idx)"
               >
                 <img
@@ -140,7 +140,7 @@
               </button>
             </div>
             <div v-else class="text-center py-8 text-gray-400 text-sm">
-              <UIcon name="i-lucide-image-off" class="w-8 h-8 mx-auto mb-2" />
+              <KIcon name="image-off" :size="32" class="mx-auto mb-2" />
               Sin fotos
             </div>
           </UCard>
@@ -267,7 +267,7 @@
           class="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
           @click="lightboxOpen = false"
         >
-          <UIcon name="i-lucide-x" class="w-8 h-8" />
+          <KIcon name="x" :size="32" />
         </button>
 
         <button
@@ -275,7 +275,7 @@
           class="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors"
           @click="lightboxIndex = (lightboxIndex - 1 + (application?.photos?.length ?? 1)) % (application?.photos?.length ?? 1)"
         >
-          <UIcon name="i-lucide-chevron-left" class="w-10 h-10" />
+          <KIcon name="chevron-left" :size="40" />
         </button>
 
         <img
@@ -290,7 +290,7 @@
           class="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors"
           @click="lightboxIndex = (lightboxIndex + 1) % (application?.photos?.length ?? 1)"
         >
-          <UIcon name="i-lucide-chevron-right" class="w-10 h-10" />
+          <KIcon name="chevron-right" :size="40" />
         </button>
       </div>
     </Teleport>

@@ -29,7 +29,7 @@ export const NOTIFICATION_TEMPLATES: Record<
     title: 'Solicitud retirada',
     bodyFn: (ctx: any) => `Retiraste tu solicitud para ${ctx.animalName}`,
   },
-  DEVUELTA: {
+  RETURNED: {
     title: 'Mascota devuelta',
     bodyFn: (ctx: any) => `La mascota ${ctx.animalName} fue devuelta`,
   },

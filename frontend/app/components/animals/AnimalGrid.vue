@@ -2,7 +2,7 @@
   <div>
     <!-- Header row: result count + view toggle -->
     <div class="flex items-center justify-between mb-4">
-      <p class="text-sm text-gray-600 dark:text-gray-400">
+      <p class="text-sm text-[var(--color-text)]/70">
         <span v-if="total !== undefined">
           {{ total }} {{ total === 1 ? $t('listings.resultSingle') : $t('listings.results') }}
         </span>
@@ -13,18 +13,20 @@
           :variant="localViewMode === 'grid' ? 'solid' : 'ghost'"
           color="neutral"
           size="sm"
-          icon="i-lucide-layout-grid"
+         
           :title="$t('listings.viewGrid')"
-          @click="setMode('grid')"
-        />
+          @click="setMode('grid')">
+          <template #leading><KIcon name="layout-grid" /></template>
+        </UButton>
         <UButton
           :variant="localViewMode === 'list' ? 'solid' : 'ghost'"
           color="neutral"
           size="sm"
-          icon="i-lucide-list"
+         
           :title="$t('listings.viewList')"
-          @click="setMode('list')"
-        />
+          @click="setMode('list')">
+          <template #leading><KIcon name="list" /></template>
+        </UButton>
       </div>
     </div>
 
@@ -54,38 +56,14 @@
 </template>
 
 <script setup lang="ts">
-interface AnimalPhoto {
-  id: string
-  url: string
-  caption: string | null
-  position: number
-}
+import type { AnimalPublic } from '~/types/public-animal'
 
-interface AnimalPublic {
-  id: string
-  name: string
-  description: string | null
-  breed: string | null
-  gender: 'MALE' | 'FEMALE' | 'UNKNOWN'
-  ageMonths: number | null
-  size: 'SMALL' | 'MEDIUM' | 'LARGE' | 'EXTRA_LARGE' | null
-  energyLevel: 'LOW' | 'MEDIUM' | 'HIGH' | null
-  goodWithKids: boolean
-  goodWithDogs: boolean
-  goodWithCats: boolean
-  goodWithOtherPets: boolean
-  specialNeeds: string | null
-  vaccinated: boolean
-  sterilized: boolean
-  trained: boolean
-  status: string
-  coverPhotoId: string | null
-  createdAt: string
-  species: { id: string; name: string; slug: string }
-  organization: { name: string; slug: string; logoUrl: string | null }
-  photos: AnimalPhoto[]
-}
-
+/**
+ * Phase 15-05 — Grid forwards the public DTO shape into AnimalCard.
+ * The shared `AnimalPublic` type is the source of truth for the public
+ * listing (D-04). AnimalCard tolerates legacy admin-side fields as
+ * Partial<…> in its own scope, so this Grid stays narrow.
+ */
 const props = defineProps<{
   animals: AnimalPublic[]
   viewMode?: 'grid' | 'list'

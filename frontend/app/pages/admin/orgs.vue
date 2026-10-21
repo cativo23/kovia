@@ -7,7 +7,7 @@
 
     <UCard>
       <div v-if="loading" class="flex justify-center py-8">
-        <UIcon name="i-lucide-loader-2" class="w-6 h-6 animate-spin" />
+        <KIcon name="loader-2" :size="24" class="animate-spin" />
       </div>
       <div v-else-if="orgs.length === 0" class="text-center py-8 text-gray-500">
         {{ $t('common.noResults') }}
@@ -32,11 +32,12 @@
               size="xs"
               variant="ghost"
               color="primary"
-              icon="i-lucide-external-link"
+             
               :label="$t('common.view')"
               :to="`/org/${row.original.slug}`"
-              target="_blank"
-            />
+              target="_blank">
+          <template #leading><KIcon name="external-link" /></template>
+        </UButton>
             <UButton
               size="xs"
               :variant="row.original.status === 'ACTIVE' ? 'outline' : 'solid'"

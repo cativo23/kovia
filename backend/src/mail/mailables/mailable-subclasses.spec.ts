@@ -98,14 +98,14 @@ describe('ApplicationSubmittedMail', () => {
 });
 
 describe('StatusChangedMail', () => {
-  const mail = new StatusChangedMail('f@g.com', { firstName: 'Frank', animalName: 'Luna', newStatus: 'APROBADA' });
+  const mail = new StatusChangedMail('f@g.com', { firstName: 'Frank', animalName: 'Luna', newStatus: 'APPROVED' });
 
   it('sets to correctly', () => expect(mail.to).toBe('f@g.com'));
   it('sets template to status-changed', () => expect(mail.template).toBe('status-changed'));
   it('sets context with firstName, animalName, newStatus', () => {
     expect(mail.context.firstName).toBe('Frank');
     expect(mail.context.animalName).toBe('Luna');
-    expect(mail.context.newStatus).toBe('APROBADA');
+    expect(mail.context.newStatus).toBe('APPROVED');
   });
   it('routes to emails-transactional queue', () => expect(getQueueMetadata(mail).queue).toBe('emails-transactional'));
   it('has 6 attempts', () => expect(getQueueMetadata(mail).attempts).toBe(6));

@@ -1,5 +1,4 @@
-import { ref, computed } from 'vue'
-import type { Ref } from 'vue'
+import { computed } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 
 export interface Notification {
@@ -14,10 +13,10 @@ export interface Notification {
 }
 
 export function useNotifications() {
-  const notifications: Ref<Notification[]> = ref([])
-  const unreadCount: Ref<number> = ref(0)
-  const loading = ref(false)
-  const error: Ref<string | null> = ref(null)
+  const notifications = useState<Notification[]>('notifications', () => [])
+  const unreadCount = useState<number>('notifications:unreadCount', () => 0)
+  const loading = useState<boolean>('notifications:loading', () => false)
+  const error = useState<string | null>('notifications:error', () => null)
 
   const config = useRuntimeConfig()
   const authStore = useAuthStore()

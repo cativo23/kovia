@@ -173,9 +173,9 @@ describe('NotificationsService', () => {
 
     it('STATUS_CHANGED template interpolates animalName and newStatus', () => {
       const template = NOTIFICATION_TEMPLATES.STATUS_CHANGED;
-      const body = template.bodyFn({ animalName: 'Max', newStatus: 'APROBADA' });
+      const body = template.bodyFn({ animalName: 'Max', newStatus: 'APPROVED' });
       expect(body).toContain('Max');
-      expect(body).toContain('APROBADA');
+      expect(body).toContain('APPROVED');
     });
   });
 });

@@ -2,13 +2,13 @@
   <div class="max-w-3xl mx-auto">
     <!-- Loading -->
     <div v-if="loading" class="animate-pulse space-y-4">
-      <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
-      <div class="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
+      <div class="h-8 bg-[var(--color-border)]/40 rounded w-1/3" />
+      <div class="h-32 bg-[var(--color-border)]/40 rounded" />
     </div>
 
     <!-- Error -->
     <UCard v-else-if="error" class="text-center py-8">
-      <UIcon name="i-lucide-alert-circle" class="w-12 h-12 text-error mx-auto mb-3" />
+      <KIcon name="alert-circle" :size="48" class="text-error mx-auto mb-3" />
       <p class="text-gray-500 mb-4">{{ $t('applications.errors.loadFailed') }}</p>
       <UButton :label="$t('common.retry')" @click="loadApplication" />
     </UCard>
@@ -20,7 +20,7 @@
         to="/perfil/aplicaciones"
         class="text-sm text-gray-500 hover:text-primary inline-flex items-center gap-1 mb-6"
       >
-        <UIcon name="i-lucide-arrow-left" class="w-4 h-4" />
+        <KIcon name="arrow-left" :size="16" />
         {{ $t('applications.history.title') }}
       </NuxtLink>
 
@@ -35,7 +35,7 @@
           size="xs"
           :alt="application.animal.organization.name"
         />
-        <UIcon v-else name="i-lucide-building-2" class="w-4 h-4" aria-hidden="true" />
+        <UIcon v-else name="building-2" class="w-4 h-4" aria-hidden="true" />
         <span>{{ application.animal.organization.name }}</span>
       </div>
 
@@ -127,7 +127,7 @@
           <div
             v-for="(photo, index) in application.photos"
             :key="photo.id"
-            class="aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 cursor-pointer"
+            class="aspect-square rounded-lg overflow-hidden bg-[var(--color-border)]/40 cursor-pointer"
             @click="openLightbox(index)"
           >
             <img
@@ -191,10 +191,11 @@
         <UButton
           color="error"
           variant="soft"
-          icon="i-lucide-x-circle"
+         
           :label="$t('applications.withdraw.confirmTitle')"
-          @click="showWithdrawModal = true"
-        />
+          @click="showWithdrawModal = true">
+          <template #leading><KIcon name="x-circle" /></template>
+        </UButton>
       </div>
     </div>
 
@@ -217,7 +218,7 @@
           class="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
           @click="lightboxIndex = null"
         >
-          <UIcon name="i-lucide-x" class="w-8 h-8" />
+          <KIcon name="x" :size="32" />
         </button>
         <img
           v-if="lightboxIndex !== null && application?.photos?.[lightboxIndex]"

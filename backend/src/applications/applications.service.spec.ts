@@ -3,6 +3,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 
 // Mock external AWS deps (pulled in transitively via UploadService)
@@ -33,11 +34,24 @@ const mockPrismaRls = {
   applicationPhoto: {
     createMany: vi.fn(),
   },
+  encuentro: {
+    findFirst: vi.fn(),
+  },
+  fosterPeriod: {
+    findFirst: vi.fn(),
+  },
+  animal: {
+    update: vi.fn(),
+  },
+  postAdoptionCheckIn: {
+    createMany: vi.fn(),
+  },
 };
 
 const mockPublicPrisma = {
   animal: {
     findUnique: vi.fn(),
+    update: vi.fn(),
   },
   adoptionApplication: {
     create: vi.fn(),
@@ -46,6 +60,7 @@ const mockPublicPrisma = {
     findMany: vi.fn(),
     count: vi.fn(),
     update: vi.fn(),
+    updateMany: vi.fn(),
   },
   applicationPhoto: {
     createMany: vi.fn(),
@@ -76,6 +91,40 @@ const mockEventsService = {
   emitApplicationStatusChanged: vi.fn(),
   emitApplicationWithdrawn: vi.fn(),
   emitApplicationDevuelta: vi.fn(),
+  emitCoAplicanteConfirmationRequested: vi.fn(),
+};
+
+const mockAdopterProfileService = {
+  getMyProfile: vi.fn().mockResolvedValue({
+    id: 'profile-1',
+    phone: '+503123',
+    occupation: 'Dev',
+    birthDate: '1990-01-01',
+    city: 'SV',
+    housingType: 'HOUSE',
+    ownership: 'OWNED',
+    exteriorSpace: true,
+    petPermission: true,
+    adults: 2,
+    children: 0,
+    currentPets: [],
+    activityLevel: 'HIGH',
+    hoursAlone: 4,
+    adoptionReason: 'Love',
+    speciesExperience: true,
+    previousPets: [],
+    additionalContext: null,
+    photos: [],
+    completionPct: 100,
+  }),
+};
+
+const mockExtrasTemplateService = {
+  findForAnimalRaw: vi.fn().mockResolvedValue([]),
+};
+
+const mockConfigService = {
+  get: vi.fn().mockReturnValue('https://kovia.app'),
 };
 
 describe('ApplicationsService', () => {
@@ -92,7 +141,26 @@ describe('ApplicationsService', () => {
       mockCls as any,
       mockScoringQueue as any,
       mockEventsService as any,
+      mockAdopterProfileService as any,
+      mockExtrasTemplateService as any,
+      mockConfigService as any,
     );
+
+    // Default mocks for Phase 17 gates — set to pass so existing tests are unaffected.
+    // Individual gate tests override these to test failure paths.
+    mockPrismaRls.encuentro.findFirst.mockResolvedValue({
+      id: 'enc-1',
+      completedAt: new Date(),
+      recomendacion: 'PROCEED',
+    });
+    mockPrismaRls.fosterPeriod.findFirst.mockResolvedValue({
+      id: 'fp-1',
+      outcome: 'PROCEED',
+    });
+    mockPrismaRls.animal.update.mockResolvedValue({ id: 'animal-1', status: 'IN_PROCESS' });
+    mockPublicPrisma.animal.update.mockResolvedValue({ id: 'animal-1', status: 'AVAILABLE' });
+    mockPublicPrisma.adoptionApplication.updateMany.mockResolvedValue({ count: 0 });
+    mockPrismaRls.postAdoptionCheckIn.createMany.mockResolvedValue({ count: 2 });
   });
 
   describe('create', () => {
@@ -103,26 +171,31 @@ describe('ApplicationsService', () => {
       lastName: 'Garcia',
     };
 
+    // Phase 16 SubmitApplicationDto shape (co-aplicante fields required)
     const dto = {
       animalId: 'animal-1',
-      personalInfo: { age: 30 },
-      housing: { type: 'house' },
-      lifestyle: { active: true },
+      extraAnswers: [],
+      coAplicanteNombre: 'María Co-Aplicante',
+      coAplicanteEmail: 'co@example.com',
     };
 
-    it('should create application with status ENVIADA and snapshot adopter info', async () => {
-      mockPublicPrisma.animal.findUnique.mockResolvedValue({
-        id: 'animal-1',
-        status: 'AVAILABLE',
-        organizationId: 'org-1',
-      });
+    const availableAnimal = {
+      id: 'animal-1',
+      name: 'Firulais',
+      status: 'AVAILABLE',
+      organizationId: 'org-1',
+      adoptionCategory: 'SALUDABLE_ADULTO',
+    };
+
+    it('should create application with status SUBMITTED and snapshot adopter info', async () => {
+      mockPublicPrisma.animal.findUnique.mockResolvedValue(availableAnimal);
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue(null);
       const created = {
         id: 'app-1',
         animalId: 'animal-1',
         userId: 'user-1',
         organizationId: 'org-1',
-        status: 'ENVIADA',
+        status: 'SUBMITTED',
         adopterFirstName: 'Ana',
         adopterLastName: 'Garcia',
         adopterEmail: 'adopter@example.com',
@@ -131,7 +204,7 @@ describe('ApplicationsService', () => {
 
       const result = await service.create(dto, user);
 
-      expect(result.status).toBe('ENVIADA');
+      expect(result.status).toBe('SUBMITTED');
       expect(result.adopterFirstName).toBe('Ana');
       expect(result.adopterEmail).toBe('adopter@example.com');
       expect(mockPrismaRls.adoptionApplication.create).toHaveBeenCalledWith(
@@ -143,17 +216,15 @@ describe('ApplicationsService', () => {
             adopterFirstName: 'Ana',
             adopterLastName: 'Garcia',
             adopterEmail: 'adopter@example.com',
+            coAplicanteNombre: 'María Co-Aplicante',
+            coAplicanteEmail: 'co@example.com',
           }),
         }),
       );
     });
 
-    it('should throw ConflictException if a non-RETIRADA application exists for same animalId+userId', async () => {
-      mockPublicPrisma.animal.findUnique.mockResolvedValue({
-        id: 'animal-1',
-        status: 'AVAILABLE',
-        organizationId: 'org-1',
-      });
+    it('should throw ConflictException if a non-WITHDRAWN application exists for same animalId+userId', async () => {
+      mockPublicPrisma.animal.findUnique.mockResolvedValue(availableAnimal);
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue({
         id: 'existing-app',
       });
@@ -161,17 +232,13 @@ describe('ApplicationsService', () => {
       await expect(service.create(dto, user)).rejects.toThrow(ConflictException);
     });
 
-    it('should allow re-apply when the only existing application is RETIRADA (D-14)', async () => {
-      mockPublicPrisma.animal.findUnique.mockResolvedValue({
-        id: 'animal-1',
-        status: 'AVAILABLE',
-        organizationId: 'org-1',
-      });
-      // findFirst returns null because of the `status: { not: 'RETIRADA' }` filter
+    it('should allow re-apply when the only existing application is WITHDRAWN (D-14)', async () => {
+      mockPublicPrisma.animal.findUnique.mockResolvedValue(availableAnimal);
+      // findFirst returns null because of the `status: { not: 'WITHDRAWN' }` filter
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue(null);
       mockPrismaRls.adoptionApplication.create.mockResolvedValue({
         id: 'app-2',
-        status: 'ENVIADA',
+        status: 'SUBMITTED',
       });
 
       const result = await service.create(dto, user);
@@ -182,7 +249,7 @@ describe('ApplicationsService', () => {
           where: expect.objectContaining({
             animalId: 'animal-1',
             userId: 'user-1',
-            status: { not: 'RETIRADA' },
+            status: { not: 'WITHDRAWN' },
           }),
         }),
       );
@@ -190,24 +257,19 @@ describe('ApplicationsService', () => {
 
     it('should throw BadRequestException if animal status is not AVAILABLE', async () => {
       mockPublicPrisma.animal.findUnique.mockResolvedValue({
-        id: 'animal-1',
+        ...availableAnimal,
         status: 'ADOPTED',
-        organizationId: 'org-1',
       });
 
       await expect(service.create(dto, user)).rejects.toThrow(BadRequestException);
     });
 
     it('should call auditService.log on successful creation', async () => {
-      mockPublicPrisma.animal.findUnique.mockResolvedValue({
-        id: 'animal-1',
-        status: 'AVAILABLE',
-        organizationId: 'org-1',
-      });
+      mockPublicPrisma.animal.findUnique.mockResolvedValue(availableAnimal);
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue(null);
       mockPrismaRls.adoptionApplication.create.mockResolvedValue({
         id: 'app-1',
-        status: 'ENVIADA',
+        status: 'SUBMITTED',
       });
 
       await service.create(dto, user);
@@ -311,18 +373,18 @@ describe('ApplicationsService', () => {
       mockPrismaRls.adoptionApplication.findMany.mockResolvedValue([]);
       mockPrismaRls.adoptionApplication.count.mockResolvedValue(0);
 
-      await service.findAllByOrg({ page: 1, limit: 10, status: 'REVISANDO' });
+      await service.findAllByOrg({ page: 1, limit: 10, status: 'REVIEWING' });
 
       expect(mockPrismaRls.adoptionApplication.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ status: 'REVISANDO' }),
+          where: expect.objectContaining({ status: 'REVIEWING' }),
         }),
       );
     });
   });
 
   describe('checkExisting', () => {
-    it('should return { exists: true, applicationId } when non-RETIRADA application exists', async () => {
+    it('should return { exists: true, applicationId } when non-WITHDRAWN application exists', async () => {
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue({ id: 'app-1' });
 
       const result = await service.checkExisting('animal-1', 'user-1');
@@ -334,14 +396,14 @@ describe('ApplicationsService', () => {
           where: expect.objectContaining({
             animalId: 'animal-1',
             userId: 'user-1',
-            status: { not: 'RETIRADA' },
+            status: { not: 'WITHDRAWN' },
           }),
         }),
       );
     });
 
-    it('should return { exists: false } when only matching row is RETIRADA (D-18-BE)', async () => {
-      // findFirst with status filter returns null because the only match is RETIRADA
+    it('should return { exists: false } when only matching row is WITHDRAWN (D-18-BE)', async () => {
+      // findFirst with status filter returns null because the only match is WITHDRAWN
       mockPublicPrisma.adoptionApplication.findFirst.mockResolvedValue(null);
 
       const result = await service.checkExisting('animal-1', 'user-1');
@@ -360,20 +422,38 @@ describe('ApplicationsService', () => {
   });
 
   describe('updateStatus', () => {
+    // D-01 canonical lifecycle (Phase 17)
     const validTransitions = [
-      ['ENVIADA', 'REVISANDO'],
-      ['REVISANDO', 'APROBADA'],
-      ['REVISANDO', 'RECHAZADA'],
-      ['REVISANDO', 'SEGUIMIENTO'],
-      ['SEGUIMIENTO', 'APROBADA'],
-      ['APROBADA', 'ADOPTADA'],
+      ['SUBMITTED', 'REVIEWING'],
+      ['REVIEWING', 'IN_MEETING'],
+      ['REVIEWING', 'REJECTED'],
+      ['REVIEWING', 'FOLLOW_UP'],
+      ['FOLLOW_UP', 'IN_MEETING'],
+      ['FOLLOW_UP', 'REJECTED'],
+      ['IN_MEETING', 'IN_FOSTER'],
+      ['IN_MEETING', 'APPROVED'],
+      ['IN_MEETING', 'REJECTED'],
+      ['IN_FOSTER', 'APPROVED'],
+      ['IN_FOSTER', 'REJECTED'],
+      ['APPROVED', 'IN_REFLECTION'],
+      ['IN_REFLECTION', 'FINALIZED'],
+      ['IN_REFLECTION', 'WITHDRAWN'],
+      ['ADOPTED', 'RETURNED'], // legacy pre-v3.0 rows only
     ];
 
     for (const [from, to] of validTransitions) {
       it(`should allow transition ${from} -> ${to}`, async () => {
+        // For FINALIZED, approvedAt must be > 48h ago (D-03 gate)
+        const approvedAt =
+          to === 'FINALIZED'
+            ? new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+            : undefined;
         mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
           id: 'app-1',
           status: from,
+          fosterRequired: false,
+          animalId: 'animal-1',
+          ...(approvedAt ? { approvedAt } : {}),
         });
         mockPrismaRls.adoptionApplication.update.mockResolvedValue({
           id: 'app-1',
@@ -386,13 +466,13 @@ describe('ApplicationsService', () => {
       });
     }
 
-    it('should throw BadRequestException for invalid transition ENVIADA -> APROBADA', async () => {
+    it('should throw BadRequestException for invalid transition SUBMITTED -> APPROVED', async () => {
       mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
         id: 'app-1',
-        status: 'ENVIADA',
+        status: 'SUBMITTED',
       });
 
-      await expect(service.updateStatus('app-1', 'APROBADA', 'staff-1')).rejects.toThrow(
+      await expect(service.updateStatus('app-1', 'APPROVED', 'staff-1')).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -400,22 +480,22 @@ describe('ApplicationsService', () => {
     it('should call auditService.log on every status change', async () => {
       mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
         id: 'app-1',
-        status: 'ENVIADA',
+        status: 'SUBMITTED',
       });
       mockPrismaRls.adoptionApplication.update.mockResolvedValue({
         id: 'app-1',
-        status: 'REVISANDO',
+        status: 'REVIEWING',
       });
 
-      await service.updateStatus('app-1', 'REVISANDO', 'staff-1');
+      await service.updateStatus('app-1', 'REVIEWING', 'staff-1');
 
       expect(mockAuditService.log).toHaveBeenCalledWith(
         'application.status_change',
         'staff-1',
         expect.objectContaining({
           applicationId: 'app-1',
-          oldStatus: 'ENVIADA',
-          newStatus: 'REVISANDO',
+          oldStatus: 'SUBMITTED',
+          newStatus: 'REVIEWING',
         }),
       );
     });
@@ -423,11 +503,11 @@ describe('ApplicationsService', () => {
 
   describe('withdraw', () => {
     const nonWithdrawableStatuses = [
-      'APROBADA',
-      'SEGUIMIENTO',
-      'ADOPTADA',
-      'RECHAZADA',
-      'DEVUELTA',
+      'APPROVED',
+      'FOLLOW_UP',
+      'ADOPTED',
+      'REJECTED',
+      'RETURNED',
     ];
 
     for (const status of nonWithdrawableStatuses) {
@@ -446,14 +526,14 @@ describe('ApplicationsService', () => {
       mockPublicPrisma.adoptionApplication.findUnique.mockResolvedValue({
         id: 'app-1',
         userId: 'other-user',
-        status: 'ENVIADA',
+        status: 'SUBMITTED',
       });
 
       await expect(service.withdraw('app-1', 'user-1')).rejects.toThrow(ForbiddenException);
     });
 
-    for (const status of ['ENVIADA', 'REVISANDO']) {
-      it(`should set status to RETIRADA when current status is ${status}`, async () => {
+    for (const status of ['SUBMITTED', 'REVIEWING']) {
+      it(`should set status to WITHDRAWN when current status is ${status}`, async () => {
         mockPublicPrisma.adoptionApplication.findUnique.mockResolvedValue({
           id: 'app-1',
           userId: 'user-1',
@@ -461,12 +541,12 @@ describe('ApplicationsService', () => {
         });
         mockPublicPrisma.adoptionApplication.update.mockResolvedValue({
           id: 'app-1',
-          status: 'RETIRADA',
+          status: 'WITHDRAWN',
         });
 
         const result = await service.withdraw('app-1', 'user-1');
 
-        expect(result.status).toBe('RETIRADA');
+        expect(result.status).toBe('WITHDRAWN');
         expect(mockAuditService.log).toHaveBeenCalledWith(
           'application.withdraw',
           'user-1',
@@ -475,6 +555,154 @@ describe('ApplicationsService', () => {
         expect(mockEventsService.emitApplicationWithdrawn).toHaveBeenCalledWith('app-1');
       });
     }
+  });
+
+  // ─── Phase 17 — reservation lifecycle, check-in rows, extended withdraw ─────
+
+  describe('Phase 17 — reservation lifecycle (D-19)', () => {
+    it('[D-19] IN_FOSTER transition reserves animal to IN_PROCESS', async () => {
+      mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
+        id: 'app-1',
+        status: 'IN_MEETING',
+        animalId: 'animal-1',
+        fosterRequired: false,
+      });
+      mockPrismaRls.adoptionApplication.update.mockResolvedValue({
+        id: 'app-1',
+        status: 'IN_FOSTER',
+      });
+
+      await service.updateStatus('app-1', 'IN_FOSTER', 'staff-1');
+
+      expect(mockPrismaRls.animal.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'animal-1' },
+          data: { status: 'IN_PROCESS' },
+        }),
+      );
+    });
+
+    it('[D-19] WITHDRAWN transition releases animal to AVAILABLE', async () => {
+      mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
+        id: 'app-1',
+        status: 'IN_REFLECTION',
+        animalId: 'animal-1',
+        fosterRequired: false,
+        approvedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      });
+      mockPrismaRls.adoptionApplication.update.mockResolvedValue({
+        id: 'app-1',
+        status: 'WITHDRAWN',
+      });
+
+      await service.updateStatus('app-1', 'WITHDRAWN', 'staff-1');
+
+      expect(mockPublicPrisma.animal.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'animal-1' },
+          data: { status: 'AVAILABLE' },
+        }),
+      );
+    });
+
+    it('[D-19] FINALIZED sets animal to ADOPTED and creates check-in rows', async () => {
+      const approvedAt = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+      mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
+        id: 'app-1',
+        status: 'IN_REFLECTION',
+        animalId: 'animal-1',
+        fosterRequired: false,
+        approvedAt,
+      });
+      mockPrismaRls.adoptionApplication.update.mockResolvedValue({
+        id: 'app-1',
+        status: 'FINALIZED',
+      });
+
+      await service.updateStatus('app-1', 'FINALIZED', 'staff-1');
+
+      expect(mockPrismaRls.animal.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'animal-1' },
+          data: { status: 'ADOPTED' },
+        }),
+      );
+      expect(mockPrismaRls.postAdoptionCheckIn.createMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.arrayContaining([
+            expect.objectContaining({ checkInType: 'DAY_14', status: 'PENDING' }),
+            expect.objectContaining({ checkInType: 'DAY_60', status: 'PENDING' }),
+          ]),
+        }),
+      );
+    });
+  });
+
+  describe('Phase 17 — extended self-service withdraw (D-04)', () => {
+    it('[D-04] withdraw allowed from IN_REFLECTION → WITHDRAWN', async () => {
+      mockPublicPrisma.adoptionApplication.findUnique.mockResolvedValue({
+        id: 'app-1',
+        userId: 'user-1',
+        status: 'IN_REFLECTION',
+        animalId: 'animal-1',
+      });
+      mockPublicPrisma.adoptionApplication.update.mockResolvedValue({
+        id: 'app-1',
+        status: 'WITHDRAWN',
+      });
+
+      const result = await service.withdraw('app-1', 'user-1');
+
+      expect(result.status).toBe('WITHDRAWN');
+      expect(mockPublicPrisma.animal.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'animal-1' },
+          data: { status: 'AVAILABLE' },
+        }),
+      );
+    });
+  });
+
+  // ─── Phase 17 — 48h reflexión gate (SAFEGUARD-02) ───────────────────────────
+  //
+  // Pure timestamp comparison — no DB involvement; full integration coverage
+  // lives in the RLS integration spec (Task 3). These unit tests verify the
+  // guard logic in isolation via mocked rlsPrisma.
+
+  describe('Phase 17 — 48h reflexión gate (SAFEGUARD-02)', () => {
+    it('[SAFEGUARD-02] FINALIZED blocked before approvedAt + 48h (pure timestamp comparison)', async () => {
+      // approvedAt = now → gate has NOT elapsed → expect 422
+      const now = new Date();
+      mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
+        id: 'app-1',
+        status: 'IN_REFLECTION',
+        approvedAt: now,
+        fosterRequired: false,
+      });
+
+      await expect(
+        service.updateStatus('app-1', 'FINALIZED', 'staff-1'),
+      ).rejects.toThrow(UnprocessableEntityException);
+    });
+
+    it('[SAFEGUARD-02] FINALIZED allowed after approvedAt + 48h (pure timestamp comparison)', async () => {
+      // approvedAt = 3 days ago → gate has elapsed → expect success
+      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+      mockPrismaRls.adoptionApplication.findUnique.mockResolvedValue({
+        id: 'app-1',
+        status: 'IN_REFLECTION',
+        approvedAt: threeDaysAgo,
+        fosterRequired: false,
+        animalId: 'animal-1',
+      });
+      mockPrismaRls.adoptionApplication.update.mockResolvedValue({
+        id: 'app-1',
+        status: 'FINALIZED',
+      });
+
+      const result = await service.updateStatus('app-1', 'FINALIZED', 'staff-1');
+      expect(result.status).toBe('FINALIZED');
+    });
   });
 
   describe('findStatusHistory', () => {

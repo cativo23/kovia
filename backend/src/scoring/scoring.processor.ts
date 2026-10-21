@@ -41,7 +41,7 @@ export class ScoringProcessor extends WorkerHost {
     const [, returnCount] = await this.rlsBypassPrisma.$transaction([
       this.rlsBypassPrisma.$executeRaw`SELECT set_config('app.is_admin', 'true', true)`,
       this.rlsBypassPrisma.adoptionApplication.count({
-        where: { userId: application.userId, status: 'DEVUELTA' as any },
+        where: { userId: application.userId, status: 'RETURNED' as any },
       }),
     ]);
 

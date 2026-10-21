@@ -19,10 +19,10 @@ import { CreateTeamInviteDto } from './dto/create-team-invite.dto';
 
 // D-06: statuses that block a team invite (applicant has ongoing adoption at inviting org)
 const PENDING_APPLICATION_STATUSES = [
-  'ENVIADA',
-  'REVISANDO',
-  'APROBADA',
-  'SEGUIMIENTO',
+  'SUBMITTED',
+  'REVIEWING',
+  'APPROVED',
+  'FOLLOW_UP',
 ] as const;
 
 type Role = 'ORG_ADMIN' | 'ORG_STAFF';

@@ -5,7 +5,7 @@ const makeApp = (overrides: Record<string, any> = {}) => ({
   id: 'app-1',
   userId: 'user-1',
   organizationId: 'org-current',
-  status: 'ENVIADA',
+  status: 'SUBMITTED',
   submittedAt: new Date('2026-01-15'),
   updatedAt: new Date('2026-01-16'),
   score: 85,
@@ -53,7 +53,7 @@ describe('AdoptersService', () => {
 
   describe('getHistory', () => {
     it('returns full data for current org applications (isOwnOrg=true, score included, animalName included)', async () => {
-      const app = makeApp({ organizationId: 'org-current', score: 80, status: 'ADOPTADA' });
+      const app = makeApp({ organizationId: 'org-current', score: 80, status: 'ADOPTED' });
       mockPublicPrisma.adoptionApplication.findMany.mockResolvedValue([app]);
 
       const result = await service.getHistory('user-1');
@@ -65,7 +65,7 @@ describe('AdoptersService', () => {
     });
 
     it('returns only summaries for other org applications (isOwnOrg=false, score=null, animalName=null)', async () => {
-      const app = makeApp({ organizationId: 'org-other', score: 72, status: 'RECHAZADA' });
+      const app = makeApp({ organizationId: 'org-other', score: 72, status: 'REJECTED' });
       mockPublicPrisma.adoptionApplication.findMany.mockResolvedValue([app]);
 
       const result = await service.getHistory('user-1');
@@ -80,9 +80,9 @@ describe('AdoptersService', () => {
 
     it('computes summary counts correctly (total, adopted, returned)', async () => {
       const apps = [
-        makeApp({ id: 'a1', status: 'ADOPTADA', organizationId: 'org-current' }),
-        makeApp({ id: 'a2', status: 'DEVUELTA', organizationId: 'org-current' }),
-        makeApp({ id: 'a3', status: 'RECHAZADA', organizationId: 'org-current' }),
+        makeApp({ id: 'a1', status: 'ADOPTED', organizationId: 'org-current' }),
+        makeApp({ id: 'a2', status: 'RETURNED', organizationId: 'org-current' }),
+        makeApp({ id: 'a3', status: 'REJECTED', organizationId: 'org-current' }),
       ];
       mockPublicPrisma.adoptionApplication.findMany.mockResolvedValue(apps);
 
@@ -93,11 +93,11 @@ describe('AdoptersService', () => {
       expect(result.summary.returned).toBe(1);
     });
 
-    it('counts DEVUELTA status in returned', async () => {
+    it('counts RETURNED status in returned', async () => {
       const apps = [
-        makeApp({ id: 'a1', status: 'DEVUELTA', organizationId: 'org-current' }),
-        makeApp({ id: 'a2', status: 'DEVUELTA', organizationId: 'org-other' }),
-        makeApp({ id: 'a3', status: 'ADOPTADA', organizationId: 'org-current' }),
+        makeApp({ id: 'a1', status: 'RETURNED', organizationId: 'org-current' }),
+        makeApp({ id: 'a2', status: 'RETURNED', organizationId: 'org-other' }),
+        makeApp({ id: 'a3', status: 'ADOPTED', organizationId: 'org-current' }),
       ];
       mockPublicPrisma.adoptionApplication.findMany.mockResolvedValue(apps);
 
@@ -162,16 +162,16 @@ describe('AdoptersService', () => {
       );
     });
 
-    it('queries ADOPTADA and DEVUELTA status counts separately', async () => {
+    it('queries ADOPTED and RETURNED status counts separately', async () => {
       mockPublicPrisma.adoptionApplication.count.mockResolvedValue(0);
 
       await service.getSummary('user-1');
 
       expect(mockPublicPrisma.adoptionApplication.count).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { userId: 'user-1', status: 'ADOPTADA' } }),
+        expect.objectContaining({ where: { userId: 'user-1', status: 'ADOPTED' } }),
       );
       expect(mockPublicPrisma.adoptionApplication.count).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { userId: 'user-1', status: 'DEVUELTA' } }),
+        expect.objectContaining({ where: { userId: 'user-1', status: 'RETURNED' } }),
       );
     });
   });

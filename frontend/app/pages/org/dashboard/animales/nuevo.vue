@@ -6,7 +6,7 @@
         to="/org/dashboard/animales"
         class="text-sm text-gray-500 hover:text-primary inline-flex items-center gap-1 mb-2"
       >
-        <UIcon name="i-lucide-arrow-left" class="w-4 h-4" />
+        <KIcon name="arrow-left" :size="16" />
         {{ $t('animals.title') }}
       </NuxtLink>
       <h2 class="text-2xl font-bold">{{ $t('animals.create') }}</h2>
@@ -27,10 +27,10 @@
               ? 'bg-primary text-white'
               : currentStep === index
                 ? 'bg-primary text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
+                : 'bg-[var(--color-border)]/40 text-gray-500'
           ]"
         >
-          <UIcon v-if="currentStep > index" name="i-lucide-check" class="w-4 h-4" />
+          <KIcon v-if="currentStep > index" name="check" :size="16" />
           <span v-else>{{ index + 1 }}</span>
         </div>
         <span
@@ -42,7 +42,7 @@
         <div
           v-if="index < steps.length - 1"
           class="flex-1 h-0.5 mx-2"
-          :class="currentStep > index ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'"
+          :class="currentStep > index ? 'bg-primary' : 'bg-[var(--color-border)]/40'"
         />
       </div>
     </div>
@@ -78,29 +78,34 @@
       </div>
 
       <!-- Navigation -->
-      <div class="flex justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-800">
+      <div class="flex justify-between mt-6 pt-4 border-t border-[var(--color-border)]">
         <UButton
           v-if="currentStep > 0"
           variant="outline"
-          icon="i-lucide-arrow-left"
+         
           :label="$t('animals.wizard.prev')"
-          @click="prevStep"
-        />
+          @click="prevStep">
+          <template #leading><KIcon name="arrow-left" /></template>
+        </UButton>
         <div v-else />
 
         <UButton
           v-if="currentStep < steps.length - 1"
-          trailing-icon="i-lucide-arrow-right"
           :label="$t('animals.wizard.next')"
           @click="nextStep"
-        />
+        >
+          <template #trailing>
+            <KIcon name="arrow-right" :size="16" />
+          </template>
+        </UButton>
         <UButton
           v-else
-          icon="i-lucide-check"
+         
           :label="$t('animals.wizard.create')"
           :loading="submitting"
-          @click="createAnimal"
-        />
+          @click="createAnimal">
+          <template #leading><KIcon name="check" /></template>
+        </UButton>
       </div>
     </UCard>
   </div>
@@ -202,12 +207,18 @@ async function createAnimal() {
         key: p.key,
         caption: p.caption || undefined,
       }))
-      await post(`/animals/${animal.id}/photos`, { photos })
+      const savedPhotos = await post<{ id: string; key: string }[]>(`/animals/${animal.id}/photos`, { photos })
 
       // 3. Set cover photo if selected
+      // coverPhoto comes from PhotoUploader local state and only has tempId, not a server id.
+      // Match the chosen cover back to its saved server record by key (the MinIO object key is
+      // stable and present in both the local photo object and the upload payload).
       const coverPhoto = photoUploaderRef.value?.getCoverPhoto()
-      if (coverPhoto && coverPhoto.id) {
-        await patch(`/animals/${animal.id}/photos/cover`, { photoId: coverPhoto.id })
+      if (coverPhoto && Array.isArray(savedPhotos) && savedPhotos.length > 0) {
+        const savedCover = savedPhotos.find((sp) => sp.key === coverPhoto.key)
+        if (savedCover?.id) {
+          await patch(`/animals/${animal.id}/photos/cover`, { photoId: savedCover.id })
+        }
       }
     }
 

@@ -3,7 +3,7 @@
 
 Kovia uses a layered testing strategy across two workspaces:
 
-- **Backend** (`backend/`) — Vitest unit tests for NestJS services, plus a Vitest-based RLS integration suite that requires a live PostgreSQL instance. Jest is also scaffolded in `package.json` for end-to-end NestJS tests but Vitest is the active runner for unit tests.
+- **Backend** (`backend/`) — Vitest unit tests for NestJS services, plus a Vitest-based RLS integration suite that requires a live PostgreSQL instance.
 - **Frontend** (`frontend/`) — Vitest unit tests for Vue components, Pinia stores, composables, and middleware; Playwright end-to-end tests for full browser flows.
 
 All tests run inside Docker. The host machine has no required runtime dependencies.
@@ -16,10 +16,9 @@ All tests run inside Docker. The host machine has no required runtime dependenci
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Vitest | `^4.1.3` | Unit tests for NestJS services |
+| Vitest | `^4.1.3` | Unit and integration tests |
 | `@vitest/coverage-v8` | `^4.1.3` | Coverage collection |
 | `unplugin-swc` | `^1.5.9` | SWC transpiler plugin for Vitest |
-| Jest / `ts-jest` | `^30.0.0` / `^29.2.5` | NestJS e2e test runner (configured via `test/jest-e2e.json`) |
 | `@nestjs/testing` | `^11.0.1` | NestJS `TestingModule` utilities |
 | Supertest | `^7.0.0` | HTTP assertion helper for e2e tests |
 
@@ -92,10 +91,8 @@ docker compose exec api npx vitest
 docker compose exec api npx vitest run --coverage
 ```
 
-The backend `package.json` includes a `test:e2e` script referencing `./test/jest-e2e.json`, but the `backend/test/` directory and that config file have not been created yet:
-
 ```bash
-# Run NestJS e2e tests (requires running services)
+# Run e2e tests (requires running services)
 docker compose exec api npm run test:e2e
 ```
 
@@ -330,6 +327,57 @@ Auth E2E tests use a Mailpit helper to read transactional emails:
 
 ---
 
+## Prisma Client Naming Convention (PATTERN-01)
+
+Every NestJS service that injects Prisma clients MUST follow this naming convention:
+
+| Name | Type | Purpose |
+|------|------|---------|
+| `rlsPrisma` | injected via `@Inject(PRISMA_RLS)` (typed `any`) | RLS-aware client — enforces Row-Level Security for the logged-in tenant |
+| `rlsBypassPrisma` | typed `PublicPrismaService` | RLS-bypass client — use ONLY for platform-level reads/writes that must cross tenant boundaries |
+
+**Rationale:** v2.0 bug B1 was caused by the bypass client being injected as type `PrismaService` and named `publicPrisma`. The name misled reviewers into thinking it was RLS-enforced. The rename to `rlsBypassPrisma: PublicPrismaService` makes the bypass intent explicit and auditable.
+
+Do NOT name a bypass client `prisma`, `prismaService`, `publicPrisma`, or any name that obscures whether RLS is enforced.
+
+**Correct constructor signature:**
+
+```ts
+constructor(
+  @Inject(PRISMA_RLS) private readonly rlsPrisma: any,
+  private readonly rlsBypassPrisma: PublicPrismaService,
+) {}
+```
+
+---
+
+## Integration Spec Mandate (PATTERN-02, PATTERN-03)
+
+### PATTERN-02 — Runtime smoke over code inspection
+
+If a service method chains a nested Prisma `include` AND the result feeds a notification, email, or BullMQ emission, you MUST:
+
+1. Write a real-DB integration spec that calls the method against a live database
+2. Assert that the downstream emission actually occurred (notification row exists, queue job added, etc.)
+
+Code inspection alone is not sufficient. v2.0 bug B3 proved that a broken `include` chain silently drops notifications with zero errors or exceptions — the code looked correct in review.
+
+### PATTERN-03 — Dual-client services require an integration spec
+
+Any service that injects BOTH `@Inject(PRISMA_RLS)` AND `PublicPrismaService` MUST have a sibling `*.integration.spec.ts` file. This is enforced by the CI script `backend/scripts/check-integration-specs.ts`, which fails the build if a dual-client service has no sibling integration spec.
+
+**Accepted spec naming patterns** (place next to the service file):
+- `foo.service.integration.spec.ts`
+- `foo.service.rls.integration.spec.ts`
+
+**Run the integration-spec mandate check locally:**
+
+```bash
+docker compose exec api npx tsx scripts/check-integration-specs.ts
+```
+
+---
+
 ## Coverage Requirements
 
 The project targets **80% or higher coverage** across both frontend and backend. No automated threshold is enforced in the Vitest config files today — the 80% target is a project standard and contributors are expected to maintain it.
@@ -360,9 +408,29 @@ docker compose exec web npx vitest run --coverage
 
 ## CI Integration
 
-No CI/CD pipeline (`.github/workflows/`) is present in the repository at this time. Tests are run manually inside Docker during development.
+Backend tests run automatically on every pull request and push to `main` via `.github/workflows/test.yml`.
 
-<!-- VERIFY: CI pipeline details if added in the future -->
+**Trigger:** `pull_request` (targeting `main`) and `push` to `main`
+
+**Environment:**
+- Runner: `ubuntu-latest`
+- Node: 24
+- Working directory: `backend/`
+- Postgres 16 as a GitHub Actions service container
+
+**Pipeline steps:**
+
+| Step | Description |
+|------|-------------|
+| Install deps | `npm ci` |
+| Bootstrap app_user role | Replays `prisma/init.sql` against the GHA Postgres service (creates `app_user` role) |
+| Generate Prisma client | `npm run prisma:generate` |
+| Run schema migrations | `npm run prisma:migrate:deploy` |
+| Skip-grep guard | Fails if any `.skip`, `.todo`, `.only`, `xit`, `xdescribe`, `fit`, or `fdescribe` pattern is found in spec files (D-08/D-09) |
+| Integration-spec mandate | Runs `backend/scripts/check-integration-specs.ts` — fails if a dual-client service has no sibling `*.integration.spec.ts` (PATTERN-03) |
+| Run tests | `npm test` (Vitest) |
+
+**lcov coverage** reports are produced by `npm test` and available as CI artifacts for tooling integration.
 
 ---
 

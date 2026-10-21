@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmá tu participación</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <tr>
+      <td style="text-align: center; padding-bottom: 24px;">
+        <h1 style="color: #18181b; font-size: 24px; margin: 0;">Kovia</h1>
+      </td>
+    </tr>
+    <tr>
+      <td style="background-color: #ffffff; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h2 style="color: #18181b; font-size: 20px; margin: 0 0 16px;">Hola {{nombre}}, te necesitamos en esta adopción</h2>
+        {{#if adopterFirstName}}
+        <p style="color: #52525b; font-size: 16px; line-height: 1.6; margin: 0 0 16px;">
+          {{adopterFirstName}} quiere adoptar{{#if animalName}} a <strong>{{animalName}}</strong>{{/if}} y ha indicado que serás parte del hogar.
+        </p>
+        {{else}}
+        <p style="color: #52525b; font-size: 16px; line-height: 1.6; margin: 0 0 16px;">
+          Alguien en tu hogar está solicitando adoptar{{#if animalName}} a <strong>{{animalName}}</strong>{{/if}} y te ha indicado como co-aplicante.
+        </p>
+        {{/if}}
+        <p style="color: #52525b; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+          Para confirmar que todos en el hogar están de acuerdo con esta adopción, hacé clic en el botón a continuación. Este enlace vence en 72 horas.
+        </p>
+        <div style="text-align: center; margin: 0 0 24px;">
+          <a href="{{confirmationUrl}}" style="display: inline-block; background-color: #7c3aed; color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; padding: 12px 32px; border-radius: 8px;">
+            Confirmo mi participación
+          </a>
+        </div>
+        <p style="color: #a1a1aa; font-size: 14px; line-height: 1.5; margin: 0;">
+          Si no conocés esta solicitud o no querés participar, podés ignorar este correo.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center; padding-top: 24px;">
+        <p style="color: #a1a1aa; font-size: 12px; margin: 0;">
+          Kovia - Adopción responsable de mascotas
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

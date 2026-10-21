@@ -9,7 +9,11 @@ import {
   Query,
   ParseIntPipe,
   DefaultValuePipe,
+  Req,
+  Res,
 } from '@nestjs/common';
+import type { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import {
   ApiTags,
@@ -28,7 +32,41 @@ import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 @Controller('admin')
 @Roles('PLATFORM_ADMIN')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly config: ConfigService,
+  ) {}
+
+  /**
+   * Relay endpoint that exchanges a Bearer JWT for a short-lived HttpOnly cookie,
+   * then returns { ok: true }. The frontend fetches this via its API client (which
+   * sends the Authorization header), then navigates to /admin/queues in a new tab.
+   * This prevents the access token from ever appearing as a URL query parameter.
+   */
+  @Get('queues-access')
+  @ApiOperation({ summary: 'Exchange Bearer token for bb_token cookie, enabling cookieless Bull Board access' })
+  queuesBoardAccess(@Req() req: Request, @Res() res: Response): void {
+    const authHeader = req.headers['authorization'] as string | undefined;
+    // Guard already validated the JWT; we just need the raw token value for the cookie.
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+
+    if (!token) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    const isProduction = this.config.get<string>('NODE_ENV') === 'production';
+
+    res.cookie('bb_token', token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'strict',
+      path: '/admin/queues',
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
+    res.json({ ok: true });
+  }
 
   @Post('invites')
   @ApiOperation({ summary: 'Create org invite' })
@@ -70,11 +108,13 @@ export class AdminController {
   @ApiOperation({ summary: 'List all users (paginated)' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
   listUsers(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
   ) {
-    return this.adminService.listUsers({ page, limit });
+    return this.adminService.listUsers({ page, limit, search });
   }
 
   @Patch('users/:id/status')

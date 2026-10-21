@@ -99,7 +99,7 @@ describe('EventsService notification creation integration', () => {
 
     const app = await superClient.query(
       `INSERT INTO adoption_applications (id, "userId", "organizationId", "animalId", status, "submittedAt", "updatedAt")
-       VALUES (gen_random_uuid(), $1, $2, $3, 'ENVIADA', NOW(), NOW()) RETURNING id`,
+       VALUES (gen_random_uuid(), $1, $2, $3, 'SUBMITTED', NOW(), NOW()) RETURNING id`,
       [adopterId, orgId, animalId],
     );
     applicationId = app.rows[0].id;
@@ -179,8 +179,8 @@ describe('EventsService notification creation integration', () => {
     );
     await eventsService.emitApplicationStatusChanged(
       applicationId,
-      'ENVIADA',
-      'REVISANDO',
+      'SUBMITTED',
+      'REVIEWING',
     );
     const after = await superClient.query(
       `SELECT COUNT(*)::int AS c FROM notifications WHERE "userId" = $1 AND type = $2 AND "applicationId" = $3`,

@@ -2,23 +2,23 @@
   <div class="text-center space-y-4">
     <!-- Loading state -->
     <template v-if="status === 'loading'">
-      <UIcon name="i-lucide-loader-2" class="w-12 h-12 text-primary mx-auto animate-spin" />
+      <KIcon name="loader-2" :size="48" class="text-primary mx-auto animate-spin" />
       <h2 class="text-xl font-semibold">{{ $t('auth.verifyEmailTitle') }}</h2>
-      <p class="text-gray-600 dark:text-gray-400">{{ $t('common.loading') }}</p>
+      <p class="text-[var(--color-text)]/70">{{ $t('common.loading') }}</p>
     </template>
 
     <!-- Success state -->
     <template v-else-if="status === 'success'">
-      <UIcon name="i-lucide-check-circle" class="w-16 h-16 text-green-500 mx-auto" />
+      <KIcon name="check-circle" :size="64" class="text-green-500 mx-auto" />
       <h2 class="text-xl font-semibold">{{ $t('auth.verifyEmailSuccess') }}</h2>
-      <p class="text-gray-600 dark:text-gray-400">{{ $t('auth.verifyEmailRedirect') }}</p>
+      <p class="text-[var(--color-text)]/70">{{ $t('auth.verifyEmailRedirect') }}</p>
     </template>
 
     <!-- Expired link state -->
     <template v-else-if="status === 'expired'">
-      <UIcon name="i-lucide-clock" class="w-16 h-16 text-amber-500 mx-auto" />
+      <KIcon name="clock" :size="64" class="text-amber-500 mx-auto" />
       <h2 class="text-xl font-semibold">{{ $t('auth.linkExpired') }}</h2>
-      <p class="text-gray-600 dark:text-gray-400">{{ $t('auth.linkExpiredDescription') }}</p>
+      <p class="text-[var(--color-text)]/70">{{ $t('auth.linkExpiredDescription') }}</p>
       <UButton
         :label="$t('auth.resendLink')"
         :loading="resending"
@@ -28,9 +28,9 @@
 
     <!-- Generic error state -->
     <template v-else>
-      <UIcon name="i-lucide-x-circle" class="w-16 h-16 text-red-500 mx-auto" />
+      <KIcon name="x-circle" :size="64" class="text-red-500 mx-auto" />
       <h2 class="text-xl font-semibold">{{ $t('auth.verifyError') }}</h2>
-      <p class="text-gray-600 dark:text-gray-400">{{ errorMessage }}</p>
+      <p class="text-[var(--color-text)]/70">{{ errorMessage }}</p>
       <UButton variant="outline" to="/login" :label="$t('auth.goToLogin')" />
     </template>
   </div>
@@ -81,9 +81,9 @@ onMounted(async () => {
         } catch {
           // If claim fails, still redirect to setup — it will show error
         }
-        navigateTo('/org/setup')
+        await navigateTo('/org/setup')
       } else {
-        navigateTo('/')
+        await navigateTo('/')
       }
     }, 2000)
   }

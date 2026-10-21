@@ -6,10 +6,10 @@
     <div v-if="loading" class="space-y-4">
       <UCard v-for="i in 3" :key="i" class="animate-pulse">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex-shrink-0" />
+          <div class="w-12 h-12 bg-[var(--color-border)]/40 rounded-lg flex-shrink-0" />
           <div class="flex-1 space-y-2">
-            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
-            <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
+            <div class="h-4 bg-[var(--color-border)]/40 rounded w-1/3" />
+            <div class="h-3 bg-[var(--color-border)]/40 rounded w-1/4" />
           </div>
         </div>
       </UCard>
@@ -17,38 +17,65 @@
 
     <!-- Error -->
     <UCard v-else-if="error" class="text-center py-8">
-      <UIcon name="i-lucide-alert-circle" class="w-12 h-12 text-error mx-auto mb-3" />
+      <KIcon name="alert-circle" :size="48" class="text-error mx-auto mb-3" />
       <p class="text-gray-500 mb-4">{{ $t('applications.errors.loadFailed') }}</p>
       <UButton :label="$t('common.retry')" @click="loadApplications" />
     </UCard>
 
     <!-- Empty State (zero applications total across all buckets) -->
     <UCard v-else-if="applications.length === 0" class="text-center py-16">
-      <UIcon name="i-lucide-clipboard-list" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
-      <h2 class="text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
+      <KIcon name="clipboard-list" :size="64" class="text-gray-300 mx-auto mb-4" />
+      <h2 class="text-lg font-bold text-[var(--color-text)]/70 mb-2">
         {{ $t('applications.history.emptyTitle') }}
       </h2>
       <p class="text-gray-500 mb-6">{{ $t('applications.history.emptyBody') }}</p>
       <UButton to="/animales" :label="$t('applications.history.emptyCta')" />
     </UCard>
 
-    <!-- Tabs (Activas / Histórico) -->
-    <UTabs
-      v-else
-      v-model="activeTab"
-      :items="tabItems"
-      :default-value="activeTab"
-    >
+    <!-- Tabs + banner (when applications exist) -->
+    <template v-else>
+      <!-- Co-aplicante pending confirmation banner (APPLY-06) -->
+      <UAlert
+        v-if="pendingCoAplicante.length > 0"
+        class="mb-4"
+        color="warning"
+        :title="$t('applications.coapplicant.bannerTitle')"
+        :description="$t('applications.coapplicant.bannerBody')"
+      />
+
+      <!-- Tabs (Activas / Histórico) -->
+      <UTabs
+        v-model="activeTab"
+        :items="tabItems"
+        :default-value="activeTab"
+      >
       <template #activas>
         <div v-if="activeApps.length === 0" class="text-sm text-gray-500 py-6 text-center">
           {{ $t('applications.emptyByTab.active') }}
         </div>
         <div v-else class="space-y-4">
-          <PanelApplicationRow
-            v-for="app in activeApps"
-            :key="app.id"
-            :app="app"
-          />
+          <div v-for="app in activeApps" :key="app.id">
+            <PanelApplicationRow :app="app" />
+            <!-- Co-aplicante badge (APPLY-07) -->
+            <div class="px-1 pt-1">
+              <UBadge
+                v-if="app.coAplicanteConfirmed"
+                color="success"
+                variant="subtle"
+                class="rounded-full"
+              >
+                {{ $t('applications.coapplicant.confirmed') }}
+              </UBadge>
+              <UBadge
+                v-else-if="app.coAplicanteEmail"
+                color="warning"
+                variant="subtle"
+                class="rounded-full"
+              >
+                {{ $t('applications.coapplicant.pending') }}
+              </UBadge>
+            </div>
+          </div>
         </div>
       </template>
       <template #historico>
@@ -56,14 +83,32 @@
           {{ $t('applications.emptyByTab.historic') }}
         </div>
         <div v-else class="space-y-4">
-          <PanelApplicationRow
-            v-for="app in historicApps"
-            :key="app.id"
-            :app="app"
-          />
+          <div v-for="app in historicApps" :key="app.id">
+            <PanelApplicationRow :app="app" />
+            <!-- Co-aplicante badge (APPLY-07) -->
+            <div class="px-1 pt-1">
+              <UBadge
+                v-if="app.coAplicanteConfirmed"
+                color="success"
+                variant="subtle"
+                class="rounded-full"
+              >
+                {{ $t('applications.coapplicant.confirmed') }}
+              </UBadge>
+              <UBadge
+                v-else-if="app.coAplicanteEmail"
+                color="warning"
+                variant="subtle"
+                class="rounded-full"
+              >
+                {{ $t('applications.coapplicant.pending') }}
+              </UBadge>
+            </div>
+          </div>
         </div>
       </template>
     </UTabs>
+    </template>
   </div>
 </template>
 
@@ -88,6 +133,8 @@ interface ApplicationListItem {
   id: string
   status: ApplicationStatus
   submittedAt: string
+  coAplicanteConfirmed: boolean
+  coAplicanteEmail?: string | null
   animal: {
     id: string
     name: string
@@ -136,6 +183,10 @@ const historicApps = computed(() =>
   applications.value
     .filter(a => (HISTORIC_STATUSES as readonly string[]).includes(a.status))
     .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()),
+)
+
+const pendingCoAplicante = computed(() =>
+  applications.value.filter(a => a.coAplicanteEmail && !a.coAplicanteConfirmed)
 )
 
 async function loadApplications() {

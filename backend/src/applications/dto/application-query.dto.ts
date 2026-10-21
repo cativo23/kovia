@@ -19,7 +19,7 @@ export class ApplicationQueryDto {
   animalId?: string;
 
   @IsOptional()
-  @IsIn(['ENVIADA', 'REVISANDO', 'APROBADA', 'RECHAZADA', 'SEGUIMIENTO', 'ADOPTADA', 'RETIRADA'])
+  @IsIn(['SUBMITTED', 'REVIEWING', 'APPROVED', 'REJECTED', 'FOLLOW_UP', 'ADOPTED', 'WITHDRAWN', 'RETURNED', 'IN_MEETING', 'IN_FOSTER', 'IN_REFLECTION', 'FINALIZED'])
   status?: string;
 
   @IsOptional()
